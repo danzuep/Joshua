@@ -1,0 +1,11 @@
+services:
+  joshua:
+    image: joshua
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005,quiet=y
+    ports:
+      - 5005:5005
+      - 8080:8080

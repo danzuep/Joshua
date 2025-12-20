@@ -5,7 +5,7 @@ Releasing
  2. Update the `docs/CHANGELOG.md`.
  3. `git commit -am "Prepare for release X.Y.Z."` (where X.Y.Z is the new version)
  4. `git tag -a X.Y.Z -m "vX.Y.Z"` (where X.Y.Z is the new version)
- 5. `./gradlew clean assembleRelease`
+ 5. `./gradlew clean assembleRelease` (or `gradle clean assembleRelease` in a dev container)
  6. `git push && git push --tags`
 
 We use [Semantic Versioning](https://semver.org/).
