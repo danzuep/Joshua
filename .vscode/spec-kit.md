@@ -1,0 +1,11 @@
+```sh
+specify init "Joshua"
+```
+
+/speckit.constitution Write a concise project constitution that sets the guiding principles for this repository. Emphasize high code quality (readability, maintainability, consistent style, comprehensive tests), modularity (clear separation of concerns, well‑defined interfaces for constructor injection), simple and predictable UX (including help text for APIs or CLI commands), minimal runtime dependencies (favor actively maintained libraries with few transitive dependencies), and backward‑compatibility with semantic versioning.
+
+/speckit.specify Produce a concise specification based on the current README file and implementation. Include purpose and high‑level architecture, primary use cases, the high-level data model, security/privacy considerations, performance/scale, configurability, and error handling/failure modes. Use reasonable defaults when unspecified and explicitly list any assumptions.
+
+/speckit.plan Produce a development plan and implementation blueprint that implements the specification. Include project layout, module responsibilities and public interfaces, DI approach with rationale, external effects pattern, persistence/storage choices and default file layout, and a testing strategy: unit tests for each module with example test cases and mocking approach, contract tests to validate recorded vs replayed interactions, and an integration test scenario for a local demo flow (step‑by‑step, test data, expected outcomes). Add CI pipeline outline (build, unit tests, contract tests, integration demo job), developer DX notes for running the local demo and updating recordings, and an acceptance checklist enumerating functional and non‑functional requirements. Provide representative function/type signatures, example config files, and a small example CLI command sequence to run the demo.
+
+/speckit.tasks Start with modernising the existing project, then break the plan into a prioritized list of granular tasks grouped by milestones: project scaffolding, core library, testing & CI, demo & docs. For each task include a short title, work description, estimated complexity (S/M/L) with rough time estimate, dependencies, and acceptance criteria. Provide 3–5 tasks per milestone and prioritize them.
