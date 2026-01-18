@@ -3,13 +3,13 @@
 {
 	"name": "Java Development",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/java:1-11",
+	"image": "mcr.microsoft.com/devcontainers/java:1-21",
 
 	"features": {
 		"ghcr.io/devcontainers/features/java:1": {
 			"version": "none",
 			"installGradle": "true",
-			"gradleVersion": "7.6"
+			"gradleVersion": "8.4"
 		},
 			"ghcr.io/devcontainers/features/docker-in-docker:2": {
 			"moby": "false"

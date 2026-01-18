@@ -33,29 +33,29 @@ object Versions {
     }
 
     object Sdk {
-        const val classpath = "7.3.1"
-        const val buildTools = "33.0.1"
+        const val classpath = "8.1.4"
+        const val buildTools = "34.0.0"
         const val compile = 34
         const val min = 19
-        const val target = 33
+        const val target = 34
     }
 
-    val java = JavaVersion.VERSION_11
+    val java = JavaVersion.VERSION_19
 
     object Kotlin {
-        val jvmTarget = java.toString()
-        const val core = "1.8.0"
-        const val coroutines = "1.6.4"
-        const val kover = "0.6.1"
+        const val jvmTarget = "19"
+        const val core = "1.8.21"
+        const val coroutines = "1.7.3"
+        const val kover = "0.8.0"
     }
 
     object AndroidX {
-        const val activity = "1.6.1"
+        const val activity = "1.8.0"
         const val annotation = "1.5.0"
-        const val appCompat = "1.5.1"
-        const val core = "1.9.0"
-        const val fragment = "1.5.5"
-        const val lifecycle = "2.5.1"
+        const val appCompat = "1.6.1"
+        const val core = "1.12.0"
+        const val fragment = "1.6.1"
+        const val lifecycle = "2.7.0"
         const val multidex = "2.0.1"
         const val room = "2.6.1"
 
@@ -85,7 +85,7 @@ object Versions {
     const val ask = "0.5.2"
     const val hilt = "2.44.2"
     const val logger = "0.7.0"
-    const val materialComponent = "1.7.0"
+    const val materialComponent = "1.11.0"
 
     const val mockk = "1.13.3"
     const val mockito = "5.7.0"

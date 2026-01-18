@@ -15,6 +15,8 @@
  */
 
 import java.util.Properties
+import org.gradle.api.JavaVersion
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 
 plugins {
     id("com.android.application")
@@ -167,10 +169,4 @@ dependencies {
     testImplementation(Dependencies.Hilt.test)
     testImplementation(Dependencies.mockk)
     testImplementation(Dependencies.robolectric)
-}
-
-kover {
-    instrumentation {
-        excludeTasks.add("testDebugUnitTest")
-    }
 }

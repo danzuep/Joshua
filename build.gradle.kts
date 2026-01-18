@@ -28,7 +28,6 @@ buildscript {
 }
 
 plugins {
-    id(Dependencies.Kotlin.Kover.plugin) version Versions.Kotlin.kover
     id(Dependencies.Hilt.plugin) version Versions.hilt apply false
 }
 
@@ -39,6 +38,4 @@ allprojects {
 
         maven("https://jitpack.io")
     }
-
-    apply(plugin = "kover")
 }

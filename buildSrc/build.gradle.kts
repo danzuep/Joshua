@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
 repositories {
     mavenCentral()
 }
