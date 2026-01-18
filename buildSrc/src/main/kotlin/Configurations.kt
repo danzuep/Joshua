@@ -35,7 +35,7 @@ object Versions {
     object Sdk {
         const val classpath = "7.3.1"
         const val buildTools = "33.0.1"
-        const val compile = 33
+        const val compile = 34
         const val min = 19
         const val target = 33
     }
@@ -57,6 +57,7 @@ object Versions {
         const val fragment = "1.5.5"
         const val lifecycle = "2.5.1"
         const val multidex = "2.0.1"
+        const val room = "2.6.1"
 
         object View {
             const val constraintLayout = "2.1.4"
@@ -87,6 +88,7 @@ object Versions {
     const val materialComponent = "1.7.0"
 
     const val mockk = "1.13.3"
+    const val mockito = "5.7.0"
     const val robolectric = "4.9.2"
 }
 
@@ -126,6 +128,12 @@ object Dependencies {
             const val viewModel = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.AndroidX.lifecycle}"
         }
 
+        object Room {
+            const val runtime = "androidx.room:room-runtime:${Versions.AndroidX.room}"
+            const val compiler = "androidx.room:room-compiler:${Versions.AndroidX.room}"
+            const val ktx = "androidx.room:room-ktx:${Versions.AndroidX.room}"
+        }
+
         object View {
             const val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.AndroidX.View.constraintLayout}"
             const val coordinatorLayout = "androidx.coordinatorlayout:coordinatorlayout:${Versions.AndroidX.View.coordinatorLayout}"
@@ -163,5 +171,6 @@ object Dependencies {
     const val materialComponent = "com.google.android.material:material:${Versions.materialComponent}"
 
     const val mockk = "io.mockk:mockk:${Versions.mockk}"
+    const val mockito = "org.mockito:mockito-core:${Versions.mockito}"
     const val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
 }
