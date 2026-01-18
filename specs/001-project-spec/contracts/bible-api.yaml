@@ -1,0 +1,111 @@
+openapi: 3.0.0
+info:
+  title: Joshua Bible Repository API
+  version: 1.0.0
+  description: Internal API contracts for Bible data access
+
+paths:
+  /books:
+    get:
+      summary: Get all books for a translation
+      parameters:
+        - name: translation
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+
+  /verses:
+    get:
+      summary: Get verses for a chapter
+      parameters:
+        - name: translation
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: book
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: chapter
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of verses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Verse'
+
+  /search:
+    get:
+      summary: Search verses
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: translation
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Verse'
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        abbreviation:
+          type: string
+      required:
+        - id
+        - name
+        - abbreviation
+
+    Verse:
+      type: object
+      properties:
+        id:
+          type: string
+        text:
+          type: string
+        chapter:
+          type: integer
+        verse:
+          type: integer
+      required:
+        - id
+        - text
+        - chapter
+        - verse
