@@ -1,0 +1,14 @@
+{
+    "folders": [
+        {
+            "path": ".."
+        }
+    ],
+    "settings": {
+        "chat.tools.terminal.autoApprove": {
+            "gradle": true,
+            "./gradlew": true,
+            ".\\gradlew.bat": true
+        }
+    }
+}

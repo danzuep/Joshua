@@ -4,12 +4,20 @@
 [![API](https://img.shields.io/badge/API-19%2B-blue.svg?style=flat)](https://www.android.com/versions/kit-kat-4-4/)
 [![Apache License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
 
+This project was forked [here](https://github.com/danzuep/Joshua) after the [original](https://github.com/xizzhu/Joshua) appears to have been abandoned. My goal was to work with the [WEB](https://ebible.org/engwebu/MRK01.htm) translator create a [FOSS](https://f-droid.org/) app for the many public domain licenced works he has, but I've only gotten as far as updating it from JDK 11 to build in a JDK 25 devcontainer. Some UI unit tests are still failing, feel free to pick some and fix them, but the backend should all be working.
+
 Joshua
 ======
 
-A simple and easy-to-use Bible reader for your Android device, with minimalist design. It supports offline reading, multi-versions, full-text search, and many other features, while maintaining a small download and install size.
+A simple and easy-to-use Bible reader for your Android device, with minimalist design. It supports offline reading, multi-versions, full-text search, and many other features, while maintaining a small download and install size. 
 
 You can download the APK from [Play Store](https://play.google.com/store/apps/details?id=me.xizzhu.android.joshua) or [here](https://github.com/xizzhu/Joshua/releases). Recent changes are listed [here](docs/CHANGELOG.md). Feel free to request new features or report bugs [here](https://github.com/xizzhu/Joshua/issues).
+You can download the APK from [GitHub](https://github.com/danzuep/Joshua/releases). Recent changes are listed [here](docs/CHANGELOG.md). Feel free to request new features or report bugs [here](https://github.com/danzuep/Joshua/issues).
+
+
+A simple and easy-to-use Bible reader for your Android device, with minimalist design. It supports offline reading, multi-versions, full-text search, and many other features, while maintaining a small download and install size.
+
+~~You can download the APK from [Play Store](https://play.google.com/store/apps/details?id=me.xizzhu.android.joshua) or [here](https://github.com/xizzhu/Joshua/releases). Recent changes are listed [here](docs/CHANGELOG.md). Feel free to request new features or report bugs [here](https://github.com/xizzhu/Joshua/issues).~~
 
 Main Features
 -------------
@@ -27,11 +35,11 @@ Main Features
 
 We currently support tens of different translations, with more added regularly. A full list of available translations can be found [here](docs/TRANSLATIONS.md).
 
-Donations
----------
-If you would like to support this project, feel free to donate. Your support is highly appreciated. Thank you!
-* [PayPal](https://paypal.me/xizzhu)
-* [Venmo](https://www.venmo.com/u/xizzhu)
+~~Donations~~
+~~---------~~
+~~If you would like to support this project, feel free to donate. Your support is highly appreciated. Thank you!~~
+~~* [PayPal](https://paypal.me/xizzhu)~~
+~~* [Venmo](https://www.venmo.com/u/xizzhu)~~
 
 License
 -------

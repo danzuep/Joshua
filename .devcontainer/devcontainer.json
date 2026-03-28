@@ -1,0 +1,44 @@
+{
+  "name": "Kotlin Multiplatform Development",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "25",
+      "installGradle": "true",
+      "gradleVersion": "9.4"
+    },
+    "ghcr.io/devcontainers-extra/features/uv:1": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "java.import.generatesMetadataFilesAtProjectRoot": false,
+        "java.import.gradle.wrapper.enabled": true,
+        "kotlin.languageServer.enabled": true,
+        "editor.formatOnSave": true,
+        "files.exclude": {
+          "**/.gradle": true,
+          "**/build": true
+        }
+      },
+      "extensions": [
+        "fwcd.kotlin",
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-gradle",
+        "redhat.vscode-yaml",
+        "GitHub.copilot"
+      ]
+    }
+  },
+  "containerEnv": {
+    "ANDROID_HOME": "/opt/android-sdk",
+    "ANDROID_SDK_ROOT": "/opt/android-sdk"
+  },
+  // "postCreateCommand": "bash -lc 'uv tool install specify-cli --from git+https://github.com/github/spec-kit.git && gradle --version'",
+  "remoteUser": "vscode" // More info: https://aka.ms/dev-containers-non-root.
+}
