@@ -45,7 +45,7 @@ import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import me.xizzhu.android.joshua.infra.BaseViewModelV2
 import me.xizzhu.android.joshua.utils.firstNotEmpty
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import javax.inject.Inject
 import me.xizzhu.android.joshua.preview.Preview
 import me.xizzhu.android.joshua.preview.buildPreviewVerseWithQueryItems
@@ -131,7 +131,7 @@ class SearchViewModel @Inject constructor(
                 val current = searchManager.configuration().first()
                 op(current).takeIf { it != current }?.let { searchManager.saveConfiguration(it) }
             }.onFailure { e ->
-                Log.e(tag, "Error occurred which updating search config", e)
+                Logger.withTag(tag).e(e) { "Error occurred which updating search config" }
                 updateViewState { it.copy(error = ViewState.Error.SearchConfigUpdatingError) }
             }
         }
@@ -208,7 +208,7 @@ class SearchViewModel @Inject constructor(
                 )
             }
         }.onFailure { e ->
-            Log.e(tag, "Error occurred which searching, query=$query instantSearch=$instantSearch", e)
+            Logger.withTag(tag).e(e) { "Error occurred which searching, query=$query instantSearch=$instantSearch" }
             updateViewState { it.copy(loading = false, error = ViewState.Error.VerseSearchingError) }
         }
     }
@@ -299,7 +299,7 @@ class SearchViewModel @Inject constructor(
                 bibleReadingManager.saveCurrentVerseIndex(verseToOpen)
                 emitViewAction(ViewAction.OpenReadingScreen)
             }.onFailure { e ->
-                Log.e(tag, "Failed to save current verse", e)
+                Logger.withTag(tag).e(e) { "Failed to save current verse" }
                 updateViewState { it.copy(error = ViewState.Error.VerseOpeningError(verseToOpen)) }
             }
         }
@@ -320,7 +320,7 @@ class SearchViewModel @Inject constructor(
                 )
                 updateViewState { it.copy(preview = preview) }
             }.onFailure { e ->
-                Log.e(tag, "Failed to load verses for preview", e)
+                Logger.withTag(tag).e(e) { "Failed to load verses for preview" }
                 updateViewState { it.copy(error = ViewState.Error.PreviewLoadingError(verseToPreview)) }
             }
         }

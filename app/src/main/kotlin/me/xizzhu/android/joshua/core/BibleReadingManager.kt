@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.core.repository.BibleReadingRepository
 import me.xizzhu.android.joshua.core.repository.TranslationRepository
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 data class VerseIndex(val bookIndex: Int, val chapterIndex: Int, val verseIndex: Int) {
     companion object {
@@ -92,7 +92,7 @@ class BibleReadingManager(
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error occurred while observing downloaded translations", e)
+            Logger.e(e) { "Error occurred while observing downloaded translations" }
         }
     }
 

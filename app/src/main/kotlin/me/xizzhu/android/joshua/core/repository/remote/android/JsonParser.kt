@@ -21,7 +21,7 @@ import androidx.annotation.VisibleForTesting
 import me.xizzhu.android.joshua.core.Bible
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslationInfo
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 private const val TAG = "JsonParser"
 
@@ -34,7 +34,7 @@ internal fun JsonReader.readListJson(): List<RemoteTranslationInfo> {
             }
             else -> {
                 skipValue()
-                Log.w(TAG, "Unsupported JSON format", RuntimeException("Unsupported JSON format in list.json"))
+                Logger.withTag(TAG).w(RuntimeException("Unsupported JSON format in list.json")) { "Unsupported JSON format" }
             }
         }
     }
@@ -68,13 +68,13 @@ internal fun JsonReader.readTranslation(): RemoteTranslationInfo? {
             "size" -> size = nextLong()
             else -> {
                 skipValue()
-                Log.w(TAG, "Unsupported JSON format", RuntimeException("Unsupported JSON format in list.json"))
+                Logger.withTag(TAG).w(RuntimeException("Unsupported JSON format in list.json")) { "Unsupported JSON format" }
             }
         }
     }
     endObject()
     if (shortName == null || name == null || language == null || size == null) {
-        Log.w(TAG, "Unsupported JSON format", RuntimeException("Illegal 'translation' in list.json - short name: $shortName"))
+        Logger.withTag(TAG).w(RuntimeException("Illegal 'translation' in list.json - short name: $shortName")) { "Unsupported JSON format" }
         return null
     }
     return RemoteTranslationInfo(shortName, name, language, size)
@@ -91,7 +91,7 @@ internal fun JsonReader.readBooksJson(bookNames: MutableList<String>, bookShortN
             "bookShortNames" -> readStringsArray(bookShortNames)
             else -> {
                 skipValue()
-                Log.w(TAG, "Unsupported JSON format", RuntimeException("Unsupported JSON format in books.json"))
+                Logger.withTag(TAG).w(RuntimeException("Unsupported JSON format in books.json")) { "Unsupported JSON format" }
             }
         }
     }
@@ -122,7 +122,7 @@ internal fun JsonReader.readChapterJson(): List<String> {
             }
             else -> {
                 skipValue()
-                Log.w(TAG, "Unsupported JSON format", RuntimeException("Unsupported format in chapter JSON"))
+                Logger.withTag(TAG).w(RuntimeException("Unsupported format in chapter JSON")) { "Unsupported JSON format" }
             }
         }
     }
@@ -142,7 +142,7 @@ internal fun JsonReader.readStrongNumberVerses(): Map<Int, List<Int>> {
             }
         } catch (e: NumberFormatException) {
             skipValue()
-            Log.w(TAG, "Unsupported JSON format", RuntimeException("Unsupported format in Strong number chapter JSON"))
+            Logger.withTag(TAG).w(RuntimeException("Unsupported format in Strong number chapter JSON")) { "Unsupported JSON format" }
         }
     }
     endObject()
@@ -171,7 +171,7 @@ internal fun JsonReader.readStrongNumberWords(): Map<Int, String> {
             words[nextName().toInt()] = nextString()
         } catch (e: NumberFormatException) {
             skipValue()
-            Log.w(TAG, "Unsupported JSON format", RuntimeException("Unsupported format in Strong number words JSON"))
+            Logger.withTag(TAG).w(RuntimeException("Unsupported format in Strong number words JSON")) { "Unsupported JSON format" }
         }
     }
     endObject()
@@ -192,7 +192,7 @@ internal fun JsonReader.readCrossReferences(): Map<Int, List<VerseIndex>> {
             }
         } catch (e: Exception) {
             skipValue()
-            Log.w(TAG, "Unsupported JSON format", RuntimeException("Unsupported format in cross reference chapter JSON"))
+            Logger.withTag(TAG).w(RuntimeException("Unsupported format in cross reference chapter JSON")) { "Unsupported JSON format" }
         }
     }
     endObject()

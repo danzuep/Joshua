@@ -18,11 +18,10 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
-    id("com.google.firebase.crashlytics")
-    id("com.google.gms.google-services")
+    //id("com.google.firebase.crashlytics")
+    //id("com.google.gms.google-services")
+    id(Dependencies.Kotlin.Ksp.plugin)
     id(Dependencies.Hilt.plugin)
-    kotlin("android")
-    kotlin("kapt")
 }
 
 android {
@@ -32,8 +31,10 @@ android {
         sourceCompatibility = Versions.java
         targetCompatibility = Versions.java
     }
-    kotlinOptions {
-        jvmTarget = Versions.Kotlin.jvmTarget
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(Versions.Kotlin.jvmTarget))
+        }
     }
 
     buildToolsVersion = Versions.Sdk.buildTools
@@ -48,21 +49,19 @@ android {
         versionCode = Versions.App.code
         versionName = Versions.App.name
 
-        multiDexEnabled = true
-
-        resourceConfigurations.addAll(Configurations.supportedLocales)
+        androidResources.localeFilters.addAll(Configurations.supportedLocales)
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
-        getByName("debug").java.srcDirs("src/debug/kotlin")
-        getByName("release").java.srcDirs("src/release/kotlin")
-
-        getByName("test").java.srcDirs("src/test/kotlin")
+        getByName("main") { java.setSrcDirs(setOf("src/main/kotlin")) }
+        getByName("debug") { java.setSrcDirs(setOf("src/debug/kotlin")) }
+        getByName("release") { java.setSrcDirs(setOf("src/release/kotlin")) }
+        getByName("test") { java.setSrcDirs(setOf("src/test/kotlin")) }
     }
 
     signingConfigs {
@@ -81,16 +80,21 @@ android {
     }
 
     buildTypes {
-        getByName("release") {
+        release {
             isMinifyEnabled = true
             isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
-        getByName("debug") {
+        debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = " debug"
         }
+    }
+
+    compileOptions {
+        sourceCompatibility = Versions.java
+        targetCompatibility = Versions.java
     }
 
     testOptions {
@@ -102,31 +106,14 @@ android {
         }
     }
 
-    packagingOptions {
-        resources.excludes.addAll(listOf(
-            "META-INF/atomicfu.kotlin_module", "META-INF/AL2.0", "META-INF/LGPL2.1", "META-INF/licenses/*",
-
-            // https://github.com/Kotlin/kotlinx.coroutines/tree/master/kotlinx-coroutines-debug#debug-agent-and-android
-            "win32-x86/attach_hotspot_windows.dll", "win32-x86-64/attach_hotspot_windows.dll"
-        ))
-    }
-}
-
-// allow references to generated code
-kapt {
-    correctErrorTypes = true
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = Versions.Kotlin.jvmTarget
+    packaging {
+        resources.excludes.add("**/NOTNOTICE")
+        jniLibs.excludes.add("**/libshared.so")
     }
 }
 
 dependencies {
     implementation(Dependencies.Kotlin.coroutines)
-
-    debugImplementation(Dependencies.AndroidX.multidex)
     implementation(Dependencies.AndroidX.activity)
     implementation(Dependencies.AndroidX.annotation)
     implementation(Dependencies.AndroidX.appCompat)
@@ -147,10 +134,10 @@ dependencies {
     releaseImplementation(Dependencies.Firebase.Crashlytics.crashlytics)
 
     implementation(Dependencies.Hilt.android)
-    kapt(Dependencies.Hilt.compiler)
+    ksp(Dependencies.Hilt.compiler)
 
     implementation(Dependencies.ask)
-    implementation(Dependencies.logger)
+    implementation(Dependencies.kermit)
     implementation(Dependencies.materialComponent)
 
     testImplementation(Dependencies.Kotlin.test)
@@ -158,15 +145,8 @@ dependencies {
     testImplementation(Dependencies.Kotlin.reflect)
     debugImplementation(Dependencies.AndroidX.Fragment.test)
     testImplementation(Dependencies.AndroidX.Test.core)
-    testImplementation("androidx.test.ext:junit:1.1.4")
-    kaptTest(Dependencies.Hilt.compiler)
+    testImplementation(Dependencies.AndroidX.Test.junit)
     testImplementation(Dependencies.Hilt.test)
     testImplementation(Dependencies.mockk)
     testImplementation(Dependencies.robolectric)
-}
-
-kover {
-    instrumentation {
-        excludeTasks.add("testDebugUnitTest")
-    }
 }

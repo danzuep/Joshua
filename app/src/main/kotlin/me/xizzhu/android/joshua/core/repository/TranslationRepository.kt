@@ -31,7 +31,7 @@ import me.xizzhu.android.joshua.core.provider.TimeProvider
 import me.xizzhu.android.joshua.core.repository.local.LocalTranslationStorage
 import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslationInfo
 import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslationService
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 class TranslationRepository(
     private val localTranslationStorage: LocalTranslationStorage,
@@ -57,7 +57,7 @@ class TranslationRepository(
             try {
                 updateTranslations(readTranslationsFromLocal())
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize translations", e)
+                Logger.e(e) { "Failed to initialize translations" }
                 updateTranslations(emptyList())
             }
         }
@@ -90,12 +90,12 @@ class TranslationRepository(
             try {
                 readTranslationsFromBackend()
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to read translation list from backend", e)
+                Logger.e(e) { "Failed to read translation list from backend" }
                 readTranslationsFromLocal()
             }
         } else {
             readTranslationsFromLocal().ifEmpty {
-                Log.w(TAG, "Have fresh but empty local translation list")
+                Logger.w { "Have fresh but empty local translation list" }
                 readTranslationsFromBackend()
             }
         }
@@ -108,9 +108,9 @@ class TranslationRepository(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     suspend fun readTranslationsFromBackend(): List<TranslationInfo> {
-        Log.i(TAG, "Start fetching translation list")
+        Logger.withTag(TAG).i { "Start fetching translation list" }
         val fetchedTranslations = remoteTranslationService.fetchTranslations()
-        Log.i(TAG, "Translation list downloaded")
+        Logger.withTag(TAG).i { "Translation list downloaded" }
         val localTranslations = readTranslationsFromLocal()
 
         val translations = ArrayList<TranslationInfo>(fetchedTranslations.size)
@@ -132,7 +132,7 @@ class TranslationRepository(
                 localTranslationStorage.saveTranslationListRefreshTimestamp(timeProvider.currentTimeMillis)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to save translation list refresh timestamp", e)
+            Logger.e(e) { "Failed to save translation list refresh timestamp" }
         }
 
         return translations
@@ -168,10 +168,10 @@ class TranslationRepository(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     suspend fun downloadTranslation(downloadProgressChannel: SendChannel<Int>, translationInfo: TranslationInfo) {
-        Log.i(TAG, "Start downloading translation - ${translationInfo.shortName}")
+        Logger.withTag(TAG).i { "Start downloading translation - ${translationInfo.shortName}" }
         val toDownload = RemoteTranslationInfo.fromTranslationInfo(translationInfo)
         val translation = remoteTranslationService.fetchTranslation(downloadProgressChannel, toDownload)
-        Log.i(TAG, "Translation downloaded")
+        Logger.withTag(TAG).i { "Translation downloaded" }
         downloadProgressChannel.trySend(100)
 
         localTranslationStorage.saveTranslation(
@@ -179,15 +179,15 @@ class TranslationRepository(
             translation.bookNames, translation.bookShortNames, translation.verses
         )
         remoteTranslationService.removeTranslationCache(toDownload)
-        Log.i(TAG, "Translation saved to database")
+        Logger.withTag(TAG).i { "Translation saved to database" }
         downloadProgressChannel.trySend(101)
     }
 
     suspend fun removeTranslation(translationInfo: TranslationInfo) {
-        Log.i(TAG, "Start removing translation - ${translationInfo.shortName}")
+        Logger.withTag(TAG).i { "Start removing translation - ${translationInfo.shortName}" }
         localTranslationStorage.removeTranslation(translationInfo)
         remoteTranslationService.removeTranslationCache(RemoteTranslationInfo.fromTranslationInfo(translationInfo))
-        Log.i(TAG, "Translation removed")
+        Logger.withTag(TAG).i { "Translation removed" }
 
         val (available, downloaded) = synchronized(translationsLock) {
             var removed = false

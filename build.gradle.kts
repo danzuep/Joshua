@@ -22,13 +22,11 @@ buildscript {
     dependencies {
         classpath(Dependencies.Sdk.classpath)
         classpath(Dependencies.Kotlin.classpath)
-        classpath(Dependencies.Firebase.classpath)
-        classpath(Dependencies.Firebase.Crashlytics.classpath)
     }
 }
 
 plugins {
-    id(Dependencies.Kotlin.Kover.plugin) version Versions.Kotlin.kover
+    id(Dependencies.Kotlin.Ksp.plugin) version Versions.Kotlin.ksp apply false
     id(Dependencies.Hilt.plugin) version Versions.hilt apply false
 }
 
@@ -36,9 +34,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-
         maven("https://jitpack.io")
     }
-
-    apply(plugin = "kover")
 }

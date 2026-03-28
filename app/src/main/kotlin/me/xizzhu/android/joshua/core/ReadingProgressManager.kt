@@ -26,7 +26,7 @@ import me.xizzhu.android.joshua.core.provider.TimeProvider
 import me.xizzhu.android.joshua.core.repository.BibleReadingRepository
 import me.xizzhu.android.joshua.core.repository.ReadingProgressRepository
 import me.xizzhu.android.joshua.utils.filterIsValid
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 data class ReadingProgress(val continuousReadingDays: Int, val lastReadingTimestamp: Long,
                            val chapterReadingStatus: List<ChapterReadingStatus>) {
@@ -100,7 +100,7 @@ class ReadingProgressManager(
             readingProgressRepository.trackReadingProgress(
                     verseIndex.bookIndex, verseIndex.chapterIndex, timeSpentInMillis, now)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to track reading progress", e)
+            Logger.e(e) { "Failed to track reading progress" }
         }
     }
 

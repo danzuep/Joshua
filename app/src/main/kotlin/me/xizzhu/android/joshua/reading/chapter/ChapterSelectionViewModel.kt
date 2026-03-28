@@ -26,7 +26,7 @@ import me.xizzhu.android.joshua.core.Bible
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.infra.BaseViewModelV2
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 @HiltViewModel
 class ChapterSelectionViewModel @Inject constructor(
@@ -70,7 +70,7 @@ class ChapterSelectionViewModel @Inject constructor(
             runCatching {
                 bibleReadingManager.saveCurrentVerseIndex(VerseIndex(bookIndex = bookToSelect, chapterIndex = chapterToSelect, verseIndex = 0))
             }.onFailure { e ->
-                Log.e(tag, "Failed to select chapter [bookToSelect=$bookToSelect, chapterToSelect=$chapterToSelect]", e)
+                Logger.withTag(tag).e(e) { "Failed to select chapter [bookToSelect=$bookToSelect, chapterToSelect=$chapterToSelect]" }
                 updateViewState { it.copy(error = ViewState.Error.ChapterSelectionError(bookToSelect = bookToSelect, chapterToSelect = chapterToSelect)) }
             }
         }

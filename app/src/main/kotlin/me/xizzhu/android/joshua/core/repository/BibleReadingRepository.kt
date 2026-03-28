@@ -26,7 +26,7 @@ import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.VerseSearchQuery
 import me.xizzhu.android.joshua.core.repository.local.LocalReadingStorage
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 class BibleReadingRepository(private val localReadingStorage: LocalReadingStorage, appScope: CoroutineScope) {
     companion object {
@@ -49,19 +49,19 @@ class BibleReadingRepository(private val localReadingStorage: LocalReadingStorag
             try {
                 _currentVerseIndex.value = localReadingStorage.readCurrentVerseIndex()
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize current verse index", e)
+                Logger.withTag(TAG).e(e) { "Failed to initialize current verse index" }
                 _currentVerseIndex.value = VerseIndex.INVALID
             }
             try {
                 _currentTranslation.value = localReadingStorage.readCurrentTranslation()
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize current translation", e)
+                Logger.withTag(TAG).e(e) { "Failed to initialize current translation" }
                 _currentTranslation.value = ""
             }
             try {
                 _parallelTranslations.value = localReadingStorage.readParallelTranslations()
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize parallel translations", e)
+                Logger.withTag(TAG).e(e) { "Failed to initialize parallel translations" }
                 _parallelTranslations.value = emptyList()
             }
         }

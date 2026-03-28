@@ -59,7 +59,7 @@ import me.xizzhu.android.joshua.utils.currentTimeMillis
 import me.xizzhu.android.joshua.utils.filterIsValid
 import me.xizzhu.android.joshua.utils.filterNotEmpty
 import me.xizzhu.android.joshua.utils.firstNotEmpty
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -134,15 +134,15 @@ class ReadingViewModel @Inject constructor(
         try {
             bibleReadingManager.removeParallelTranslation(translationToSelect)
         } catch (e: Exception) {
-            Log.e(tag, "Failed to remove the selected translation from parallel", e)
+            Logger.withTag(tag).e(e) { "Failed to remove the selected translation from parallel" }
         }
-    }.onFailure { Log.e(tag, "Failed to select translation", it) }
+    }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to select translation" } }
 
     suspend fun currentVerseIndex(): VerseIndex = bibleReadingManager.currentVerseIndex().first { it.isValid() }
 
     fun selectCurrentVerseIndex(verseIndex: VerseIndex): Flow<ViewData<Unit>> = viewData {
         bibleReadingManager.saveCurrentVerseIndex(verseIndex)
-    }.onFailure { Log.e(tag, "Failed to select verse index", it) }
+    }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to select verse index" } }
 
     suspend fun bookName(translationShortName: String, bookIndex: Int): String {
         return bibleReadingManager.readBookNames(translationShortName)[bookIndex]
@@ -266,7 +266,7 @@ class ReadingViewModel @Inject constructor(
 
     fun loadVersesForPreview(verseIndex: VerseIndex): Flow<ViewData<PreviewViewData>> =
         loadPreview(bibleReadingManager, settingsManager, verseIndex, ::toVersePreviewItems)
-            .onFailure { Log.e(tag, "Failed to load verses for preview", it) }
+            .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to load verses for preview" } }
 
     fun verseUpdates(): Flow<VerseUpdate> = verseUpdates
 
@@ -282,7 +282,7 @@ class ReadingViewModel @Inject constructor(
             bookmarkManager.remove(verseIndex)
             verseUpdates.emit(VerseUpdate(verseIndex, VerseUpdate.BOOKMARK_REMOVED))
         }
-    }.onFailure { Log.e(tag, "Failed to update bookmark", it) }
+    }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to update bookmark" } }
 
     fun saveHighlight(verseIndex: VerseIndex, @Highlight.Companion.AvailableColor color: Int): Flow<ViewData<Unit>> = viewData {
         if (color == Highlight.COLOR_NONE) {
@@ -292,7 +292,7 @@ class ReadingViewModel @Inject constructor(
             highlightManager.save(Highlight(verseIndex, color, currentTimeMillis()))
             verseUpdates.emit(VerseUpdate(verseIndex, VerseUpdate.HIGHLIGHT_UPDATED, color))
         }
-    }.onFailure { Log.e(tag, "Failed to update highlight", it) }
+    }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to update highlight" } }
 
     fun saveNote(verseIndex: VerseIndex, note: String): Flow<ViewData<Unit>> = viewData {
         if (note.isEmpty()) {
@@ -314,7 +314,7 @@ class ReadingViewModel @Inject constructor(
                 }
             }
             .catch { e ->
-                Log.e(tag, "Failed to download cross references", e)
+                Logger.withTag(tag).e(e) { "Failed to download cross references" }
                 emit(ViewData.Failure(e))
             }
 
@@ -330,7 +330,7 @@ class ReadingViewModel @Inject constructor(
                 }
             }
             .catch { e ->
-                Log.e(tag, "Failed to download Strong Number", e)
+                Logger.withTag(tag).e(e) { "Failed to download Strong Number" }
                 emit(ViewData.Failure(e))
             }
 

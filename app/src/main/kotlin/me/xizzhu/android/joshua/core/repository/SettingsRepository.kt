@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.repository.local.LocalSettingsStorage
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 class SettingsRepository(private val localSettingsStorage: LocalSettingsStorage, appScope: CoroutineScope) {
     companion object {
@@ -36,7 +36,7 @@ class SettingsRepository(private val localSettingsStorage: LocalSettingsStorage,
             try {
                 _settings.value = localSettingsStorage.readSettings()
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize settings", e)
+                Logger.withTag(TAG).e(e) { "Failed to initialize settings" }
                 _settings.value = Settings.DEFAULT
             }
         }

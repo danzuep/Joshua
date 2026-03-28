@@ -30,7 +30,7 @@ import me.xizzhu.android.joshua.infra.BaseViewModelV2
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
 import me.xizzhu.android.joshua.utils.filterIsValid
 import me.xizzhu.android.joshua.utils.filterNotEmpty
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 @HiltViewModel
 class ReadingToolbarViewModel @Inject constructor(
@@ -93,7 +93,7 @@ class ReadingToolbarViewModel @Inject constructor(
             runCatching {
                 bibleReadingManager.requestParallelTranslation(translationToRequest)
             }.onFailure { e ->
-                Log.e(tag, "Failed to request parallel translation [$translationToRequest]", e)
+                Logger.withTag(tag).e(e) { "Failed to request parallel translation [$translationToRequest]" }
                 updateViewState { it.copy(error = ViewState.Error.ParallelTranslationRequestingError(translationToRequest)) }
             }
         }
@@ -104,7 +104,7 @@ class ReadingToolbarViewModel @Inject constructor(
             runCatching {
                 bibleReadingManager.removeParallelTranslation(translationToRemove)
             }.onFailure { e ->
-                Log.e(tag, "Failed to remove parallel translation [$translationToRemove]", e)
+                Logger.withTag(tag).e(e) { "Failed to remove parallel translation [$translationToRemove]" }
                 updateViewState { it.copy(error = ViewState.Error.ParallelTranslationRemovalError(translationToRemove)) }
             }
         }
@@ -117,9 +117,9 @@ class ReadingToolbarViewModel @Inject constructor(
 
                 runCatching {
                     bibleReadingManager.removeParallelTranslation(translationToSelect)
-                }.onFailure { Log.e(tag, "Failed to remove the selected translation from parallel", it) }
+                }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to remove the selected translation from parallel" } }
             }.onFailure { e ->
-                Log.e(tag, "Failed to select translation [$translationToSelect]", e)
+                Logger.withTag(tag).e(e) { "Failed to select translation [$translationToSelect]" }
                 updateViewState { it.copy(error = ViewState.Error.TranslationSelectionError(translationToSelect)) }
             }
         }

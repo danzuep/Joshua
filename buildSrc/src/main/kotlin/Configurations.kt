@@ -33,30 +33,29 @@ object Versions {
     }
 
     object Sdk {
-        const val classpath = "7.3.1"
-        const val buildTools = "33.0.1"
-        const val compile = 33
-        const val min = 19
-        const val target = 33
+        const val classpath = "9.0.0"
+        const val buildTools = "36.0.0"
+        const val compile = 36
+        const val min = 23
+        const val target = 36
     }
 
-    val java = JavaVersion.VERSION_11
+    val java = JavaVersion.VERSION_25
 
     object Kotlin {
         val jvmTarget = java.toString()
-        const val core = "1.8.0"
-        const val coroutines = "1.6.4"
-        const val kover = "0.6.1"
+        const val core = "2.3.20"
+        const val coroutines = "1.7.3"
+        const val ksp = "2.3.6"
     }
 
     object AndroidX {
-        const val activity = "1.6.1"
+        const val activity = "1.8.0"
         const val annotation = "1.5.0"
-        const val appCompat = "1.5.1"
-        const val core = "1.9.0"
-        const val fragment = "1.5.5"
-        const val lifecycle = "2.5.1"
-        const val multidex = "2.0.1"
+        const val appCompat = "1.6.1"
+        const val core = "1.12.0"
+        const val fragment = "1.6.1"
+        const val lifecycle = "2.7.0"
 
         object View {
             const val constraintLayout = "2.1.4"
@@ -69,12 +68,13 @@ object Versions {
 
         object Test {
             const val core = "1.5.0"
+            const val junit = "1.1.4"
         }
     }
 
     object Firebase {
-        const val classpath = "4.3.10"
-        const val bom = "31.1.1"
+        const val classpath = "4.4.4"
+        const val bom = "34.11.0"
 
         object Crashlytics {
             const val classpath = "2.9.2"
@@ -82,12 +82,11 @@ object Versions {
     }
 
     const val ask = "0.5.2"
-    const val hilt = "2.44.2"
-    const val logger = "0.7.0"
-    const val materialComponent = "1.7.0"
-
-    const val mockk = "1.13.3"
-    const val robolectric = "4.9.2"
+    const val hilt = "2.59.2"
+    const val kermit = "2.0.8"
+    const val materialComponent = "1.11.0"
+    const val mockk = "1.14.9"
+    const val robolectric = "4.16.1"
 }
 
 object Dependencies {
@@ -103,8 +102,8 @@ object Dependencies {
         const val test = "org.jetbrains.kotlin:kotlin-test-junit:${Versions.Kotlin.core}"
         const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.Kotlin.coroutines}"
 
-        object Kover {
-            const val plugin = "org.jetbrains.kotlinx.kover"
+        object Ksp {
+            const val plugin = "com.google.devtools.ksp"
         }
     }
 
@@ -113,7 +112,6 @@ object Dependencies {
         const val annotation = "androidx.annotation:annotation:${Versions.AndroidX.annotation}"
         const val appCompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appCompat}"
         const val core = "androidx.core:core:${Versions.AndroidX.core}"
-        const val multidex = "androidx.multidex:multidex:${Versions.AndroidX.multidex}"
 
         object Fragment {
             const val core = "androidx.fragment:fragment-ktx:${Versions.AndroidX.fragment}"
@@ -137,6 +135,7 @@ object Dependencies {
 
         object Test {
             const val core = "androidx.test:core:${Versions.AndroidX.Test.core}"
+            const val junit = "androidx.test.ext:junit:${Versions.AndroidX.Test.junit}"
         }
     }
 
@@ -159,7 +158,7 @@ object Dependencies {
     }
 
     const val ask = "com.github.xizzhu:ask:${Versions.ask}"
-    const val logger = "me.xizzhu:logger:${Versions.logger}"
+    const val kermit = "co.touchlab:kermit:${Versions.kermit}"
     const val materialComponent = "com.google.android.material:material:${Versions.materialComponent}"
 
     const val mockk = "io.mockk:mockk:${Versions.mockk}"

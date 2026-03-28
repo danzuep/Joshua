@@ -30,9 +30,9 @@ val Context.application: Application get() = applicationContext as Application
 
 val Context.appVersionName: String
     get() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-        application.packageManager.getPackageInfo(application.packageName, 0).versionName
+        application.packageManager.getPackageInfo(application.packageName, 0).versionName ?: "Unknown"
     } else {
-        application.packageManager.getPackageInfo(application.packageName, PackageManager.PackageInfoFlags.of(0)).versionName
+        application.packageManager.getPackageInfo(application.packageName, PackageManager.PackageInfoFlags.of(0)).versionName ?: "Unknown"
     }
 
 // On older devices, this only works on the threads with loopers.

@@ -16,19 +16,24 @@
 
 package me.xizzhu.android.joshua
 
+import android.app.Application
 import android.os.StrictMode
 import androidx.annotation.CallSuper
-import androidx.multidex.MultiDexApplication
-import me.xizzhu.android.logger.Log
-import me.xizzhu.android.logger.LogcatLogger
+import co.touchlab.kermit.Logger
 
-abstract class BaseApp : MultiDexApplication() {
+abstract class BaseApp : Application() {
     @CallSuper
     override fun onCreate() {
         super.onCreate()
-
         StrictMode.enableDefaults()
-
-        Log.addLogger(LogcatLogger())
+        setupGlobalLogger()
     }
+}
+
+fun setupGlobalLogger() {
+    // Configure the global logger instance
+    Logger.setLogWriters(co.touchlab.kermit.platformLogWriter())
+    
+    // Set an optional default tag for the global logger
+    Logger.withTag("Joshua")
 }

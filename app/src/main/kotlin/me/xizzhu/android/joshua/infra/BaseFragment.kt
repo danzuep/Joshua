@@ -27,7 +27,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import me.xizzhu.android.joshua.Navigator
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
@@ -35,7 +35,7 @@ abstract class BaseFragment<VB : ViewBinding, ViewAction, ViewState, VM : BaseVi
     protected val loggingTag: String = javaClass.simpleName
 
     @Inject
-    protected lateinit var navigator: Navigator
+    internal lateinit var navigator: Navigator
 
     protected abstract val viewModel: VM
 
@@ -50,19 +50,19 @@ abstract class BaseFragment<VB : ViewBinding, ViewAction, ViewState, VM : BaseVi
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(loggingTag, "onCreate()")
+        Logger.withTag(loggingTag).i { "onCreate()" }
     }
 
     @CallSuper
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Log.i(loggingTag, "onCreateView()")
+        Logger.withTag(loggingTag).i { "onCreateView()" }
         return viewBinding.root
     }
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.i(loggingTag, "onViewCreated()")
+        Logger.withTag(loggingTag).i { "onViewCreated()" }
 
         initializeView()
 
@@ -81,36 +81,36 @@ abstract class BaseFragment<VB : ViewBinding, ViewAction, ViewState, VM : BaseVi
     @CallSuper
     override fun onStart() {
         super.onStart()
-        Log.i(loggingTag, "onStart()")
+        Logger.withTag(loggingTag).i { "onStart()" }
     }
 
     @CallSuper
     override fun onResume() {
         super.onResume()
-        Log.i(loggingTag, "onResume()")
+        Logger.withTag(loggingTag).i { "onResume()" }
     }
 
     @CallSuper
     override fun onPause() {
         super.onPause()
-        Log.i(loggingTag, "onPause()")
+        Logger.withTag(loggingTag).i { "onPause()" }
     }
 
     @CallSuper
     override fun onStop() {
         super.onStop()
-        Log.i(loggingTag, "onStop()")
+        Logger.withTag(loggingTag).i { "onStop()" }
     }
 
     @CallSuper
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.i(loggingTag, "onSaveInstanceState()")
+        Logger.withTag(loggingTag).i { "onSaveInstanceState()" }
     }
 
     @CallSuper
     override fun onDestroy() {
         super.onDestroy()
-        Log.i(loggingTag, "onDestroy()")
+        Logger.withTag(loggingTag).i { "onDestroy()" }
     }
 }

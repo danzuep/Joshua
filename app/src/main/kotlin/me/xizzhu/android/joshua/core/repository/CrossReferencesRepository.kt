@@ -24,7 +24,7 @@ import me.xizzhu.android.joshua.core.CrossReferences
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.repository.local.LocalCrossReferencesStorage
 import me.xizzhu.android.joshua.core.repository.remote.RemoteCrossReferencesStorage
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 class CrossReferencesRepository(private val localCrossReferencesStorage: LocalCrossReferencesStorage,
                                 private val remoteCrossReferencesStorage: RemoteCrossReferencesStorage) {
@@ -38,13 +38,13 @@ class CrossReferencesRepository(private val localCrossReferencesStorage: LocalCr
         val downloadProgressChannel = Channel<Int>(Channel.CONFLATED)
         launch { downloadProgressChannel.consumeEach { trySend(it) } }
 
-        Log.i(TAG, "Start downloading cross references")
+        Logger.withTag(TAG).i { "Start downloading cross references" }
         val downloaded = remoteCrossReferencesStorage.fetchCrossReferences(downloadProgressChannel)
-        Log.i(TAG, "Cross references downloaded")
+        Logger.withTag(TAG).i { "Cross references downloaded" }
 
         localCrossReferencesStorage.save(downloaded.references)
         remoteCrossReferencesStorage.removeCrossReferencesCache()
-        Log.i(TAG, "Cross references saved to database")
+        Logger.withTag(TAG).i { "Cross references saved to database" }
         downloadProgressChannel.trySend(100)
         downloadProgressChannel.close()
     }

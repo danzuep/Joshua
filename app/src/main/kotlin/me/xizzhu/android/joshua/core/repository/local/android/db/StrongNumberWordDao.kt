@@ -21,7 +21,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import androidx.annotation.WorkerThread
 import me.xizzhu.android.ask.db.*
 import me.xizzhu.android.joshua.core.StrongNumber
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 class StrongNumberWordDao(sqliteHelper: SQLiteOpenHelper) {
     companion object {
@@ -62,7 +62,7 @@ class StrongNumberWordDao(sqliteHelper: SQLiteOpenHelper) {
         return ArrayList<StrongNumber>(strongNumbers.size).apply {
             strongNumbers.forEach { sn ->
                 words[sn]?.let { word -> add(word) }
-                        ?: Log.e(TAG, "", IllegalArgumentException("Strong number $sn is not available"))
+                        ?: Logger.withTag(TAG).w { "Strong number $sn is not available" }
             }
         }
     }

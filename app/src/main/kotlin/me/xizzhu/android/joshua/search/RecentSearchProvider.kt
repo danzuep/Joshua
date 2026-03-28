@@ -40,7 +40,7 @@ class RecentSearchProvider : SearchRecentSuggestionsProvider() {
     }
 
     companion object {
-        private const val AUTHORITY = "${BuildConfig.APPLICATION_ID}.search.RecentSearchProvider"
+        private val AUTHORITY = "${BuildConfig.APPLICATION_ID}.search.RecentSearchProvider"
         private const val MODE = DATABASE_MODE_QUERIES
     }
 

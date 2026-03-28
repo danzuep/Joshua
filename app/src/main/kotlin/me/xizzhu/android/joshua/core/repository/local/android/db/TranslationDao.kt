@@ -24,7 +24,7 @@ import me.xizzhu.android.joshua.core.Bible
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.VerseSearchQuery
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import kotlin.math.max
 
 class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
@@ -53,7 +53,7 @@ class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
 
     @WorkerThread
     private fun SQLiteDatabase.hasTableAndLogIfNoTable(table: String): Boolean = hasTable(table)
-            .also { hasTable -> if (!hasTable) Log.e(TAG, "", IllegalStateException("Missing translation $table")) }
+            .also { hasTable -> if (!hasTable) Logger.withTag(TAG).e { "Missing translation $table" } }
 
     @WorkerThread
     fun read(translationShortName: String, parallelTranslations: List<String>,
@@ -150,7 +150,7 @@ class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
     @WorkerThread
     fun save(translationShortName: String, verses: Map<Pair<Int, Int>, List<String>>) = db.withTransaction {
         if (hasTable(translationShortName)) {
-            Log.e(TAG, "", IllegalStateException("Translation $translationShortName already installed"))
+            Logger.withTag(TAG).e { "Translation $translationShortName already installed" }
             remove(translationShortName)
         }
         createTable(translationShortName) {

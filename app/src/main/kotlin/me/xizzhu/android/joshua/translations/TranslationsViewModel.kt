@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.onEach
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import me.xizzhu.android.joshua.infra.BaseViewModelV2
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 @HiltViewModel
 class TranslationsViewModel @Inject constructor(
@@ -152,7 +152,7 @@ class TranslationsViewModel @Inject constructor(
                 bibleReadingManager.saveCurrentTranslation(translationToSelect.shortName)
                 emitViewAction(ViewAction.GoBack)
             }.onFailure { e ->
-                Log.e(tag, "Failed to select translation", e)
+                Logger.withTag(tag).e(e) { "Failed to select translation" }
                 updateViewState { it.copy(error = ViewState.Error.TranslationSelectionError(translationToSelect)) }
             }
         }
@@ -179,7 +179,7 @@ class TranslationsViewModel @Inject constructor(
                 }
             }
             .catch { e ->
-                Log.e(tag, "Failed to download translation", e)
+                Logger.withTag(tag).e(e) { "Failed to download translation" }
                 updateViewState { current ->
                     current.copy(
                         translationDownloadingState = ViewState.TranslationDownloadingState.Completed(successful = false),
@@ -189,7 +189,7 @@ class TranslationsViewModel @Inject constructor(
             }
             .onCompletion { e ->
                 if (e is CancellationException) {
-                    Log.d(tag, "Translation downloading cancelled")
+                    Logger.withTag(tag).d { "Translation downloading cancelled" }
                     updateViewState { it.copy(translationDownloadingState = ViewState.TranslationDownloadingState.Idle) }
                 }
                 downloadTranslationJob = null
@@ -216,7 +216,7 @@ class TranslationsViewModel @Inject constructor(
                 loadTranslations(forceRefresh = false)
                 updateViewState { it.copy(translationRemovalState = ViewState.TranslationRemovalState.Completed(successful = true)) }
             }.onFailure { e ->
-                Log.e(tag, "Failed to remove translation", e)
+                Logger.withTag(tag).e(e) { "Failed to remove translation" }
                 updateViewState { current ->
                     current.copy(
                         translationRemovalState = ViewState.TranslationRemovalState.Completed(successful = false),

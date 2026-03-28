@@ -30,7 +30,7 @@ import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import me.xizzhu.android.joshua.infra.BaseViewModelV2
 import me.xizzhu.android.joshua.utils.firstNotEmpty
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import javax.inject.Inject
 
 @HiltViewModel
@@ -75,7 +75,7 @@ class ReadingProgressViewModel @Inject constructor(
                 )
                 updateViewState { it.copy(loading = false, items = items) }
             }.onFailure { e ->
-                Log.e(tag, "Error occurred while loading reading progress", e)
+                Logger.withTag(tag).e(e) { "Error occurred while loading reading progress" }
                 updateViewState { it.copy(loading = false, error = ViewState.Error.ReadingProgressLoadingError) }
             }
         }
@@ -146,7 +146,7 @@ class ReadingProgressViewModel @Inject constructor(
                 bibleReadingManager.saveCurrentVerseIndex(verseToOpen)
                 emitViewAction(ViewAction.OpenReadingScreen)
             }.onFailure { e ->
-                Log.e(tag, "Failed to save current verse", e)
+                Logger.withTag(tag).e(e) { "Failed to save current verse" }
                 updateViewState { it.copy(error = ViewState.Error.VerseOpeningError(verseToOpen)) }
             }
         }

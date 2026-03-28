@@ -40,7 +40,7 @@ import me.xizzhu.android.joshua.infra.BaseViewModelV2
 import me.xizzhu.android.joshua.ui.getPrimaryTextSize
 import me.xizzhu.android.joshua.ui.getSecondaryTextSize
 import me.xizzhu.android.joshua.utils.appVersionName
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -152,7 +152,7 @@ class SettingsViewModel @Inject constructor(
                     settingsManager.saveSettings(current.copy(fontSizeScale = fontSizeScale))
                 }
             }.onFailure { e ->
-                Log.e(tag, "Failed to save settings", e)
+                Logger.withTag(tag).e(e) { "Failed to save settings" }
                 updateViewState { it.copy(fontSizeScale = current.fontSizeScale, error = ViewState.Error.SettingsUpdatingError) }
             }
         }
@@ -168,7 +168,7 @@ class SettingsViewModel @Inject constructor(
                 val current = settingsManager.settings().first()
                 op(current).takeIf { it != current }?.let { settingsManager.saveSettings(it) }
             }.onFailure { e ->
-                Log.e(tag, "Failed to save settings", e)
+                Logger.withTag(tag).e(e) { "Failed to save settings" }
                 updateViewState { it.copy(error = ViewState.Error.SettingsUpdatingError) }
             }
         }
@@ -192,7 +192,7 @@ class SettingsViewModel @Inject constructor(
                     }
                 )
             }.onFailure { e ->
-                Log.e(tag, "Failed to save settings", e)
+                Logger.withTag(tag).e(e) { "Failed to save settings" }
                 updateViewState { it.copy(error = ViewState.Error.SettingsUpdatingError) }
             }
         }
@@ -286,8 +286,8 @@ class SettingsViewModel @Inject constructor(
                     ?.use { backupManager.backup(it) }
                     ?: throw IOException("Failed to open Uri for backup - $uri")
                 updateViewState { it.copy(backupState = ViewState.BackupRestoreState.Completed(successful = true)) }
-            }.onFailure {
-                Log.e(tag, "Failed to backup data", it)
+            }.onFailure { e ->
+                Logger.withTag(tag).e(e) { "Failed to backup data" }
                 updateViewState { current ->
                     current.copy(
                         backupState = ViewState.BackupRestoreState.Completed(successful = false),
@@ -311,8 +311,8 @@ class SettingsViewModel @Inject constructor(
                     ?.use { backupManager.restore(it) }
                     ?: throw IOException("Failed to open Uri for restore - $uri")
                 updateViewState { it.copy(restoreState = ViewState.BackupRestoreState.Completed(successful = true)) }
-            }.onFailure {
-                Log.e(tag, "Failed to restore data", it)
+            }.onFailure { e ->
+                Logger.withTag(tag).e(e) { "Failed to restore data" }
                 updateViewState { current ->
                     current.copy(
                         restoreState = ViewState.BackupRestoreState.Completed(successful = false),

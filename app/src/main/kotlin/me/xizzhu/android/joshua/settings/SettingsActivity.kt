@@ -34,7 +34,7 @@ import me.xizzhu.android.joshua.ui.listDialog
 import me.xizzhu.android.joshua.ui.seekBarDialog
 import me.xizzhu.android.joshua.ui.setOnCheckedChangeByUserListener
 import me.xizzhu.android.joshua.ui.setOnSingleClickListener
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 @AndroidEntryPoint
 class SettingsActivity : BaseActivityV2<ActivitySettingsBinding, SettingsViewModel.ViewAction, SettingsViewModel.ViewState, SettingsViewModel>() {
@@ -72,7 +72,7 @@ class SettingsActivity : BaseActivityV2<ActivitySettingsBinding, SettingsViewMod
             try {
                 createFileForBackupLauncher.launch(Intent(Intent.ACTION_CREATE_DOCUMENT).setType("application/json").addCategory(Intent.CATEGORY_OPENABLE))
             } catch (e: Exception) {
-                Log.e(tag, "Failed to start activity to create file for backup", e)
+                Logger.withTag(tag).e(e) { "Failed to start activity to create file for backup" }
                 toast(R.string.toast_unknown_error)
             }
         }
@@ -82,7 +82,7 @@ class SettingsActivity : BaseActivityV2<ActivitySettingsBinding, SettingsViewMod
                     Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), getString(R.string.text_restore_from)
                 ))
             } catch (e: Exception) {
-                Log.e(tag, "Failed to start activity to choose file for restore", e)
+                Logger.withTag(tag).e(e) { "Failed to start activity to choose file for restore" }
                 toast(R.string.toast_unknown_error)
             }
         }

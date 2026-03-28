@@ -31,7 +31,7 @@ import android.widget.CompoundButton
 import android.widget.TextView
 import androidx.annotation.StyleableRes
 import androidx.viewpager2.widget.ViewPager2
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import androidx.recyclerview.widget.RecyclerView
 
 private const val ANIMATION_DURATION = 300L
@@ -129,6 +129,6 @@ fun ViewPager2.makeLessSensitive() {
         val touchSlop = touchSlopField.get(recyclerView) as Int
         touchSlopField.set(recyclerView, touchSlop * 2)
     } catch (t: Throwable) {
-        Log.e("ViewPager2", "Error occurred while trying to make ViewPager2 less sensitive to swipe", t)
+        Logger.withTag("ViewPager2").e(t) { "Error occurred while trying to make ViewPager2 less sensitive to swipe" }
     }
 }

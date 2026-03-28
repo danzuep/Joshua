@@ -39,7 +39,7 @@ import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.provider.TimeProvider
 import me.xizzhu.android.joshua.infra.BaseViewModelV2
 import me.xizzhu.android.joshua.utils.firstNotEmpty
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import java.util.Calendar
 import kotlin.collections.ArrayList
 import me.xizzhu.android.joshua.preview.Preview
@@ -93,7 +93,7 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
                 val items = loadAnnotatedVerses(settings, currentTranslation, sortOrder)
                 updateViewState { it.copy(loading = false, items = items) }
             }.onFailure { e ->
-                Log.e(tag, "Error occurred while loading annotated verses", e)
+                Logger.withTag(tag).e(e) { "Error occurred while loading annotated verses" }
                 updateViewState { it.copy(loading = false, error = ViewState.Error.AnnotatedVersesLoadingError) }
             }
         }.flowOn(coroutineDispatcherProvider.default).launchIn(viewModelScope)
@@ -112,7 +112,7 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
                 )
                 updateViewState { it.copy(loading = false, sortOrder = sortOrder, items = items) }
             }.onFailure { e ->
-                Log.e(tag, "Error occurred while loading annotated verses", e)
+                Logger.withTag(tag).e(e) { "Error occurred while loading annotated verses" }
                 updateViewState { it.copy(loading = false, error = ViewState.Error.AnnotatedVersesLoadingError) }
             }
         }
@@ -228,7 +228,7 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
             runCatching {
                 verseAnnotationManager.saveSortOrder(sortOrder)
             }.onFailure { e ->
-                Log.e(tag, "Failed to save sort order", e)
+                Logger.withTag(tag).e(e) { "Failed to save sort order" }
                 updateViewState { it.copy(error = ViewState.Error.SortOrderSavingError(sortOrder)) }
             }
         }
@@ -240,7 +240,7 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
                 bibleReadingManager.saveCurrentVerseIndex(verseToOpen)
                 emitViewAction(ViewAction.OpenReadingScreen)
             }.onFailure { e ->
-                Log.e(tag, "Failed to save current verse", e)
+                Logger.withTag(tag).e(e) { "Failed to save current verse" }
                 updateViewState { it.copy(error = ViewState.Error.VerseOpeningError(verseToOpen)) }
             }
         }
@@ -260,7 +260,7 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
                 )
                 updateViewState { it.copy(preview = preview) }
             }.onFailure { e ->
-                Log.e(tag, "Failed to load verses for preview", e)
+                Logger.withTag(tag).e(e) { "Failed to load verses for preview" }
                 updateViewState { it.copy(error = ViewState.Error.PreviewLoadingError(verseToPreview)) }
             }
         }

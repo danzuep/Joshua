@@ -68,7 +68,7 @@ import me.xizzhu.android.joshua.ui.progressDialog
 import me.xizzhu.android.joshua.ui.toast
 import me.xizzhu.android.joshua.utils.copyToClipBoard
 import me.xizzhu.android.joshua.utils.shareToSystem
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import kotlin.math.max
 import me.xizzhu.android.joshua.reading.chapter.ChapterSelectionFragment
 import me.xizzhu.android.joshua.reading.toolbar.ReadingToolbarFragment
@@ -136,7 +136,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
                 )
                 toast(R.string.toast_verses_copied)
             } catch (e: Exception) {
-                Log.e(tag, "Failed to copy", e)
+                Logger.withTag(tag).e(e) { "Failed to copy" }
                 toast(R.string.toast_unknown_error)
             } finally {
                 actionMode?.finish()
@@ -154,7 +154,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
                     text = selectedVerses.toStringForSharing(currentBookName, readingViewModel.settings().first().consolidateVersesForSharing)
                 )
             } catch (e: Exception) {
-                Log.e(tag, "Failed to share", e)
+                Logger.withTag(tag).e(e) { "Failed to share" }
                 toast(R.string.toast_unknown_error)
             } finally {
                 actionMode?.finish()
@@ -182,7 +182,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
                 try {
                     chapterSelectionFragment.getFragment<ChapterSelectionFragment>().expandCurrentBook()
                 } catch (e: Exception) {
-                    Log.e(tag, "Error occurred while expanding current book", e)
+                    Logger.withTag(tag).e(e) { "Error occurred while expanding current book" }
                 }
             }
         })
@@ -231,7 +231,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
         try {
             navigator.navigate(this, screen, extras)
         } catch (e: Exception) {
-            Log.e(tag, "Failed to open activity", e)
+            Logger.withTag(tag).e(e) { "Failed to open activity" }
             dialog(true, R.string.dialog_title_error, R.string.dialog_message_failed_to_navigate, { _, _ -> startActivity(screen) })
         }
     }
@@ -246,7 +246,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
         readingViewModel.loadVerses(bookIndex, chapterIndex)
             .onSuccess { verses -> versePagerAdapter.setVerses(bookIndex, chapterIndex, verses.items) }
             .onFailure { e ->
-                Log.e(tag, "Failed to load verses", e)
+                Logger.withTag(tag).e(e) { "Failed to load verses" }
                 dialog(true, R.string.dialog_title_error, R.string.dialog_message_failed_to_load_verses, { _, _ -> loadVerses(bookIndex, chapterIndex) })
             }
             .launchIn(lifecycleScope)
@@ -484,7 +484,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
                     readingViewModel.updateVerse(VerseUpdate(verseIndex, VerseUpdate.VERSE_SELECTED))
                 },
                 onFailure = { e ->
-                    Log.e(tag, "Failed to load verses", e)
+                    Logger.withTag(tag).e(e) { "Failed to load verses" }
                     dialog(true, R.string.dialog_title_error, R.string.dialog_message_failed_to_load_verse_detail, { _, _ -> showVerseDetail(verseIndex, content) })
                 }
             )
@@ -554,7 +554,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
                 )
                 toast(R.string.toast_verses_copied)
             } catch (e: Exception) {
-                Log.e(tag, "Failed to copy", e)
+                Logger.withTag(tag).e(e) { "Failed to copy" }
                 toast(R.string.toast_unknown_error)
             }
         }

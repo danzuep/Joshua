@@ -25,7 +25,7 @@ import me.xizzhu.android.joshua.core.Constants
 import me.xizzhu.android.joshua.core.VerseAnnotation
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.repository.local.LocalVerseAnnotationStorage
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 
 class VerseAnnotationRepository<T : VerseAnnotation>(
         private val localVerseAnnotationStorage: LocalVerseAnnotationStorage<T>,
@@ -43,7 +43,7 @@ class VerseAnnotationRepository<T : VerseAnnotation>(
             try {
                 _sortOrder.value = localVerseAnnotationStorage.readSortOrder()
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to initialize sort order", e)
+                Logger.withTag(TAG).e(e) { "Failed to initialize sort order" }
                 _sortOrder.value = Constants.DEFAULT_SORT_ORDER
             }
         }

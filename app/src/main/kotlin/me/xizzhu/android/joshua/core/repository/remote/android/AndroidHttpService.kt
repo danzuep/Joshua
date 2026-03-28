@@ -19,7 +19,7 @@ package me.xizzhu.android.joshua.core.repository.remote.android
 import android.os.Build
 import android.util.JsonReader
 import kotlinx.coroutines.channels.SendChannel
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -101,12 +101,12 @@ private fun HttpURLConnection.configureTLSIfNecessary(): URLConnection {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 && this is HttpsURLConnection) {
         return this
     }
-    Log.d(TAG, "Enabling TLS v1.2...")
+    Logger.withTag(TAG).d { "Enabling TLS v1.2..." }
     try {
         (this as HttpsURLConnection).sslSocketFactory = tls12SocketFactory
-        Log.d(TAG, "TLS v1.2 enabled")
+        Logger.withTag(TAG).d { "TLS v1.2 enabled" }
     } catch (e: Exception) {
-        Log.e(TAG, "Failed to enable TLS v1.2", e)
+        Logger.withTag(TAG).e(e) { "Failed to enable TLS v1.2" }
     }
     return this
 }

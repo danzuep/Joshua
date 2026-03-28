@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.annotation.IntDef
 import me.xizzhu.android.joshua.annotated.bookmarks.BookmarksActivity
 import me.xizzhu.android.joshua.annotated.highlights.HighlightsActivity
@@ -74,6 +75,10 @@ class Navigator {
     }
 
     fun goBack(activity: Activity) {
-        activity.finish()
+        if (activity is ComponentActivity) {
+            activity.onBackPressedDispatcher.onBackPressed()
+        } else {
+            activity.finish()
+        }
     }
 }

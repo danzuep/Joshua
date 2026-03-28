@@ -24,7 +24,7 @@ import me.xizzhu.android.joshua.core.StrongNumber
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.repository.local.LocalStrongNumberStorage
 import me.xizzhu.android.joshua.core.repository.remote.RemoteStrongNumberStorage
-import me.xizzhu.android.logger.Log
+import co.touchlab.kermit.Logger
 import kotlin.math.min
 
 class StrongNumberRepository(private val localStrongNumberStorage: LocalStrongNumberStorage,
@@ -43,7 +43,7 @@ class StrongNumberRepository(private val localStrongNumberStorage: LocalStrongNu
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun download(versesDownloadProgress: Channel<Int>, wordsDownloadProgress: Channel<Int>) = channelFlow {
-        Log.i(TAG, "Start downloading Strong number")
+        Logger.withTag(TAG).i { "Start downloading Strong number" }
 
         versesDownloadProgress.trySend(0)
         wordsDownloadProgress.trySend(0)
@@ -54,7 +54,7 @@ class StrongNumberRepository(private val localStrongNumberStorage: LocalStrongNu
         val remoteIndexesAsync = async { remoteStrongNumberStorage.fetchIndexes(versesDownloadProgress) }
         val remoteWords = remoteStrongNumberStorage.fetchWords(wordsDownloadProgress)
         val remoteIndexes = remoteIndexesAsync.await()
-        Log.i(TAG, "Strong number downloaded")
+        Logger.withTag(TAG).i { "Strong number downloaded" }
 
         versesDownloadProgress.close()
         wordsDownloadProgress.close()
@@ -62,7 +62,7 @@ class StrongNumberRepository(private val localStrongNumberStorage: LocalStrongNu
         localStrongNumberStorage.save(remoteIndexes.indexes, remoteIndexes.reverseIndexes, remoteWords.words)
         remoteStrongNumberStorage.removeIndexesCache()
         remoteStrongNumberStorage.removeWordsCache()
-        Log.i(TAG, "Strong number saved to database")
+        Logger.withTag(TAG).i { "Strong number saved to database" }
         trySend(100)
     }
 }
