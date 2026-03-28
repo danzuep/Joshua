@@ -76,7 +76,7 @@ sealed class StrongNumberItem(viewType: Int) : VerticalRecyclerViewItem(viewType
         val text: CharSequence,
     ) : StrongNumberItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_text
+            @JvmField val VIEW_TYPE = R.layout.item_text
         }
     }
 
@@ -85,7 +85,7 @@ sealed class StrongNumberItem(viewType: Int) : VerticalRecyclerViewItem(viewType
         val bookName: String,
     ) : StrongNumberItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_title
+            @JvmField val VIEW_TYPE = R.layout.item_title
         }
     }
 
@@ -96,7 +96,7 @@ sealed class StrongNumberItem(viewType: Int) : VerticalRecyclerViewItem(viewType
         private val verseText: String
     ) : StrongNumberItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_strong_number_verse
+            @JvmField val VIEW_TYPE = R.layout.item_strong_number_verse
 
             private val BOOK_NAME_SPANS = createTitleSpans()
             private val SPANNABLE_STRING_BUILDER = SpannableStringBuilder()

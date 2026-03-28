@@ -84,7 +84,7 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
         val text: String,
     ) : SearchItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_title
+            @JvmField val VIEW_TYPE = R.layout.item_title
         }
     }
 
@@ -97,7 +97,7 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
         private val note: String,
     ) : SearchItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_search_note
+            @JvmField val VIEW_TYPE = R.layout.item_search_note
 
             private val BOOK_NAME_SPAN = createTitleStyleSpan()
         }
@@ -130,7 +130,7 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
         @ColorInt private val highlightColor: Int,
     ) : SearchItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_search_verse
+            @JvmField val VIEW_TYPE = R.layout.item_search_verse
 
             private val BOOK_NAME_SPAN = createTitleSpans()
         }

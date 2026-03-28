@@ -83,7 +83,7 @@ sealed class ReadingProgressItem(viewType: Int) : VerticalRecyclerViewItem(viewT
         val finishedNewTestament: Int
     ) : ReadingProgressItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_reading_progress_summary
+            @JvmField val VIEW_TYPE = R.layout.item_reading_progress_summary
         }
     }
 
@@ -96,7 +96,7 @@ sealed class ReadingProgressItem(viewType: Int) : VerticalRecyclerViewItem(viewT
         val expanded: Boolean
     ) : ReadingProgressItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_reading_progress_book
+            @JvmField val VIEW_TYPE = R.layout.item_reading_progress_book
         }
     }
 }

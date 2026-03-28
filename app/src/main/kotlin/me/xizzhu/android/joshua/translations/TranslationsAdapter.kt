@@ -69,7 +69,7 @@ sealed class TranslationsItem(viewType: Int) : VerticalRecyclerViewItem(viewType
         val hideDivider: Boolean,
     ) : TranslationsItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_title
+            @JvmField val VIEW_TYPE = R.layout.item_title
         }
     }
 
@@ -79,7 +79,7 @@ sealed class TranslationsItem(viewType: Int) : VerticalRecyclerViewItem(viewType
         val isCurrentTranslation: Boolean,
     ) : TranslationsItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_translation
+            @JvmField val VIEW_TYPE = R.layout.item_translation
         }
     }
 }

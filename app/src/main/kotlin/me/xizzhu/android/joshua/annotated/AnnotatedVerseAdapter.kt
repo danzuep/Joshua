@@ -90,7 +90,7 @@ sealed class AnnotatedVerseItem(viewType: Int) : VerticalRecyclerViewItem(viewTy
         val hideDivider: Boolean,
     ) : AnnotatedVerseItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_title
+            @JvmField val VIEW_TYPE = R.layout.item_title
         }
     }
 
@@ -103,7 +103,7 @@ sealed class AnnotatedVerseItem(viewType: Int) : VerticalRecyclerViewItem(viewTy
         @Constants.SortOrder private val sortOrder: Int
     ) : AnnotatedVerseItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_annotated_verse_bookmark
+            @JvmField val VIEW_TYPE = R.layout.item_annotated_verse_bookmark
         }
 
         val textForDisplay: CharSequence by lazy(LazyThreadSafetyMode.NONE) {
@@ -140,7 +140,7 @@ sealed class AnnotatedVerseItem(viewType: Int) : VerticalRecyclerViewItem(viewTy
         @Constants.SortOrder private val sortOrder: Int
     ) : AnnotatedVerseItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_annotated_verse_highlight
+            @JvmField val VIEW_TYPE = R.layout.item_annotated_verse_highlight
         }
 
         val textForDisplay: CharSequence by lazy(LazyThreadSafetyMode.NONE) {
@@ -177,7 +177,7 @@ sealed class AnnotatedVerseItem(viewType: Int) : VerticalRecyclerViewItem(viewTy
         val note: String
     ) : AnnotatedVerseItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_annotated_verse_note
+            @JvmField val VIEW_TYPE = R.layout.item_annotated_verse_note
 
             private val BOOK_NAME_STYLE_SPAN = createTitleStyleSpan()
         }

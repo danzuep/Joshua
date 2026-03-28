@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -167,6 +168,23 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Handle back navigation using OnBackPressedDispatcher
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (viewBinding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    viewBinding.drawerLayout.closeDrawer(GravityCompat.START)
+                    return
+                }
+
+                if (hideVerseDetail()) {
+                    return
+                }
+
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+            }
+        })
 
         initializeUi()
         observeSettings()
@@ -434,18 +452,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
         drawerToggle.onConfigurationChanged(newConfig)
     }
 
-    override fun onBackPressed() {
-        if (viewBinding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            viewBinding.drawerLayout.closeDrawer(GravityCompat.START)
-            return
-        }
-
-        if (hideVerseDetail()) {
-            return
-        }
-
-        super.onBackPressed()
-    }
 
     override fun inflateViewBinding(): ActivityReadingBinding = ActivityReadingBinding.inflate(layoutInflater)
 

@@ -78,7 +78,7 @@ sealed class PreviewItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
         private val followingEmptyVerseCount: Int
     ) : PreviewItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_preview_verse
+            @JvmField val VIEW_TYPE = R.layout.item_preview_verse
         }
 
         val textForDisplay: CharSequence by lazy(LazyThreadSafetyMode.NONE) {
@@ -107,7 +107,7 @@ sealed class PreviewItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
         private val followingEmptyVerseCount: Int
     ) : PreviewItem(VIEW_TYPE) {
         companion object {
-            const val VIEW_TYPE = R.layout.item_preview_verse_with_query
+            @JvmField val VIEW_TYPE = R.layout.item_preview_verse_with_query
         }
 
         val textForDisplay: CharSequence by lazy(LazyThreadSafetyMode.NONE) {
