@@ -4,7 +4,7 @@
 [![API](https://img.shields.io/badge/API-19%2B-blue.svg?style=flat)](https://www.android.com/versions/kit-kat-4-4/)
 [![Apache License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
 
-This project was forked [here](https://github.com/danzuep/Joshua) after the [original](https://github.com/xizzhu/Joshua) appears to have been abandoned. My goal was to work with the [WEB](https://ebible.org/engwebu/MRK01.htm) translator create a [FOSS](https://f-droid.org/) app for the many public domain licenced works he has, but I've only gotten as far as updating it from JDK 11 to build in a JDK 25 devcontainer. Some UI unit tests are still failing, feel free to pick some and fix them, but the backend should all be working.
+This project was forked [here](https://github.com/danzuep/Joshua) after the [original](https://github.com/xizzhu/Joshua) appears to have been abandoned. My goal was to work with the [WEB](https://ebible.org/engwebu/MRK01.htm) translator to create a [FOSS](https://f-droid.org/) app for the many public domain licenced works he has, but as this is my first time using Kotlin that may be unrealistic. So far I've updated the project from JDK 11 to build in a JDK 25 devcontainer, and gotten all the unit tests to pass again.
 
 Joshua
 ======

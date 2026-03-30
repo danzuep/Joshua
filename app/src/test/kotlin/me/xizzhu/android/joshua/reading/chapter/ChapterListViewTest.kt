@@ -54,12 +54,12 @@ class ChapterListViewTest : BaseUnitTest() {
             assertEquals(index == 0, chapterListView.isGroupExpanded(index))
         }
 
-        chapterListView.performItemClick(mockk(), 0, 0L)
+        chapterListView.performItemClick(mockk<android.view.View>(relaxed = true), 0, 0L)
         repeat(Bible.BOOK_COUNT) { index ->
             assertFalse(chapterListView.isGroupExpanded(index))
         }
 
-        chapterListView.performItemClick(mockk(), 1, 0L)
+        chapterListView.performItemClick(mockk<android.view.View>(relaxed = true), 1, 0L)
         repeat(Bible.BOOK_COUNT) { index ->
             assertEquals(index == 1, chapterListView.isGroupExpanded(index))
         }

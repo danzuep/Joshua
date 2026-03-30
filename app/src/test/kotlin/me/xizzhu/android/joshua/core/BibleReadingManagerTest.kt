@@ -59,7 +59,8 @@ class BibleReadingManagerTest : BaseUnitTest() {
     @Test
     fun `test updateDownloadedTranslations() for first downloaded translation`() = runTest {
         coEvery { bibleReadingRepository.saveCurrentTranslation(MockContents.cuvShortName) } returns Unit
-        every { bibleReadingRepository.currentTranslation } returns flowOf("")
+        coEvery { bibleReadingRepository.currentTranslation } returns flowOf("")
+        coEvery { bibleReadingRepository.parallelTranslations } returns flowOf(emptyList())
 
         val bibleReadingManager = BibleReadingManager(bibleReadingRepository, translationRepository, testScope)
         bibleReadingManager.updateDownloadedTranslations(listOf(MockContents.cuvTranslationInfo))
@@ -72,7 +73,8 @@ class BibleReadingManagerTest : BaseUnitTest() {
 
     @Test
     fun `test updateDownloadedTranslations() with translations already downloaded`() = runTest {
-        every { bibleReadingRepository.currentTranslation } returns flowOf(MockContents.kjvShortName)
+        coEvery { bibleReadingRepository.currentTranslation } returns flowOf(MockContents.kjvShortName)
+        coEvery { bibleReadingRepository.parallelTranslations } returns flowOf(emptyList())
 
         val bibleReadingManager = BibleReadingManager(bibleReadingRepository, translationRepository, testScope)
         bibleReadingManager.updateDownloadedTranslations(listOf(MockContents.cuvDownloadedTranslationInfo, MockContents.kjvDownloadedTranslationInfo))
@@ -84,8 +86,9 @@ class BibleReadingManagerTest : BaseUnitTest() {
 
     @Test
     fun `test updateDownloadedTranslations() with parallel translations`() = runTest {
-        every { bibleReadingRepository.currentTranslation } returns flowOf(MockContents.kjvShortName)
-        every { bibleReadingRepository.parallelTranslations } returns flowOf(listOf(MockContents.cuvShortName))
+        coEvery { bibleReadingRepository.currentTranslation } returns flowOf(MockContents.kjvShortName)
+        coEvery { bibleReadingRepository.parallelTranslations } returns flowOf(listOf(MockContents.cuvShortName))
+        coEvery { bibleReadingRepository.saveParallelTranslations(any()) } returns Unit
 
         val bibleReadingManager = BibleReadingManager(bibleReadingRepository, translationRepository, testScope)
 
@@ -108,7 +111,7 @@ class BibleReadingManagerTest : BaseUnitTest() {
         bibleReadingManager.updateDownloadedTranslations(listOf(
                 MockContents.kjvDownloadedTranslationInfo, MockContents.bbeDownloadedTranslationInfo
         ))
-        every { bibleReadingRepository.parallelTranslations } returns flowOf(emptyList())
+        coEvery { bibleReadingRepository.parallelTranslations } returns flowOf(emptyList())
         // One more translation installed, and current translation removed. Should update the current.
         coEvery { bibleReadingRepository.saveCurrentTranslation(MockContents.bbeShortName) } returns Unit
         bibleReadingManager.updateDownloadedTranslations(listOf(
