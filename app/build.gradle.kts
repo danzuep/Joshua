@@ -66,7 +66,7 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystorePropertiesFile = File("keystore.properties")
+            val keystorePropertiesFile = rootProject.file("keystore.properties")
             if (keystorePropertiesFile.exists()) {
                 val keystoreProperties = Properties()
                 keystoreProperties.load(keystorePropertiesFile.inputStream())
@@ -83,18 +83,18 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+            // Without a keystore, fall back to the debug key so the APK is still installable.
+            signingConfig = if (rootProject.file("keystore.properties").exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = " debug"
         }
-    }
-
-    compileOptions {
-        sourceCompatibility = Versions.java
-        targetCompatibility = Versions.java
     }
 
     testOptions {
@@ -128,10 +128,6 @@ dependencies {
     implementation(Dependencies.AndroidX.View.recyclerView)
     implementation(Dependencies.AndroidX.View.swipeRefreshLayout)
     implementation(Dependencies.AndroidX.View.viewPager2)
-
-    releaseImplementation(platform(Dependencies.Firebase.bom))
-    releaseImplementation(Dependencies.Firebase.analytics)
-    releaseImplementation(Dependencies.Firebase.Crashlytics.crashlytics)
 
     implementation(Dependencies.Hilt.android)
     ksp(Dependencies.Hilt.compiler)
