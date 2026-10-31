@@ -1,8 +1,6 @@
 name: Release APK smoke test
 on:
   workflow_dispatch:
-  push:
-    branches: [fix-build-warnings]
 
 jobs:
   smoke:
