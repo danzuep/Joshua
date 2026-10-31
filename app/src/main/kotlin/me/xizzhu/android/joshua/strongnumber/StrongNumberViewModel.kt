@@ -32,7 +32,7 @@ import me.xizzhu.android.joshua.core.StrongNumber
 import me.xizzhu.android.joshua.core.StrongNumberManager
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
-import me.xizzhu.android.joshua.infra.BaseViewModelV2
+import me.xizzhu.android.joshua.infra.BaseViewModel
 import me.xizzhu.android.joshua.ui.createTitleSpans
 import me.xizzhu.android.joshua.ui.setSpans
 import me.xizzhu.android.joshua.ui.toCharSequence
@@ -49,7 +49,7 @@ class StrongNumberViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
     private val coroutineDispatcherProvider: CoroutineDispatcherProvider,
     private val savedStateHandle: SavedStateHandle
-) : BaseViewModelV2<StrongNumberViewModel.ViewAction, StrongNumberViewModel.ViewState>(
+) : BaseViewModel<StrongNumberViewModel.ViewAction, StrongNumberViewModel.ViewState>(
     initialViewState = ViewState(
         loading = false,
         items = emptyList(),

@@ -31,7 +31,7 @@ import co.touchlab.kermit.Logger
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
-abstract class BaseFragment<VB : ViewBinding, ViewAction, ViewState, VM : BaseViewModelV2<ViewAction, ViewState>> : Fragment() {
+abstract class BaseFragment<VB : ViewBinding, ViewAction, ViewState, VM : BaseViewModel<ViewAction, ViewState>> : Fragment() {
     protected val loggingTag: String = javaClass.simpleName
 
     @Inject

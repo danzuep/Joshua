@@ -25,13 +25,13 @@ import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.core.Bible
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.VerseIndex
-import me.xizzhu.android.joshua.infra.BaseViewModelV2
+import me.xizzhu.android.joshua.infra.BaseViewModel
 import co.touchlab.kermit.Logger
 
 @HiltViewModel
 class ChapterSelectionViewModel @Inject constructor(
     private val bibleReadingManager: BibleReadingManager,
-) : BaseViewModelV2<ChapterSelectionViewModel.ViewAction, ChapterSelectionViewModel.ViewState>(
+) : BaseViewModel<ChapterSelectionViewModel.ViewAction, ChapterSelectionViewModel.ViewState>(
     initialViewState = ViewState(
         currentBookIndex = -1,
         currentChapterIndex = -1,

@@ -36,7 +36,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
-import me.xizzhu.android.joshua.infra.BaseViewModelV2
+import me.xizzhu.android.joshua.infra.BaseViewModel
 import me.xizzhu.android.joshua.ui.getPrimaryTextSize
 import me.xizzhu.android.joshua.ui.getSecondaryTextSize
 import me.xizzhu.android.joshua.utils.appVersionName
@@ -48,7 +48,7 @@ class SettingsViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
     private val application: Application,
     private val coroutineDispatcherProvider: CoroutineDispatcherProvider
-) : BaseViewModelV2<SettingsViewModel.ViewAction, SettingsViewModel.ViewState>(
+) : BaseViewModel<SettingsViewModel.ViewAction, SettingsViewModel.ViewState>(
     initialViewState = ViewState(
         fontSizeScale = Settings.DEFAULT.fontSizeScale,
         bodyTextSizePx = Settings.DEFAULT.getPrimaryTextSize(application.resources).roundToInt(),

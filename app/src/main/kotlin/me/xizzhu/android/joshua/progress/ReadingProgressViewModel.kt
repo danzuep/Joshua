@@ -28,7 +28,7 @@ import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
-import me.xizzhu.android.joshua.infra.BaseViewModelV2
+import me.xizzhu.android.joshua.infra.BaseViewModel
 import me.xizzhu.android.joshua.utils.firstNotEmpty
 import co.touchlab.kermit.Logger
 import javax.inject.Inject
@@ -39,7 +39,7 @@ class ReadingProgressViewModel @Inject constructor(
     private val readingProgressManager: ReadingProgressManager,
     private val settingsManager: SettingsManager,
     private val coroutineDispatcherProvider: CoroutineDispatcherProvider
-) : BaseViewModelV2<ReadingProgressViewModel.ViewAction, ReadingProgressViewModel.ViewState>(
+) : BaseViewModel<ReadingProgressViewModel.ViewAction, ReadingProgressViewModel.ViewState>(
     initialViewState = ViewState(
         loading = false,
         items = emptyList(),

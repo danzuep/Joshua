@@ -45,7 +45,7 @@ import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
-import me.xizzhu.android.joshua.infra.BaseViewModelV2
+import me.xizzhu.android.joshua.infra.BaseViewModel
 import me.xizzhu.android.joshua.utils.firstNotEmpty
 import co.touchlab.kermit.Logger
 import javax.inject.Inject
@@ -60,7 +60,7 @@ class SearchViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
     private val coroutineDispatcherProvider: CoroutineDispatcherProvider,
     private val application: Application
-) : BaseViewModelV2<SearchViewModel.ViewAction, SearchViewModel.ViewState>(
+) : BaseViewModel<SearchViewModel.ViewAction, SearchViewModel.ViewState>(
     initialViewState = ViewState(
         loading = false,
         searchConfig = null,

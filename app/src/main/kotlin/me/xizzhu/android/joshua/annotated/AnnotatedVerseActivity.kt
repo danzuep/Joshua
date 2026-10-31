@@ -25,7 +25,7 @@ import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.VerseAnnotation
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import me.xizzhu.android.joshua.databinding.ActivityAnnotatedBinding
-import me.xizzhu.android.joshua.infra.BaseActivityV2
+import me.xizzhu.android.joshua.infra.BaseActivity
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.fadeIn
 import me.xizzhu.android.joshua.ui.listDialog
@@ -35,7 +35,7 @@ import me.xizzhu.android.joshua.preview.PreviewAdapter
 
 abstract class AnnotatedVerseActivity<V : VerseAnnotation, VM : AnnotatedVerseViewModel<V>>(
     @StringRes private val toolbarText: Int
-) : BaseActivityV2<ActivityAnnotatedBinding, AnnotatedVerseViewModel.ViewAction, AnnotatedVerseViewModel.ViewState, VM>() {
+) : BaseActivity<ActivityAnnotatedBinding, AnnotatedVerseViewModel.ViewAction, AnnotatedVerseViewModel.ViewState, VM>() {
     @Inject
     lateinit var coroutineDispatcherProvider: CoroutineDispatcherProvider
 

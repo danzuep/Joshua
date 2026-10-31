@@ -28,7 +28,7 @@ import me.xizzhu.android.joshua.Navigator
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.databinding.ActivitySettingsBinding
 import me.xizzhu.android.joshua.ui.toast
-import me.xizzhu.android.joshua.infra.BaseActivityV2
+import me.xizzhu.android.joshua.infra.BaseActivity
 import me.xizzhu.android.joshua.ui.indeterminateProgressDialog
 import me.xizzhu.android.joshua.ui.listDialog
 import me.xizzhu.android.joshua.ui.seekBarDialog
@@ -37,7 +37,7 @@ import me.xizzhu.android.joshua.ui.setOnSingleClickListener
 import co.touchlab.kermit.Logger
 
 @AndroidEntryPoint
-class SettingsActivity : BaseActivityV2<ActivitySettingsBinding, SettingsViewModel.ViewAction, SettingsViewModel.ViewState, SettingsViewModel>() {
+class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel.ViewAction, SettingsViewModel.ViewState, SettingsViewModel>() {
     private val createFileForBackupLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) viewModel.backup(result.data?.data)
     }

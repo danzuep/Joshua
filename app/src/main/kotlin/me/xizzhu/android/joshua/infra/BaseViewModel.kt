@@ -16,52 +16,29 @@
 
 package me.xizzhu.android.joshua.infra
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.transform
-import me.xizzhu.android.joshua.core.Settings
-import me.xizzhu.android.joshua.core.SettingsManager
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-abstract class BaseViewModel(protected val settingsManager: SettingsManager, protected val application: Application) : ViewModel() {
-    sealed class ViewData<T> {
-        data class Loading<T>(val data: T? = null) : ViewData<T>()
-        data class Success<T>(val data: T) : ViewData<T>()
-        data class Failure<T>(val throwable: Throwable) : ViewData<T>()
-    }
-
+abstract class BaseViewModel<ViewAction, ViewState>(initialViewState: ViewState) : ViewModel() {
     protected val tag: String = javaClass.simpleName
 
-    fun settings(): Flow<Settings> = settingsManager.settings()
-}
+    private val viewAction: MutableSharedFlow<ViewAction> = MutableSharedFlow()
+    private val viewState: MutableStateFlow<ViewState> = MutableStateFlow(initialViewState)
 
-inline fun <R> viewData(crossinline op: suspend () -> R): Flow<BaseViewModel.ViewData<R>> = flow {
-    try {
-        emit(BaseViewModel.ViewData.Loading())
-        emit(BaseViewModel.ViewData.Success(op()))
-    } catch (e: Exception) {
-        emit(BaseViewModel.ViewData.Failure(e))
+    fun viewAction(): Flow<ViewAction> = viewAction
+
+    fun emitViewAction(action: ViewAction) {
+        viewModelScope.launch { viewAction.emit(action) }
     }
-}
 
-inline fun <D> Flow<BaseViewModel.ViewData<D>>.onSuccess(crossinline onSuccess: (D) -> Unit): Flow<BaseViewModel.ViewData<D>> = transform { value ->
-    if (value is BaseViewModel.ViewData.Success) onSuccess(value.data)
-    return@transform emit(value)
-}
+    fun viewState(): Flow<ViewState> = viewState
 
-inline fun <D> Flow<BaseViewModel.ViewData<D>>.onFailure(crossinline onFailure: (Throwable) -> Unit): Flow<BaseViewModel.ViewData<D>> = transform { value ->
-    if (value is BaseViewModel.ViewData.Failure) onFailure(value.throwable)
-    return@transform emit(value)
-}
-
-inline fun <D> Flow<BaseViewModel.ViewData<D>>.onEach(
-        crossinline onLoading: (D?) -> Unit, crossinline onSuccess: (D) -> Unit, crossinline onFailure: (Throwable) -> Unit
-): Flow<BaseViewModel.ViewData<D>> = transform { value ->
-    when (value) {
-        is BaseViewModel.ViewData.Loading<D> -> onLoading(value.data)
-        is BaseViewModel.ViewData.Success -> onSuccess(value.data)
-        is BaseViewModel.ViewData.Failure -> onFailure(value.throwable)
+    protected fun updateViewState(block: (currentViewState: ViewState) -> ViewState?) {
+        viewState.update { block(it) ?: it }
     }
-    return@transform emit(value)
 }

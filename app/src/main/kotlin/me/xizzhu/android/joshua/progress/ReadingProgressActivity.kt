@@ -24,13 +24,13 @@ import me.xizzhu.android.joshua.Navigator
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import me.xizzhu.android.joshua.databinding.ActivityReadingProgressBinding
-import me.xizzhu.android.joshua.infra.BaseActivityV2
+import me.xizzhu.android.joshua.infra.BaseActivity
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.fadeIn
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ReadingProgressActivity : BaseActivityV2<ActivityReadingProgressBinding, ReadingProgressViewModel.ViewAction, ReadingProgressViewModel.ViewState, ReadingProgressViewModel>() {
+class ReadingProgressActivity : BaseActivity<ActivityReadingProgressBinding, ReadingProgressViewModel.ViewAction, ReadingProgressViewModel.ViewState, ReadingProgressViewModel>() {
     @Inject
     lateinit var coroutineDispatcherProvider: CoroutineDispatcherProvider
 

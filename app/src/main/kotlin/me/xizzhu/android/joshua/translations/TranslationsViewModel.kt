@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
-import me.xizzhu.android.joshua.infra.BaseViewModelV2
+import me.xizzhu.android.joshua.infra.BaseViewModel
 import co.touchlab.kermit.Logger
 
 @HiltViewModel
@@ -47,7 +47,7 @@ class TranslationsViewModel @Inject constructor(
     private val settingsManager: SettingsManager,
     private val application: Application,
     private val coroutineDispatcherProvider: CoroutineDispatcherProvider,
-) : BaseViewModelV2<TranslationsViewModel.ViewAction, TranslationsViewModel.ViewState>(
+) : BaseViewModel<TranslationsViewModel.ViewAction, TranslationsViewModel.ViewState>(
     initialViewState = ViewState(
         loading = true,
         items = emptyList(),

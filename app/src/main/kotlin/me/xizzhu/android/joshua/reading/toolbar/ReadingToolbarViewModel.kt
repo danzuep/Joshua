@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.TranslationManager
-import me.xizzhu.android.joshua.infra.BaseViewModelV2
+import me.xizzhu.android.joshua.infra.BaseViewModel
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
 import me.xizzhu.android.joshua.utils.filterIsValid
 import me.xizzhu.android.joshua.utils.filterNotEmpty
@@ -37,7 +37,7 @@ class ReadingToolbarViewModel @Inject constructor(
     private val bibleReadingManager: BibleReadingManager,
     translationManager: TranslationManager,
     application: Application
-) : BaseViewModelV2<ReadingToolbarViewModel.ViewAction, ReadingToolbarViewModel.ViewState>(
+) : BaseViewModel<ReadingToolbarViewModel.ViewAction, ReadingToolbarViewModel.ViewState>(
     initialViewState = ViewState(
         title = application.getString(R.string.app_name),
         translationItems = emptyList(),
