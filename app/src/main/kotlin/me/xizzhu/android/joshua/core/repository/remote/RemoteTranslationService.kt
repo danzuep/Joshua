@@ -41,5 +41,8 @@ interface RemoteTranslationService {
 
     suspend fun fetchTranslation(downloadProgress: SendChannel<Int>, translationInfo: RemoteTranslationInfo): RemoteTranslation
 
+    /** Translations prepackaged in the APK assets; empty for regular builds. */
+    suspend fun fetchBundledTranslations(): List<RemoteTranslation> = emptyList()
+
     suspend fun removeTranslationCache(translationInfo: RemoteTranslationInfo)
 }

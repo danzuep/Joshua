@@ -60,7 +60,29 @@ class TranslationRepository(
                 Logger.e(e) { "Failed to initialize translations" }
                 updateTranslations(emptyList())
             }
+
+            try {
+                installBundledTranslations()
+            } catch (e: Exception) {
+                Logger.e(e) { "Failed to install bundled translations" }
+            }
         }
+    }
+
+    private suspend fun installBundledTranslations() {
+        if (_downloadedTranslations.value?.isNotEmpty() == true) return
+
+        val bundled = remoteTranslationService.fetchBundledTranslations()
+        if (bundled.isEmpty()) return
+
+        Logger.withTag(TAG).i { "Installing bundled translations - ${bundled.map { it.translationInfo.shortName }}" }
+        bundled.forEach { translation ->
+            localTranslationStorage.saveTranslation(
+                translation.translationInfo.toTranslationInfo(true),
+                translation.bookNames, translation.bookShortNames, translation.verses
+            )
+        }
+        updateTranslations(readTranslationsFromLocal())
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

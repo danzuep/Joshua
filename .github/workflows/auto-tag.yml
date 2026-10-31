@@ -1,0 +1,42 @@
+name: Auto Tag
+# Bumps the version tag when a PR is merged into master, based on the first word of the PR title:
+#   "major ..." -> X+1.0.0, "minor ..." -> X.Y+1.0, anything else -> X.Y.Z+1
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  tag:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.merge_commit_sha }}
+    - name: Create tag and start the release
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        latest=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n 1)
+        latest=${latest:-v0.0.0}
+        IFS=. read -r major minor patch <<< "${latest#v}"
+
+        first_word=$(echo "$PR_TITLE" | awk '{print tolower($1)}' | tr -cd 'a-z')
+        case "$first_word" in
+          major) major=$((major + 1)); minor=0; patch=0 ;;
+          minor) minor=$((minor + 1)); patch=0 ;;
+          *) patch=$((patch + 1)) ;;
+        esac
+        tag="v$major.$minor.$patch"
+
+        git tag "$tag"
+        git push origin "$tag"
+        # Pushes made with GITHUB_TOKEN don't trigger other workflows, so start the release explicitly.
+        gh workflow run release.yml --ref "$tag"
