@@ -41,7 +41,7 @@ class HttpStrongNumberServiceTest : BaseUnitTest() {
 
     @Test
     fun `test toRemoteStrongNumberIndexes()`() {
-        val actual = strongNumberService.toRemoteStrongNumberIndexes(javaClass.classLoader.getResourceAsStream("sn_indexes.zip"))
+        val actual = strongNumberService.toRemoteStrongNumberIndexes(javaClass.classLoader!!.getResourceAsStream("sn_indexes.zip"))
         (0 until Bible.BOOK_COUNT).forEach { bookIndex ->
             (0 until Bible.getChapterCount(bookIndex)).forEach { chapterIndex ->
                 assertTrue(actual.indexes.containsKey(VerseIndex(bookIndex, chapterIndex, 0)))
@@ -52,7 +52,7 @@ class HttpStrongNumberServiceTest : BaseUnitTest() {
 
     @Test
     fun `test toRemoteStrongNumberWords()`() {
-        val actual = strongNumberService.toRemoteStrongNumberWords(javaClass.classLoader.getResourceAsStream("sn_en.zip"))
+        val actual = strongNumberService.toRemoteStrongNumberWords(javaClass.classLoader!!.getResourceAsStream("sn_en.zip"))
         assertEquals(Constants.STRONG_NUMBER_HEBREW_COUNT + Constants.STRONG_NUMBER_GREEK_COUNT, actual.words.size)
     }
 }
