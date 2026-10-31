@@ -46,7 +46,7 @@ object Versions {
         val jvmTarget = java.toString()
         const val core = "2.3.20"
         const val coroutines = "1.11.0"
-        const val ksp = "2.3.13"
+        const val ksp = "2.3.6"
     }
 
     object AndroidX {
@@ -82,7 +82,7 @@ object Versions {
     }
 
     const val ask = "0.5.2"
-    const val hilt = "2.60.1"
+    const val hilt = "2.59.2"
     const val kermit = "2.2.0"
     const val materialComponent = "1.11.0"
     const val mockk = "1.14.11"
