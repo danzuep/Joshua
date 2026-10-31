@@ -17,11 +17,13 @@
 package me.xizzhu.android.joshua.strongnumber
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -35,6 +37,7 @@ import me.xizzhu.android.joshua.tests.BaseUnitTest
 import me.xizzhu.android.joshua.tests.MockContents
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -61,6 +64,13 @@ class StrongNumberViewModelTest : BaseUnitTest() {
         savedStateHandle = mockk<SavedStateHandle>().apply { every { get<String>("me.xizzhu.android.joshua.KEY_STRONG_NUMBER") } returns "" }
 
         strongNumberViewModel = StrongNumberViewModel(bibleReadingManager, strongNumberManager, settingsManager, testCoroutineDispatcherProvider, savedStateHandle)
+    }
+
+    @AfterTest
+    override fun tearDown() {
+        // Stop the view model's collectors so nothing leaks into the next test
+        strongNumberViewModel.viewModelScope.cancel()
+        super.tearDown()
     }
 
     @Test

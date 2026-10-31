@@ -53,6 +53,27 @@ class TranslationRepositoryTest : BaseUnitTest() {
         coEvery { localTranslationStorage.readTranslations() } returns emptyList()
 
         remoteTranslationService = mockk()
+        coEvery { remoteTranslationService.fetchBundledTranslations() } returns emptyList()
+    }
+
+    @Test
+    fun `test bundled translations are installed by constructor`() = runTest {
+        val bundled = RemoteTranslation(
+            RemoteTranslationInfo.fromTranslationInfo(MockContents.kjvTranslationInfo),
+            MockContents.kjvBookNames, MockContents.kjvBookShortNames, MockContents.kjvVerses.toMap()
+        )
+        coEvery { remoteTranslationService.fetchBundledTranslations() } returns listOf(bundled)
+        coEvery { localTranslationStorage.saveTranslation(any(), any(), any(), any()) } returns Unit
+        coEvery { localTranslationStorage.readTranslations() } returnsMany listOf(emptyList(), listOf(MockContents.kjvDownloadedTranslationInfo))
+
+        val translationRepository = TranslationRepository(localTranslationStorage, remoteTranslationService, TestTimeProvider(), testScope)
+
+        assertEquals(listOf(MockContents.kjvDownloadedTranslationInfo), translationRepository.downloadedTranslations.first())
+        coVerify(exactly = 1) {
+            localTranslationStorage.saveTranslation(
+                MockContents.kjvDownloadedTranslationInfo, MockContents.kjvBookNames, MockContents.kjvBookShortNames, any()
+            )
+        }
     }
 
     @Test

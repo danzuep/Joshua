@@ -28,7 +28,7 @@ import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslationService
 import java.io.*
 import java.util.zip.ZipInputStream
 
-class HttpTranslationService(context: Context) : RemoteTranslationService {
+class HttpTranslationService(private val context: Context) : RemoteTranslationService {
     private val cacheDir: File by lazy { File(context.cacheDir, "translations").apply { mkdirs() } }
 
     override suspend fun fetchTranslations(): List<RemoteTranslationInfo> = withContext(Dispatchers.IO) {
@@ -67,6 +67,17 @@ class HttpTranslationService(context: Context) : RemoteTranslationService {
         }
 
         return RemoteTranslation(translationInfo, bookNames, bookShortNames, verses)
+    }
+
+    override suspend fun fetchBundledTranslations(): List<RemoteTranslation> = withContext(Dispatchers.IO) {
+        val infos = try {
+            context.assets.open("bundled/list.json").use { toRemoteTranslations(it) }
+        } catch (_: FileNotFoundException) {
+            return@withContext emptyList()
+        }
+        infos.map { info ->
+            context.assets.open("bundled/translations/${info.shortName}.zip").use { toRemoteTranslation(info, it) }
+        }
     }
 
     override suspend fun removeTranslationCache(translationInfo: RemoteTranslationInfo): Unit = withContext(Dispatchers.IO) {

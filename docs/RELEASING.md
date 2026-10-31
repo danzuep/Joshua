@@ -36,3 +36,8 @@ KEY_PASSWORD=<key password>
 For CI, set the optional secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`. Without a keystore the release APK is signed with the debug key (installable, but not suitable for updates from a different key).
 
 More about app signing can be found [here](https://developer.android.com/studio/publish/app-signing).
+
+## Automated releases
+
+- Merging a PR into `master` runs the *Auto Tag* workflow, which creates the next `vX.Y.Z` tag from the first word of the PR title: `major ...` bumps X, `minor ...` bumps Y, anything else bumps Z. It then starts the *Release APK* workflow.
+- The release workflow stamps the tag into the app (`versionName` and `versionCode` via `-PappVersion`) and publishes two APKs: `Joshua-vX.Y.Z.apk`, and `Joshua-vX.Y.Z-with-WEB.apk`, which has the WEB Bible prepackaged (installed on first launch when no translation is present; built with `-PbundledAssetsDir=<dir>` containing `bundled/list.json` and `bundled/translations/WEB.zip`).

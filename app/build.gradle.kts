@@ -47,8 +47,11 @@ android {
         minSdk = Versions.Sdk.min
         targetSdk = Versions.Sdk.target
 
-        versionCode = Versions.App.code
-        versionName = Versions.App.name
+        // CI passes the release tag (e.g. -PappVersion=0.21.0); local builds fall back to Versions.App.
+        val appVersion = (findProperty("appVersion") as String?)?.removePrefix("v")
+        val appVersionParts = appVersion?.split(".")?.map { it.toInt() }
+        versionCode = appVersionParts?.let { (major, minor, patch) -> major * 10000 + minor * 100 + patch } ?: Versions.App.code
+        versionName = appVersion ?: Versions.App.name
 
         androidResources.localeFilters.addAll(Configurations.supportedLocales)
     }
@@ -59,7 +62,11 @@ android {
     }
 
     sourceSets {
-        getByName("main") { java.setSrcDirs(setOf("src/main/kotlin")) }
+        getByName("main") {
+            java.setSrcDirs(setOf("src/main/kotlin"))
+            // Optional: directory with bundled/list.json and bundled/translations/<name>.zip to prepackage translations.
+            (findProperty("bundledAssetsDir") as String?)?.let { assets.srcDir(it) }
+        }
         getByName("debug") { java.setSrcDirs(setOf("src/debug/kotlin")) }
         getByName("release") { java.setSrcDirs(setOf("src/release/kotlin")) }
         getByName("test") { java.setSrcDirs(setOf("src/test/kotlin")) }
