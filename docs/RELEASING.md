@@ -5,8 +5,9 @@ Releasing
  2. Update the `docs/CHANGELOG.md`.
  3. `git commit -am "Prepare for release X.Y.Z."` (where X.Y.Z is the new version)
  4. `git tag -a X.Y.Z -m "vX.Y.Z"` (where X.Y.Z is the new version)
- 5. `./gradlew clean assembleRelease`
- 6. `git push && git push --tags`
+ 5. `git push && git push --tags` (use a `vX.Y.Z` tag; the `Release APK` workflow builds and publishes the APK to GitHub Releases)
+
+To build locally: `./gradlew clean assembleRelease`.
 
 Debug in a dev container:
 ```shell
@@ -31,5 +32,7 @@ KEYSTORE_PASSWORD=<keystore password>
 KEY_ALIAS=<key alias>
 KEY_PASSWORD=<key password>
 ```
+
+For CI, set the optional secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`. Without a keystore the release APK is signed with the debug key (installable, but not suitable for updates from a different key).
 
 More about app signing can be found [here](https://developer.android.com/studio/publish/app-signing).
