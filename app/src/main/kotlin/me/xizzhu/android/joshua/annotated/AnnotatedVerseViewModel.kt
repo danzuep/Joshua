@@ -37,7 +37,7 @@ import me.xizzhu.android.joshua.core.VerseAnnotation
 import me.xizzhu.android.joshua.core.VerseAnnotationManager
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.provider.TimeProvider
-import me.xizzhu.android.joshua.infra.BaseViewModelV2
+import me.xizzhu.android.joshua.infra.BaseViewModel
 import me.xizzhu.android.joshua.utils.firstNotEmpty
 import co.touchlab.kermit.Logger
 import java.util.Calendar
@@ -53,7 +53,7 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
     private val coroutineDispatcherProvider: CoroutineDispatcherProvider,
     private val timeProvider: TimeProvider,
     private val application: Application
-) : BaseViewModelV2<AnnotatedVerseViewModel.ViewAction, AnnotatedVerseViewModel.ViewState>(
+) : BaseViewModel<AnnotatedVerseViewModel.ViewAction, AnnotatedVerseViewModel.ViewState>(
     initialViewState = ViewState(
         loading = false,
         sortOrder = Constants.DEFAULT_SORT_ORDER,

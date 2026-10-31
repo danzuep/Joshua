@@ -16,33 +16,30 @@
 
 package me.xizzhu.android.joshua.preview
 
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
-import me.xizzhu.android.joshua.infra.BaseViewModel
-import me.xizzhu.android.joshua.infra.viewData
 import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
 import me.xizzhu.android.joshua.utils.firstNotEmpty
 import java.util.ArrayList
 
 data class PreviewViewData(val settings: Settings, val title: String, val items: List<BaseItem>, val currentPosition: Int)
 
-fun loadPreview(
+suspend fun loadPreview(
     bibleReadingManager: BibleReadingManager,
     settingsManager: SettingsManager,
     verseIndex: VerseIndex,
     converter: List<Verse>.() -> List<BaseItem>
-): Flow<BaseViewModel.ViewData<PreviewViewData>> = viewData {
+): PreviewViewData {
     if (!verseIndex.isValid()) {
         throw IllegalArgumentException("Verse index [$verseIndex] is invalid")
     }
 
     val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
-    PreviewViewData(
+    return PreviewViewData(
         settings = settingsManager.settings().first(),
         title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseIndex.bookIndex]}, ${verseIndex.chapterIndex + 1}",
         items = converter(bibleReadingManager.readVerses(currentTranslation, verseIndex.bookIndex, verseIndex.chapterIndex)),

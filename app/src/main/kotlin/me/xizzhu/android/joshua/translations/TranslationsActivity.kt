@@ -25,7 +25,7 @@ import kotlinx.coroutines.asExecutor
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import me.xizzhu.android.joshua.databinding.ActivityTranslationsBinding
-import me.xizzhu.android.joshua.infra.BaseActivityV2
+import me.xizzhu.android.joshua.infra.BaseActivity
 import me.xizzhu.android.joshua.ui.ProgressDialog
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.fadeIn
@@ -34,7 +34,7 @@ import me.xizzhu.android.joshua.ui.progressDialog
 import me.xizzhu.android.joshua.ui.toast
 
 @AndroidEntryPoint
-class TranslationsActivity : BaseActivityV2<ActivityTranslationsBinding, TranslationsViewModel.ViewAction, TranslationsViewModel.ViewState, TranslationsViewModel>() {
+class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, TranslationsViewModel.ViewAction, TranslationsViewModel.ViewState, TranslationsViewModel>() {
     @Inject
     lateinit var coroutineDispatcherProvider: CoroutineDispatcherProvider
 

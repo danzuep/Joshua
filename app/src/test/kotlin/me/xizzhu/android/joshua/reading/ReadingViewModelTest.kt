@@ -18,15 +18,15 @@ package me.xizzhu.android.joshua.reading
 
 import android.app.Application
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Bookmark
@@ -43,7 +43,7 @@ import me.xizzhu.android.joshua.core.TranslationManager
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseAnnotationManager
 import me.xizzhu.android.joshua.core.VerseIndex
-import me.xizzhu.android.joshua.infra.BaseViewModel
+import me.xizzhu.android.joshua.reading.detail.VerseDetailViewLayout
 import me.xizzhu.android.joshua.tests.BaseUnitTest
 import me.xizzhu.android.joshua.tests.MockContents
 import me.xizzhu.android.joshua.utils.currentTimeMillis
@@ -84,41 +84,155 @@ class ReadingViewModelTest : BaseUnitTest() {
         noteManager = mockk()
         strongNumberManager = mockk()
         settingsManager = mockk()
+        every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
         application = mockk()
 
-        readingViewModel = ReadingViewModel(
-                bibleReadingManager, readingProgressManager, translationManager,
-                bookmarkManager, highlightManager, noteManager,
-                crossReferencesManager, strongNumberManager, settingsManager, application
+        readingViewModel = createViewModel()
+    }
+
+    private fun createViewModel() = ReadingViewModel(
+        bibleReadingManager, readingProgressManager, translationManager,
+        bookmarkManager, highlightManager, noteManager,
+        crossReferencesManager, strongNumberManager, settingsManager, application
+    )
+
+    private fun collectViewActions(): List<ReadingViewModel.ViewAction> =
+        mutableListOf<ReadingViewModel.ViewAction>().also { actions ->
+            readingViewModel.viewAction().onEach { actions.add(it) }.launchIn(testScope)
+        }
+
+    @Test
+    fun `test currentReadingStatus`() = runTest {
+        every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
+        every { bibleReadingManager.parallelTranslations() } returns flowOf(listOf(MockContents.cuvShortName))
+        every { bibleReadingManager.currentVerseIndex() } returns flowOf(VerseIndex(1, 2, 3))
+        coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
+
+        readingViewModel = createViewModel()
+
+        val actual = readingViewModel.viewState().first().currentReadingStatus
+        assertEquals(
+            ReadingViewModel.ViewState.CurrentReadingStatus(
+                currentTranslation = MockContents.kjvShortName,
+                parallelTranslations = listOf(MockContents.cuvShortName),
+                currentVerseIndex = VerseIndex(1, 2, 3),
+                bookNames = MockContents.kjvBookNames,
+            ),
+            actual
         )
     }
 
     @Test
-    fun `test currentReadingStatus`() = runTest {
-        every { bibleReadingManager.currentTranslation() } returns flow {
-            delay(1000) // give time to set up the listener
-            emit(MockContents.kjvShortName)
-        }
-        every { bibleReadingManager.parallelTranslations() } returns flowOf(listOf(MockContents.cuvShortName))
-        every { bibleReadingManager.currentVerseIndex() } returns flowOf(VerseIndex(1, 2, 3))
-        coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
-        coEvery { bibleReadingManager.readBookShortNames(MockContents.kjvShortName) } returns MockContents.kjvBookShortNames
-        every { translationManager.downloadedTranslations() } returns flowOf(listOf(
-                MockContents.kjvDownloadedTranslationInfo, MockContents.cuvDownloadedTranslationInfo, MockContents.bbeDownloadedTranslationInfo
-        ))
-
-        readingViewModel = ReadingViewModel(
-                bibleReadingManager, readingProgressManager, translationManager,
-                bookmarkManager, highlightManager, noteManager,
-                crossReferencesManager, strongNumberManager, settingsManager, application
+    fun `test initial view state`() = runTest {
+        assertEquals(
+            ReadingViewModel.ViewState(
+                settings = Settings.DEFAULT,
+                currentReadingStatus = null,
+                crossReferencesDownloadingState = ReadingViewModel.ViewState.DownloadingState.Idle,
+                strongNumberDownloadingState = ReadingViewModel.ViewState.DownloadingState.Idle,
+                error = null,
+            ),
+            readingViewModel.viewState().first()
         )
+    }
 
-        val actual = readingViewModel.currentReadingStatus().take(2).toList()
-        assertTrue(actual[0] is BaseViewModel.ViewData.Loading)
-        assertEquals(MockContents.kjvShortName, (actual[1] as BaseViewModel.ViewData.Success).data.currentTranslation)
-        assertEquals(listOf(MockContents.cuvShortName), (actual[1] as BaseViewModel.ViewData.Success).data.parallelTranslations)
-        assertEquals(VerseIndex(1, 2, 3), (actual[1] as BaseViewModel.ViewData.Success).data.currentVerseIndex)
-        assertEquals(MockContents.kjvBookNames, (actual[1] as BaseViewModel.ViewData.Success).data.bookNames)
+    @Test
+    fun `test settings`() = runTest {
+        val settings = Settings.DEFAULT.copy(keepScreenOn = false, hideSearchButton = true)
+        every { settingsManager.settings() } returns flowOf(settings)
+
+        readingViewModel = createViewModel()
+
+        assertEquals(settings, readingViewModel.viewState().first().settings)
+    }
+
+    @Test
+    fun `test checkDownloadedTranslation with downloaded translation`() = runTest {
+        every { translationManager.downloadedTranslations() } returns flowOf(listOf(MockContents.kjvDownloadedTranslationInfo))
+
+        readingViewModel.checkDownloadedTranslation()
+
+        assertNull(readingViewModel.viewState().first().error)
+    }
+
+    @Test
+    fun `test checkDownloadedTranslation without downloaded translation`() = runTest {
+        every { translationManager.downloadedTranslations() } returns flowOf(emptyList())
+
+        readingViewModel.checkDownloadedTranslation()
+
+        assertEquals(ReadingViewModel.ViewState.Error.NoTranslationDownloadedError, readingViewModel.viewState().first().error)
+
+        readingViewModel.markErrorAsShown(ReadingViewModel.ViewState.Error.NoTranslationDownloadedError)
+        assertNull(readingViewModel.viewState().first().error)
+    }
+
+    @Test
+    fun `test markErrorAsShown with different error`() = runTest {
+        every { translationManager.downloadedTranslations() } returns flowOf(emptyList())
+        readingViewModel.checkDownloadedTranslation()
+
+        readingViewModel.markErrorAsShown(ReadingViewModel.ViewState.Error.BookmarkSavingError)
+
+        assertEquals(ReadingViewModel.ViewState.Error.NoTranslationDownloadedError, readingViewModel.viewState().first().error)
+    }
+
+    @Test
+    fun `test selectTranslation`() = runTest {
+        coEvery { bibleReadingManager.saveCurrentTranslation("KJV") } returns Unit
+        coEvery { bibleReadingManager.removeParallelTranslation("KJV") } returns Unit
+
+        readingViewModel.selectTranslation("KJV")
+
+        coVerify(exactly = 1) { bibleReadingManager.saveCurrentTranslation("KJV") }
+        coVerify(exactly = 1) { bibleReadingManager.removeParallelTranslation("KJV") }
+        assertNull(readingViewModel.viewState().first().error)
+    }
+
+    @Test
+    fun `test selectTranslation with exception`() = runTest {
+        coEvery { bibleReadingManager.saveCurrentTranslation("KJV") } throws RuntimeException("random exception")
+
+        readingViewModel.selectTranslation("KJV")
+
+        assertEquals(ReadingViewModel.ViewState.Error.TranslationSelectionError("KJV"), readingViewModel.viewState().first().error)
+    }
+
+    @Test
+    fun `test selectChapter with exception`() = runTest {
+        coEvery { bibleReadingManager.saveCurrentVerseIndex(VerseIndex(1, 2, 0)) } throws RuntimeException("random exception")
+
+        readingViewModel.selectChapter(1, 2)
+
+        assertEquals(ReadingViewModel.ViewState.Error.ChapterSelectionError(1, 2), readingViewModel.viewState().first().error)
+    }
+
+    @Test
+    fun `test selectVerse`() = runTest {
+        coEvery { bibleReadingManager.saveCurrentVerseIndex(VerseIndex(1, 2, 3)) } returns Unit
+        val actions = collectViewActions()
+
+        readingViewModel.selectVerse(VerseIndex(1, 2, 3))
+
+        assertEquals(listOf<ReadingViewModel.ViewAction>(ReadingViewModel.ViewAction.DismissPreview), actions)
+    }
+
+    @Test
+    fun `test selectVerse with exception`() = runTest {
+        coEvery { bibleReadingManager.saveCurrentVerseIndex(VerseIndex(1, 2, 3)) } throws RuntimeException("random exception")
+
+        readingViewModel.selectVerse(VerseIndex(1, 2, 3))
+
+        assertEquals(ReadingViewModel.ViewState.Error.VerseSelectionError(VerseIndex(1, 2, 3)), readingViewModel.viewState().first().error)
+    }
+
+    @Test
+    fun `test updateCurrentVerse with exception does not set error`() = runTest {
+        coEvery { bibleReadingManager.saveCurrentVerseIndex(VerseIndex(1, 2, 3)) } throws RuntimeException("random exception")
+
+        readingViewModel.updateCurrentVerse(VerseIndex(1, 2, 3))
+
+        assertNull(readingViewModel.viewState().first().error)
     }
 
     @Test
@@ -131,10 +245,15 @@ class ReadingViewModelTest : BaseUnitTest() {
         coEvery { noteManager.read(0, 0) } returns emptyList()
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT.copy(simpleReadingModeOn = true))
 
-        with(readingViewModel.loadVerses(0, 0).toList()) {
-            assertEquals(2, size)
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-            assertEquals(MockContents.kjvVerses.size, (this[1] as BaseViewModel.ViewData.Success).data.items.size)
+        val actions = collectViewActions()
+
+        readingViewModel.loadVerses(0, 0)
+
+        assertEquals(1, actions.size)
+        with(actions[0] as ReadingViewModel.ViewAction.ShowVerses) {
+            assertEquals(0, bookIndex)
+            assertEquals(0, chapterIndex)
+            assertEquals(MockContents.kjvVerses.size, items.size)
         }
     }
 
@@ -148,10 +267,26 @@ class ReadingViewModelTest : BaseUnitTest() {
         coEvery { noteManager.read(0, 0) } returns emptyList()
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT.copy(simpleReadingModeOn = false))
 
-        with(readingViewModel.loadVerses(0, 0).toList()) {
-            assertEquals(2, size)
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-        }
+        val actions = collectViewActions()
+
+        readingViewModel.loadVerses(0, 0)
+
+        assertEquals(1, actions.size)
+        assertTrue(actions[0] is ReadingViewModel.ViewAction.ShowVerses)
+    }
+
+    @Test
+    fun `test loadVerses with exception`() = runTest {
+        every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
+        every { bibleReadingManager.parallelTranslations() } returns flowOf(emptyList())
+        coEvery { bibleReadingManager.readVerses(MockContents.kjvShortName, 0, 0) } throws RuntimeException("random exception")
+        coEvery { bookmarkManager.read(0, 0) } returns emptyList()
+        coEvery { highlightManager.read(0, 0) } returns emptyList()
+        coEvery { noteManager.read(0, 0) } returns emptyList()
+
+        readingViewModel.loadVerses(0, 0)
+
+        assertEquals(ReadingViewModel.ViewState.Error.VersesLoadingError(0, 0), readingViewModel.viewState().first().error)
     }
 
     @Test
@@ -181,12 +316,21 @@ class ReadingViewModelTest : BaseUnitTest() {
         coEvery { bibleReadingManager.readBookNames(MockContents.bbeShortName) } returns MockContents.bbeBookNames
         coEvery { bibleReadingManager.readBookNames(MockContents.cuvShortName) } returns MockContents.cuvBookNames
 
-        val actual = readingViewModel.loadVerseDetail(verseIndex).toList()
-        assertEquals(2, actual.size)
-        assertTrue(actual[0] is BaseViewModel.ViewData.Loading)
-        assertEquals(VerseIndex(0, 0, 0), (actual[1] as BaseViewModel.ViewData.Success).data.verseIndex)
-        assertEquals(3, (actual[1] as BaseViewModel.ViewData.Success).data.verseTextItems.size)
-        (actual[1] as BaseViewModel.ViewData.Success).data.verseTextItems.forEachIndexed { index, item ->
+        val actions = collectViewActions()
+
+        readingViewModel.loadVerseDetail(verseIndex, VerseDetailViewLayout.VERSE_DETAIL_NOTE)
+
+        assertEquals(2, actions.size)
+        val shown = actions[0] as ReadingViewModel.ViewAction.ShowVerseDetail
+        assertEquals(VerseDetailViewLayout.VERSE_DETAIL_NOTE, shown.content)
+        val detail = shown.verseDetail
+        with(actions[1] as ReadingViewModel.ViewAction.UpdateVerse) {
+            assertEquals(VerseIndex(0, 0, 0), update.verseIndex)
+            assertEquals(VerseUpdate.VERSE_SELECTED, update.operation)
+        }
+        assertEquals(VerseIndex(0, 0, 0), detail.verseIndex)
+        assertEquals(3, detail.verseTextItems.size)
+        detail.verseTextItems.forEachIndexed { index, item ->
             assertEquals(VerseIndex(0, 0, 0), item.verseIndex)
             assertEquals(
                     when (index) {
@@ -198,10 +342,10 @@ class ReadingViewModelTest : BaseUnitTest() {
                     item.verseText
             )
         }
-        assertTrue((actual[1] as BaseViewModel.ViewData.Success).data.bookmarked)
-        assertEquals(Highlight.COLOR_PURPLE, (actual[1] as BaseViewModel.ViewData.Success).data.highlightColor)
-        assertEquals("just a note", (actual[1] as BaseViewModel.ViewData.Success).data.note)
-        (actual[1] as BaseViewModel.ViewData.Success).data.crossReferencedItems.forEachIndexed { index, item ->
+        assertTrue(detail.bookmarked)
+        assertEquals(Highlight.COLOR_PURPLE, detail.highlightColor)
+        assertEquals("just a note", detail.note)
+        detail.crossReferencedItems.forEachIndexed { index, item ->
             when (index) {
                 0 -> {
                     assertEquals(VerseIndex(18, 133, 2), item.verseIndex)
@@ -219,7 +363,7 @@ class ReadingViewModelTest : BaseUnitTest() {
                         StrongNumber("H8064", "mantle"),
                         StrongNumber("H776", "[idiom] common, country, earth, field, ground, land, [idiom] natins, way, [phrase] wilderness, world.")
                 ),
-                (actual[1] as BaseViewModel.ViewData.Success).data.strongNumberItems.map { it.strongNumber }
+                detail.strongNumberItems.map { it.strongNumber }
         )
     }
 
@@ -244,12 +388,21 @@ class ReadingViewModelTest : BaseUnitTest() {
         coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
         coEvery { bibleReadingManager.readBookNames(MockContents.msgShortName) } returns MockContents.msgBookNames
 
-        val actual = readingViewModel.loadVerseDetail(verseIndex).toList()
-        assertEquals(2, actual.size)
-        assertTrue(actual[0] is BaseViewModel.ViewData.Loading)
-        assertEquals(VerseIndex(0, 0, 0), (actual[1] as BaseViewModel.ViewData.Success).data.verseIndex)
-        assertEquals(2, (actual[1] as BaseViewModel.ViewData.Success).data.verseTextItems.size)
-        (actual[1] as BaseViewModel.ViewData.Success).data.verseTextItems.forEachIndexed { index, item ->
+        val actions = collectViewActions()
+
+        readingViewModel.loadVerseDetail(verseIndex, VerseDetailViewLayout.VERSE_DETAIL_NOTE)
+
+        assertEquals(2, actions.size)
+        val shown = actions[0] as ReadingViewModel.ViewAction.ShowVerseDetail
+        assertEquals(VerseDetailViewLayout.VERSE_DETAIL_NOTE, shown.content)
+        val detail = shown.verseDetail
+        with(actions[1] as ReadingViewModel.ViewAction.UpdateVerse) {
+            assertEquals(VerseIndex(0, 0, 0), update.verseIndex)
+            assertEquals(VerseUpdate.VERSE_SELECTED, update.operation)
+        }
+        assertEquals(VerseIndex(0, 0, 0), detail.verseIndex)
+        assertEquals(2, detail.verseTextItems.size)
+        detail.verseTextItems.forEachIndexed { index, item ->
             assertEquals(VerseIndex(0, 0, 0), item.verseIndex)
             assertEquals(
                     when (index) {
@@ -260,9 +413,9 @@ class ReadingViewModelTest : BaseUnitTest() {
                     item.verseText
             )
         }
-        assertFalse((actual[1] as BaseViewModel.ViewData.Success).data.bookmarked)
-        assertEquals(Highlight.COLOR_NONE, (actual[1] as BaseViewModel.ViewData.Success).data.highlightColor)
-        assertTrue((actual[1] as BaseViewModel.ViewData.Success).data.note.isEmpty())
+        assertFalse(detail.bookmarked)
+        assertEquals(Highlight.COLOR_NONE, detail.highlightColor)
+        assertTrue(detail.note.isEmpty())
         assertEquals(
                 listOf(
                         StrongNumber("H7225", "beginning, chief(-est), first(-fruits, part, time), principal thing."),
@@ -272,7 +425,26 @@ class ReadingViewModelTest : BaseUnitTest() {
                         StrongNumber("H8064", "mantle"),
                         StrongNumber("H776", "[idiom] common, country, earth, field, ground, land, [idiom] natins, way, [phrase] wilderness, world.")
                 ),
-                (actual[1] as BaseViewModel.ViewData.Success).data.strongNumberItems.map { it.strongNumber }
+                detail.strongNumberItems.map { it.strongNumber }
+        )
+    }
+
+    @Test
+    fun `test loadVerseDetail with exception`() = runTest {
+        val verseIndex = VerseIndex(0, 0, 0)
+        coEvery { bookmarkManager.read(verseIndex) } throws RuntimeException("random exception")
+        coEvery { highlightManager.read(verseIndex) } returns Highlight(verseIndex, Highlight.COLOR_PURPLE, 0L)
+        coEvery { noteManager.read(verseIndex) } returns Note(verseIndex, "just a note", 0L)
+        coEvery { crossReferencesManager.readCrossReferences(verseIndex) } returns CrossReferences(verseIndex, emptyList())
+        coEvery { strongNumberManager.readStrongNumber(verseIndex) } returns emptyList()
+        every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
+        coEvery { bibleReadingManager.readVerses(MockContents.kjvShortName, emptyList()) } returns emptyMap()
+
+        readingViewModel.loadVerseDetail(verseIndex, VerseDetailViewLayout.VERSE_DETAIL_VERSES)
+
+        assertEquals(
+            ReadingViewModel.ViewState.Error.VerseDetailLoadingError(verseIndex, VerseDetailViewLayout.VERSE_DETAIL_VERSES),
+            readingViewModel.viewState().first().error
         )
     }
 
@@ -281,30 +453,29 @@ class ReadingViewModelTest : BaseUnitTest() {
         currentTimeMillis = 1L
         coEvery { bookmarkManager.save(Bookmark(VerseIndex(1, 2, 3), 1L)) } returns Unit
         coEvery { bookmarkManager.remove(VerseIndex(1, 2, 3)) } returns Unit
+        val actions = collectViewActions()
 
-        val verseUpdates = async { readingViewModel.verseUpdates().take(2).toList() }
-        delay(1000) // make sure the async task is launched
+        readingViewModel.saveBookmark(VerseIndex(1, 2, 3), toBeBookmarked = true)
+        readingViewModel.saveBookmark(VerseIndex(1, 2, 3), toBeBookmarked = false)
 
-        with(readingViewModel.saveBookmark(VerseIndex(1, 2, 3), toBeBookmarked = true).toList()) {
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-            assertTrue(this[1] is BaseViewModel.ViewData.Success)
-        }
-        with(readingViewModel.saveBookmark(VerseIndex(1, 2, 3), toBeBookmarked = false).toList()) {
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-            assertTrue(this[1] is BaseViewModel.ViewData.Success)
-        }
+        assertEquals(4, actions.size)
+        assertVerseUpdate(actions[0], VerseUpdate.BOOKMARK_ADDED, null)
+        assertEquals(ReadingViewModel.ViewAction.BookmarkSaved(true), actions[1])
+        assertVerseUpdate(actions[2], VerseUpdate.BOOKMARK_REMOVED, null)
+        assertEquals(ReadingViewModel.ViewAction.BookmarkSaved(false), actions[3])
+        assertNull(readingViewModel.viewState().first().error)
+    }
 
-        with(verseUpdates.await()) {
-            assertEquals(2, size)
+    @Test
+    fun `test saveBookmark with exception`() = runTest {
+        currentTimeMillis = 1L
+        coEvery { bookmarkManager.save(any()) } throws RuntimeException("random exception")
+        val actions = collectViewActions()
 
-            assertEquals(VerseIndex(1, 2, 3), this[0].verseIndex)
-            assertEquals(VerseUpdate.BOOKMARK_ADDED, this[0].operation)
-            assertNull(this[0].data)
+        readingViewModel.saveBookmark(VerseIndex(1, 2, 3), toBeBookmarked = true)
 
-            assertEquals(VerseIndex(1, 2, 3), this[1].verseIndex)
-            assertEquals(VerseUpdate.BOOKMARK_REMOVED, this[1].operation)
-            assertNull(this[1].data)
-        }
+        assertTrue(actions.isEmpty())
+        assertEquals(ReadingViewModel.ViewState.Error.BookmarkSavingError, readingViewModel.viewState().first().error)
     }
 
     @Test
@@ -313,38 +484,28 @@ class ReadingViewModelTest : BaseUnitTest() {
         coEvery { highlightManager.save(Highlight(VerseIndex(1, 2, 3), Highlight.COLOR_BLUE, 1L)) } returns Unit
         coEvery { highlightManager.save(Highlight(VerseIndex(1, 2, 3), Highlight.COLOR_PURPLE, 1L)) } returns Unit
         coEvery { highlightManager.remove(VerseIndex(1, 2, 3)) } returns Unit
+        val actions = collectViewActions()
 
-        val verseUpdates = async { readingViewModel.verseUpdates().take(3).toList() }
-        delay(1000) // make sure the async task is launched
+        readingViewModel.saveHighlight(VerseIndex(1, 2, 3), Highlight.COLOR_BLUE)
+        readingViewModel.saveHighlight(VerseIndex(1, 2, 3), Highlight.COLOR_PURPLE)
+        readingViewModel.saveHighlight(VerseIndex(1, 2, 3), Highlight.COLOR_NONE)
 
-        with(readingViewModel.saveHighlight(VerseIndex(1, 2, 3), Highlight.COLOR_BLUE).toList()) {
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-            assertTrue(this[1] is BaseViewModel.ViewData.Success)
-        }
-        with(readingViewModel.saveHighlight(VerseIndex(1, 2, 3), Highlight.COLOR_PURPLE).toList()) {
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-            assertTrue(this[1] is BaseViewModel.ViewData.Success)
-        }
-        with(readingViewModel.saveHighlight(VerseIndex(1, 2, 3), Highlight.COLOR_NONE).toList()) {
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-            assertTrue(this[1] is BaseViewModel.ViewData.Success)
-        }
+        assertEquals(6, actions.size)
+        assertVerseUpdate(actions[0], VerseUpdate.HIGHLIGHT_UPDATED, Highlight.COLOR_BLUE)
+        assertEquals(ReadingViewModel.ViewAction.HighlightSaved(Highlight.COLOR_BLUE), actions[1])
+        assertVerseUpdate(actions[2], VerseUpdate.HIGHLIGHT_UPDATED, Highlight.COLOR_PURPLE)
+        assertEquals(ReadingViewModel.ViewAction.HighlightSaved(Highlight.COLOR_PURPLE), actions[3])
+        assertVerseUpdate(actions[4], VerseUpdate.HIGHLIGHT_UPDATED, Highlight.COLOR_NONE)
+        assertEquals(ReadingViewModel.ViewAction.HighlightSaved(Highlight.COLOR_NONE), actions[5])
+    }
 
-        with(verseUpdates.await()) {
-            assertEquals(3, size)
+    @Test
+    fun `test saveHighlight with exception`() = runTest {
+        coEvery { highlightManager.remove(VerseIndex(1, 2, 3)) } throws RuntimeException("random exception")
 
-            assertEquals(VerseIndex(1, 2, 3), this[0].verseIndex)
-            assertEquals(VerseUpdate.HIGHLIGHT_UPDATED, this[0].operation)
-            assertEquals(Highlight.COLOR_BLUE, this[0].data)
+        readingViewModel.saveHighlight(VerseIndex(1, 2, 3), Highlight.COLOR_NONE)
 
-            assertEquals(VerseIndex(1, 2, 3), this[1].verseIndex)
-            assertEquals(VerseUpdate.HIGHLIGHT_UPDATED, this[1].operation)
-            assertEquals(Highlight.COLOR_PURPLE, this[1].data)
-
-            assertEquals(VerseIndex(1, 2, 3), this[2].verseIndex)
-            assertEquals(VerseUpdate.HIGHLIGHT_UPDATED, this[2].operation)
-            assertEquals(Highlight.COLOR_NONE, this[2].data)
-        }
+        assertEquals(ReadingViewModel.ViewState.Error.HighlightSavingError, readingViewModel.viewState().first().error)
     }
 
     @Test
@@ -353,61 +514,117 @@ class ReadingViewModelTest : BaseUnitTest() {
         coEvery { noteManager.save(Note(VerseIndex(1, 2, 3), "note", 1L)) } returns Unit
         coEvery { noteManager.save(Note(VerseIndex(1, 2, 3), "updated note", 1L)) } returns Unit
         coEvery { noteManager.remove(VerseIndex(1, 2, 3)) } returns Unit
+        val actions = collectViewActions()
 
-        val verseUpdates = async { readingViewModel.verseUpdates().take(3).toList() }
-        delay(1000) // make sure the async task is launched
+        readingViewModel.saveNote(VerseIndex(1, 2, 3), "note")
+        readingViewModel.saveNote(VerseIndex(1, 2, 3), "updated note")
+        readingViewModel.saveNote(VerseIndex(1, 2, 3), "")
 
-        with(readingViewModel.saveNote(VerseIndex(1, 2, 3), "note").toList()) {
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-            assertTrue(this[1] is BaseViewModel.ViewData.Success)
-        }
-        with(readingViewModel.saveNote(VerseIndex(1, 2, 3), "updated note").toList()) {
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-            assertTrue(this[1] is BaseViewModel.ViewData.Success)
-        }
-        with(readingViewModel.saveNote(VerseIndex(1, 2, 3), "").toList()) {
-            assertTrue(this[0] is BaseViewModel.ViewData.Loading)
-            assertTrue(this[1] is BaseViewModel.ViewData.Success)
-        }
+        assertEquals(6, actions.size)
+        assertVerseUpdate(actions[0], VerseUpdate.NOTE_ADDED, null)
+        assertEquals(ReadingViewModel.ViewAction.NoteSaved("note"), actions[1])
+        assertVerseUpdate(actions[2], VerseUpdate.NOTE_ADDED, null)
+        assertEquals(ReadingViewModel.ViewAction.NoteSaved("updated note"), actions[3])
+        assertVerseUpdate(actions[4], VerseUpdate.NOTE_REMOVED, null)
+        assertEquals(ReadingViewModel.ViewAction.NoteSaved(""), actions[5])
+    }
 
-        with(verseUpdates.await()) {
-            assertEquals(3, size)
+    @Test
+    fun `test saveNote with exception`() = runTest {
+        coEvery { noteManager.remove(VerseIndex(1, 2, 3)) } throws RuntimeException("random exception")
 
-            assertEquals(VerseIndex(1, 2, 3), this[0].verseIndex)
-            assertEquals(VerseUpdate.NOTE_ADDED, this[0].operation)
-            assertNull(this[0].data)
+        readingViewModel.saveNote(VerseIndex(1, 2, 3), "")
 
-            assertEquals(VerseIndex(1, 2, 3), this[1].verseIndex)
-            assertEquals(VerseUpdate.NOTE_ADDED, this[1].operation)
-            assertNull(this[1].data)
+        assertEquals(ReadingViewModel.ViewState.Error.NoteSavingError, readingViewModel.viewState().first().error)
+    }
 
-            assertEquals(VerseIndex(1, 2, 3), this[2].verseIndex)
-            assertEquals(VerseUpdate.NOTE_REMOVED, this[2].operation)
-            assertNull(this[2].data)
+    private fun assertVerseUpdate(action: ReadingViewModel.ViewAction, operation: Int, data: Any?) {
+        with((action as ReadingViewModel.ViewAction.UpdateVerse).update) {
+            assertEquals(VerseIndex(1, 2, 3), verseIndex)
+            assertEquals(operation, this.operation)
+            assertEquals(data, this.data)
         }
     }
 
     @Test
     fun `test downloadStrongNumber`() = runTest {
-        every { strongNumberManager.download() } returns flowOf(0, 20, 99, -1, 100)
-        with(readingViewModel.downloadStrongNumber().toList()) {
-            assertEquals(5, size)
+        every { strongNumberManager.download() } returns flowOf(0, 20, 99, 100)
 
-            assertEquals(0, (this[0] as BaseViewModel.ViewData.Loading).data)
-            assertEquals(20, (this[1] as BaseViewModel.ViewData.Loading).data)
-            assertEquals(99, (this[2] as BaseViewModel.ViewData.Loading).data)
-            assertTrue(this[3] is BaseViewModel.ViewData.Failure)
-            assertEquals(100, (this[4] as BaseViewModel.ViewData.Success).data)
-        }
+        readingViewModel.downloadStrongNumber()
+
+        assertEquals(
+            ReadingViewModel.ViewState.DownloadingState.Completed(successful = true),
+            readingViewModel.viewState().first().strongNumberDownloadingState
+        )
+
+        readingViewModel.markStrongNumberDownloadingStateAsIdle()
+        assertEquals(ReadingViewModel.ViewState.DownloadingState.Idle, readingViewModel.viewState().first().strongNumberDownloadingState)
+    }
+
+    @Test
+    fun `test downloadStrongNumber installing`() = runTest {
+        every { strongNumberManager.download() } returns flowOf(0, 20, 99)
+
+        readingViewModel.downloadStrongNumber()
+
+        assertEquals(
+            ReadingViewModel.ViewState.DownloadingState.Installing,
+            readingViewModel.viewState().first().strongNumberDownloadingState
+        )
+    }
+
+    @Test
+    fun `test downloadStrongNumber cancelled`() = runTest {
+        every { strongNumberManager.download() } returns flowOf(0, -1)
+
+        readingViewModel.downloadStrongNumber()
+
+        val viewState = readingViewModel.viewState().first()
+        assertEquals(ReadingViewModel.ViewState.DownloadingState.Idle, viewState.strongNumberDownloadingState)
+        assertNull(viewState.error)
     }
 
     @Test
     fun `test downloadStrongNumber with exception`() = runTest {
         every { strongNumberManager.download() } returns flow { throw RuntimeException("random exception") }
-        with(readingViewModel.downloadStrongNumber().toList()) {
-            assertEquals(1, size)
 
-            assertTrue(this[0] is BaseViewModel.ViewData.Failure)
-        }
+        readingViewModel.downloadStrongNumber()
+
+        val viewState = readingViewModel.viewState().first()
+        assertEquals(ReadingViewModel.ViewState.DownloadingState.Idle, viewState.strongNumberDownloadingState)
+        assertEquals(ReadingViewModel.ViewState.Error.StrongNumberDownloadingError, viewState.error)
+    }
+
+    @Test
+    fun `test downloadCrossReferences`() = runTest {
+        every { crossReferencesManager.download() } returns flowOf(0, 50, 100)
+
+        readingViewModel.downloadCrossReferences()
+
+        assertEquals(
+            ReadingViewModel.ViewState.DownloadingState.Completed(successful = true),
+            readingViewModel.viewState().first().crossReferencesDownloadingState
+        )
+    }
+
+    @Test
+    fun `test downloadCrossReferences with exception`() = runTest {
+        every { crossReferencesManager.download() } returns flow { throw RuntimeException("random exception") }
+
+        readingViewModel.downloadCrossReferences()
+
+        val viewState = readingViewModel.viewState().first()
+        assertEquals(ReadingViewModel.ViewState.DownloadingState.Idle, viewState.crossReferencesDownloadingState)
+        assertEquals(ReadingViewModel.ViewState.Error.CrossReferencesDownloadingError, viewState.error)
+    }
+
+    @Test
+    fun `test loadStrongNumbers`() = runTest {
+        coEvery { strongNumberManager.readStrongNumber(VerseIndex(0, 0, 0)) } returns MockContents.strongNumber.getValue(VerseIndex(0, 0, 0))
+        val actions = collectViewActions()
+
+        readingViewModel.loadStrongNumbers(VerseIndex(0, 0, 0))
+
+        assertEquals(6, (actions.single() as ReadingViewModel.ViewAction.ShowStrongNumbers).items.size)
     }
 }

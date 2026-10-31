@@ -19,17 +19,17 @@ package me.xizzhu.android.joshua.reading
 import android.app.Application
 import androidx.annotation.IntDef
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Bookmark
@@ -37,6 +37,7 @@ import me.xizzhu.android.joshua.core.CrossReferencesManager
 import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.ReadingProgressManager
+import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.StrongNumberManager
 import me.xizzhu.android.joshua.core.TranslationManager
@@ -44,13 +45,12 @@ import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseAnnotationManager
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.infra.BaseViewModel
-import me.xizzhu.android.joshua.infra.onFailure
-import me.xizzhu.android.joshua.infra.viewData
 import me.xizzhu.android.joshua.preview.PreviewViewData
 import me.xizzhu.android.joshua.preview.loadPreview
 import me.xizzhu.android.joshua.preview.toVersePreviewItems
 import me.xizzhu.android.joshua.reading.detail.CrossReferenceItem
 import me.xizzhu.android.joshua.reading.detail.StrongNumberItem
+import me.xizzhu.android.joshua.reading.detail.VerseDetailViewLayout
 import me.xizzhu.android.joshua.reading.detail.VerseTextItem
 import me.xizzhu.android.joshua.reading.verse.toVerseItems
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
@@ -59,16 +59,6 @@ import me.xizzhu.android.joshua.utils.currentTimeMillis
 import me.xizzhu.android.joshua.utils.filterIsValid
 import me.xizzhu.android.joshua.utils.filterNotEmpty
 import me.xizzhu.android.joshua.utils.firstNotEmpty
-import co.touchlab.kermit.Logger
-import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
-
-class CurrentReadingStatusViewData(
-    val currentTranslation: String, val parallelTranslations: List<String>,
-    val currentVerseIndex: VerseIndex, val bookNames: List<String>
-)
-
-class VersesViewData(val items: List<BaseItem>)
 
 class VerseDetailViewData(
     val verseIndex: VerseIndex, val verseTextItems: List<VerseTextItem>,
@@ -103,153 +93,270 @@ class ReadingViewModel @Inject constructor(
     private val noteManager: VerseAnnotationManager<Note>,
     private val crossReferencesManager: CrossReferencesManager,
     private val strongNumberManager: StrongNumberManager,
-    settingsManager: SettingsManager,
-    application: Application
-) : BaseViewModel(settingsManager, application) {
-    private val currentReadingStatus: MutableStateFlow<ViewData<CurrentReadingStatusViewData>> = MutableStateFlow(ViewData.Loading())
-    private val verseUpdates: MutableSharedFlow<VerseUpdate> = MutableSharedFlow()
+    private val settingsManager: SettingsManager,
+    private val application: Application
+) : BaseViewModel<ReadingViewModel.ViewAction, ReadingViewModel.ViewState>(
+    initialViewState = ViewState(
+        settings = Settings.DEFAULT,
+        currentReadingStatus = null,
+        crossReferencesDownloadingState = ViewState.DownloadingState.Idle,
+        strongNumberDownloadingState = ViewState.DownloadingState.Idle,
+        error = null,
+    )
+) {
+    sealed class ViewAction {
+        data class ShowVerses(val bookIndex: Int, val chapterIndex: Int, val items: List<BaseItem>) : ViewAction()
+        data class ShowVerseDetail(val verseDetail: VerseDetailViewData, @VerseDetailViewLayout.Companion.VerseDetail val content: Int) : ViewAction()
+        data class UpdateVerse(val update: VerseUpdate) : ViewAction()
+        data class BookmarkSaved(val bookmarked: Boolean) : ViewAction()
+        data class HighlightSaved(@Highlight.Companion.AvailableColor val color: Int) : ViewAction()
+        data class NoteSaved(val note: String) : ViewAction()
+        data class ShowCrossReferences(val items: List<CrossReferenceItem>) : ViewAction()
+        data class ShowStrongNumbers(val items: List<StrongNumberItem>) : ViewAction()
+        data class ShowPreview(val preview: PreviewViewData) : ViewAction()
+        object DismissPreview : ViewAction()
+    }
+
+    data class ViewState(
+        val settings: Settings,
+        val currentReadingStatus: CurrentReadingStatus?,
+        val crossReferencesDownloadingState: DownloadingState,
+        val strongNumberDownloadingState: DownloadingState,
+        val error: Error?,
+    ) {
+        data class CurrentReadingStatus(
+            val currentTranslation: String, val parallelTranslations: List<String>,
+            val currentVerseIndex: VerseIndex, val bookNames: List<String>
+        )
+
+        sealed class DownloadingState {
+            object Idle : DownloadingState()
+            data class Downloading(val progress: Int) : DownloadingState()
+            object Installing : DownloadingState()
+            data class Completed(val successful: Boolean) : DownloadingState()
+        }
+
+        sealed class Error {
+            object NoTranslationDownloadedError : Error()
+            data class TranslationSelectionError(val translationToSelect: String) : Error()
+            data class ChapterSelectionError(val bookIndex: Int, val chapterIndex: Int) : Error()
+            data class VerseSelectionError(val verseToSelect: VerseIndex) : Error()
+            data class VersesLoadingError(val bookIndex: Int, val chapterIndex: Int) : Error()
+            data class VerseDetailLoadingError(val verseIndex: VerseIndex, @VerseDetailViewLayout.Companion.VerseDetail val content: Int) : Error()
+            object BookmarkSavingError : Error()
+            object HighlightSavingError : Error()
+            object NoteSavingError : Error()
+            object CrossReferencesDownloadingError : Error()
+            object StrongNumberDownloadingError : Error()
+        }
+    }
+
+    private var downloadCrossReferencesJob: Job? = null
+    private var downloadStrongNumberJob: Job? = null
 
     init {
+        settingsManager.settings()
+            .onEach { settings -> updateViewState { it.copy(settings = settings) } }
+            .launchIn(viewModelScope)
+
         combine(
             bibleReadingManager.currentTranslation().filterNotEmpty(),
             bibleReadingManager.parallelTranslations(),
             bibleReadingManager.currentVerseIndex().filterIsValid(),
         ) { currentTranslation, parallelTranslations, currentVerseIndex ->
-            currentReadingStatus.value = ViewData.Success(CurrentReadingStatusViewData(
+            val currentReadingStatus = ViewState.CurrentReadingStatus(
                 currentTranslation = currentTranslation,
                 parallelTranslations = parallelTranslations,
                 currentVerseIndex = currentVerseIndex,
                 bookNames = bibleReadingManager.readBookNames(currentTranslation),
-            ))
+            )
+            updateViewState { it.copy(currentReadingStatus = currentReadingStatus) }
         }.launchIn(viewModelScope)
     }
 
-    fun currentReadingStatus(): Flow<ViewData<CurrentReadingStatusViewData>> = currentReadingStatus
+    fun markErrorAsShown(error: ViewState.Error) {
+        updateViewState { current -> if (current.error == error) current.copy(error = null) else null }
+    }
 
-    suspend fun hasDownloadedTranslation(): Boolean = translationManager.downloadedTranslations().first().isNotEmpty()
+    private fun showError(error: ViewState.Error, e: Throwable, message: String) {
+        Logger.withTag(tag).e(e) { message }
+        updateViewState { it.copy(error = error) }
+    }
 
-    fun selectTranslation(translationToSelect: String): Flow<ViewData<Unit>> = viewData {
-        bibleReadingManager.saveCurrentTranslation(translationToSelect)
-
-        try {
-            bibleReadingManager.removeParallelTranslation(translationToSelect)
-        } catch (e: Exception) {
-            Logger.withTag(tag).e(e) { "Failed to remove the selected translation from parallel" }
+    fun checkDownloadedTranslation() {
+        viewModelScope.launch {
+            if (!translationManager.downloadedTranslations().first().isEmpty()) return@launch
+            updateViewState { it.copy(error = ViewState.Error.NoTranslationDownloadedError) }
         }
-    }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to select translation" } }
+    }
+
+    fun selectTranslation(translationToSelect: String) {
+        viewModelScope.launch {
+            runCatching {
+                bibleReadingManager.saveCurrentTranslation(translationToSelect)
+
+                try {
+                    bibleReadingManager.removeParallelTranslation(translationToSelect)
+                } catch (e: Exception) {
+                    Logger.withTag(tag).e(e) { "Failed to remove the selected translation from parallel" }
+                }
+            }.onFailure { e ->
+                showError(ViewState.Error.TranslationSelectionError(translationToSelect), e, "Failed to select translation")
+            }
+        }
+    }
 
     suspend fun currentVerseIndex(): VerseIndex = bibleReadingManager.currentVerseIndex().first { it.isValid() }
 
-    fun selectCurrentVerseIndex(verseIndex: VerseIndex): Flow<ViewData<Unit>> = viewData {
-        bibleReadingManager.saveCurrentVerseIndex(verseIndex)
-    }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to select verse index" } }
+    fun selectChapter(bookIndex: Int, chapterIndex: Int) {
+        viewModelScope.launch {
+            runCatching {
+                bibleReadingManager.saveCurrentVerseIndex(VerseIndex(bookIndex, chapterIndex, 0))
+            }.onFailure { e ->
+                showError(ViewState.Error.ChapterSelectionError(bookIndex, chapterIndex), e, "Failed to select chapter")
+            }
+        }
+    }
+
+    fun selectVerse(verseIndex: VerseIndex) {
+        viewModelScope.launch {
+            runCatching {
+                bibleReadingManager.saveCurrentVerseIndex(verseIndex)
+                emitViewAction(ViewAction.DismissPreview)
+            }.onFailure { e ->
+                showError(ViewState.Error.VerseSelectionError(verseIndex), e, "Failed to select verse index")
+            }
+        }
+    }
+
+    fun updateCurrentVerse(verseIndex: VerseIndex) {
+        viewModelScope.launch {
+            runCatching { bibleReadingManager.saveCurrentVerseIndex(verseIndex) }
+                .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to update current verse index" } }
+        }
+    }
 
     suspend fun bookName(translationShortName: String, bookIndex: Int): String {
         return bibleReadingManager.readBookNames(translationShortName)[bookIndex]
     }
 
-    fun loadVerses(bookIndex: Int, chapterIndex: Int): Flow<ViewData<VersesViewData>> = viewData {
-        coroutineScope {
-            val highlights = async { highlightManager.read(bookIndex, chapterIndex) }
+    fun loadVerses(bookIndex: Int, chapterIndex: Int) {
+        viewModelScope.launch {
+            runCatching {
+                val items = coroutineScope {
+                    val highlights = async { highlightManager.read(bookIndex, chapterIndex) }
 
-            val simpleReadingModeOn = settings().first().simpleReadingModeOn
-            val bookmarks = async { bookmarkManager.read(bookIndex, chapterIndex) }
-            val notes = async { noteManager.read(bookIndex, chapterIndex) }
+                    val simpleReadingModeOn = settingsManager.settings().first().simpleReadingModeOn
+                    val bookmarks = async { bookmarkManager.read(bookIndex, chapterIndex) }
+                    val notes = async { noteManager.read(bookIndex, chapterIndex) }
 
-            val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
-            val parallelTranslations = bibleReadingManager.parallelTranslations().first()
-            val verses = if (parallelTranslations.isEmpty()) {
-                bibleReadingManager.readVerses(currentTranslation, bookIndex, chapterIndex)
-            } else {
-                bibleReadingManager.readVerses(currentTranslation, parallelTranslations, bookIndex, chapterIndex)
+                    val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
+                    val parallelTranslations = bibleReadingManager.parallelTranslations().first()
+                    val verses = if (parallelTranslations.isEmpty()) {
+                        bibleReadingManager.readVerses(currentTranslation, bookIndex, chapterIndex)
+                    } else {
+                        bibleReadingManager.readVerses(currentTranslation, parallelTranslations, bookIndex, chapterIndex)
+                    }
+
+                    verses.toVerseItems(application, bookmarks.await(), highlights.await(), notes.await(), simpleReadingModeOn)
+                }
+                emitViewAction(ViewAction.ShowVerses(bookIndex, chapterIndex, items))
+            }.onFailure { e ->
+                showError(ViewState.Error.VersesLoadingError(bookIndex, chapterIndex), e, "Failed to load verses")
             }
-
-            VersesViewData(
-                items = verses.toVerseItems(application, bookmarks.await(), highlights.await(), notes.await(), simpleReadingModeOn)
-            )
         }
     }
 
-    fun loadVerseDetail(verseIndex: VerseIndex): Flow<ViewData<VerseDetailViewData>> = viewData {
-        coroutineScope {
-            val bookmarked = async { bookmarkManager.read(verseIndex).isValid() }
-            val highlightColor = async { highlightManager.read(verseIndex).takeIf { it.isValid() }?.color ?: Highlight.COLOR_NONE }
-            val note = async { noteManager.read(verseIndex).takeIf { it.isValid() }?.note ?: "" }
-            val crossReferences = async { readCrossReferences(verseIndex) }
-            val strongNumbers = async { strongNumberManager.readStrongNumber(verseIndex).map { StrongNumberItem(it) } }
-
-            // build the verse
-            val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
-            val parallelTranslations = translationManager.downloadedTranslations().first()
-                .filter { it.shortName != currentTranslation }
-                .sortedWith(TranslationInfoComparator(TranslationInfoComparator.SORT_ORDER_LANGUAGE_THEN_SHORT_NAME))
-                .map { it.shortName }
-            val verses = bibleReadingManager.readVerses(currentTranslation, parallelTranslations,
-                verseIndex.bookIndex, verseIndex.chapterIndex)
-
-            // step 1: finds the verse
-            var start: VerseIndex? = null
-            for (verse in verses) {
-                if (verse.text.text.isNotEmpty()) start = verse.verseIndex // skip empty verses
-                if (verse.verseIndex.verseIndex >= verseIndex.verseIndex) break
+    fun loadVerseDetail(verseIndex: VerseIndex, @VerseDetailViewLayout.Companion.VerseDetail content: Int) {
+        viewModelScope.launch {
+            runCatching {
+                val verseDetail = readVerseDetail(verseIndex)
+                emitViewAction(ViewAction.ShowVerseDetail(verseDetail, content))
+                emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.VERSE_SELECTED)))
+            }.onFailure { e ->
+                showError(ViewState.Error.VerseDetailLoadingError(verseIndex, content), e, "Failed to load verse detail")
             }
+        }
+    }
 
-            val verseIterator = verses.iterator()
-            var verse: Verse? = null
-            while (verseIterator.hasNext()) {
-                val v = verseIterator.next()
-                if (v.verseIndex == start) {
-                    verse = v
-                    break
-                }
+    private suspend fun readVerseDetail(verseIndex: VerseIndex): VerseDetailViewData = coroutineScope {
+        val bookmarked = async { bookmarkManager.read(verseIndex).isValid() }
+        val highlightColor = async { highlightManager.read(verseIndex).takeIf { it.isValid() }?.color ?: Highlight.COLOR_NONE }
+        val note = async { noteManager.read(verseIndex).takeIf { it.isValid() }?.note ?: "" }
+        val crossReferences = async { readCrossReferences(verseIndex) }
+        val strongNumbers = async { strongNumberManager.readStrongNumber(verseIndex).map { StrongNumberItem(it) } }
+
+        // build the verse
+        val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
+        val parallelTranslations = translationManager.downloadedTranslations().first()
+            .filter { it.shortName != currentTranslation }
+            .sortedWith(TranslationInfoComparator(TranslationInfoComparator.SORT_ORDER_LANGUAGE_THEN_SHORT_NAME))
+            .map { it.shortName }
+        val verses = bibleReadingManager.readVerses(currentTranslation, parallelTranslations,
+            verseIndex.bookIndex, verseIndex.chapterIndex)
+
+        // step 1: finds the verse
+        var start: VerseIndex? = null
+        for (verse in verses) {
+            if (verse.text.text.isNotEmpty()) start = verse.verseIndex // skip empty verses
+            if (verse.verseIndex.verseIndex >= verseIndex.verseIndex) break
+        }
+
+        val verseIterator = verses.iterator()
+        var verse: Verse? = null
+        while (verseIterator.hasNext()) {
+            val v = verseIterator.next()
+            if (v.verseIndex == start) {
+                verse = v
+                break
             }
-            if (verse == null) throw IllegalStateException("Failed to find verse '$verseIndex' for translation '$currentTranslation'")
+        }
+        if (verse == null) throw IllegalStateException("Failed to find verse '$verseIndex' for translation '$currentTranslation'")
 
-            // step 2: builds the parallel
-            val parallel = Array(parallelTranslations.size) { StringBuilder() }
-            val parallelBuilder: (index: Int, Verse.Text) -> Unit = { index, text ->
-                with(parallel[index]) {
-                    if (isNotEmpty()) append(' ')
-                    append(text.text)
-                }
+        // step 2: builds the parallel
+        val parallel = Array(parallelTranslations.size) { StringBuilder() }
+        val parallelBuilder: (index: Int, Verse.Text) -> Unit = { index, text ->
+            with(parallel[index]) {
+                if (isNotEmpty()) append(' ')
+                append(text.text)
             }
-            verse.parallel.forEachIndexed(parallelBuilder)
+        }
+        verse.parallel.forEachIndexed(parallelBuilder)
 
-            var followingEmptyVerseCount = 0
-            while (verseIterator.hasNext()) {
-                val v = verseIterator.next()
-                if (v.text.text.isNotEmpty()) break
-                v.parallel.forEachIndexed(parallelBuilder)
-                followingEmptyVerseCount++
-            }
+        var followingEmptyVerseCount = 0
+        while (verseIterator.hasNext()) {
+            val v = verseIterator.next()
+            if (v.text.text.isNotEmpty()) break
+            v.parallel.forEachIndexed(parallelBuilder)
+            followingEmptyVerseCount++
+        }
 
-            // step 3: constructs verse text items
-            val verseTextItems = ArrayList<VerseTextItem>(parallelTranslations.size + 1)
+        // step 3: constructs verse text items
+        val verseTextItems = ArrayList<VerseTextItem>(parallelTranslations.size + 1)
+        verseTextItems.add(VerseTextItem(
+            verseIndex = verseIndex,
+            followingEmptyVerseCount = followingEmptyVerseCount,
+            verseText = verse.text,
+            bookName = bibleReadingManager.readBookNames(verse.text.translationShortName)[verse.verseIndex.bookIndex]
+        ))
+        parallelTranslations.forEachIndexed { index, translation ->
             verseTextItems.add(VerseTextItem(
                 verseIndex = verseIndex,
                 followingEmptyVerseCount = followingEmptyVerseCount,
-                verseText = verse.text,
-                bookName = bibleReadingManager.readBookNames(verse.text.translationShortName)[verse.verseIndex.bookIndex]
+                verseText = Verse.Text(translation, parallel[index].toString()),
+                bookName = bibleReadingManager.readBookNames(translation)[verse.verseIndex.bookIndex]
             ))
-            parallelTranslations.forEachIndexed { index, translation ->
-                verseTextItems.add(VerseTextItem(
-                    verseIndex = verseIndex,
-                    followingEmptyVerseCount = followingEmptyVerseCount,
-                    verseText = Verse.Text(translation, parallel[index].toString()),
-                    bookName = bibleReadingManager.readBookNames(translation)[verse.verseIndex.bookIndex]
-                ))
-            }
-
-            VerseDetailViewData(
-                verseIndex = verseIndex,
-                verseTextItems = verseTextItems,
-                bookmarked = bookmarked.await(),
-                highlightColor = highlightColor.await(),
-                note = note.await(),
-                crossReferencedItems = crossReferences.await(),
-                strongNumberItems = strongNumbers.await()
-            )
         }
+
+        VerseDetailViewData(
+            verseIndex = verseIndex,
+            verseTextItems = verseTextItems,
+            bookmarked = bookmarked.await(),
+            highlightColor = highlightColor.await(),
+            note = note.await(),
+            crossReferencedItems = crossReferences.await(),
+            strongNumberItems = strongNumbers.await()
+        )
     }
 
     private suspend fun readCrossReferences(verseIndex: VerseIndex): List<CrossReferenceItem> =
@@ -264,78 +371,150 @@ class ReadingViewModel @Inject constructor(
             )
         }.sortedBy { item -> item.verseIndex.bookIndex * 100000 + item.verseIndex.chapterIndex * 1000 + item.verseIndex.verseIndex }
 
-    fun loadVersesForPreview(verseIndex: VerseIndex): Flow<ViewData<PreviewViewData>> =
-        loadPreview(bibleReadingManager, settingsManager, verseIndex, ::toVersePreviewItems)
-            .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to load verses for preview" } }
-
-    fun verseUpdates(): Flow<VerseUpdate> = verseUpdates
+    fun loadVersesForPreview(verseIndex: VerseIndex) {
+        viewModelScope.launch {
+            runCatching {
+                loadPreview(bibleReadingManager, settingsManager, verseIndex, ::toVersePreviewItems)
+            }.onSuccess { preview ->
+                emitViewAction(ViewAction.ShowPreview(preview))
+            }.onFailure { e ->
+                Logger.withTag(tag).e(e) { "Failed to load verses for preview" }
+                // Very unlikely to fail, so just falls back to open the verse.
+                updateCurrentVerse(verseIndex)
+            }
+        }
+    }
 
     fun updateVerse(update: VerseUpdate) {
-        viewModelScope.launch { verseUpdates.emit(update) }
+        emitViewAction(ViewAction.UpdateVerse(update))
     }
 
-    fun saveBookmark(verseIndex: VerseIndex, toBeBookmarked: Boolean): Flow<ViewData<Unit>> = viewData {
-        if (toBeBookmarked) {
-            bookmarkManager.save(Bookmark(verseIndex, currentTimeMillis()))
-            verseUpdates.emit(VerseUpdate(verseIndex, VerseUpdate.BOOKMARK_ADDED))
-        } else {
-            bookmarkManager.remove(verseIndex)
-            verseUpdates.emit(VerseUpdate(verseIndex, VerseUpdate.BOOKMARK_REMOVED))
-        }
-    }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to update bookmark" } }
-
-    fun saveHighlight(verseIndex: VerseIndex, @Highlight.Companion.AvailableColor color: Int): Flow<ViewData<Unit>> = viewData {
-        if (color == Highlight.COLOR_NONE) {
-            highlightManager.remove(verseIndex)
-            verseUpdates.emit(VerseUpdate(verseIndex, VerseUpdate.HIGHLIGHT_UPDATED, Highlight.COLOR_NONE))
-        } else {
-            highlightManager.save(Highlight(verseIndex, color, currentTimeMillis()))
-            verseUpdates.emit(VerseUpdate(verseIndex, VerseUpdate.HIGHLIGHT_UPDATED, color))
-        }
-    }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to update highlight" } }
-
-    fun saveNote(verseIndex: VerseIndex, note: String): Flow<ViewData<Unit>> = viewData {
-        if (note.isEmpty()) {
-            noteManager.remove(verseIndex)
-            verseUpdates.emit(VerseUpdate(verseIndex, VerseUpdate.NOTE_REMOVED))
-        } else {
-            noteManager.save(Note(verseIndex, note, currentTimeMillis()))
-            verseUpdates.emit(VerseUpdate(verseIndex, VerseUpdate.NOTE_ADDED))
+    fun saveBookmark(verseIndex: VerseIndex, toBeBookmarked: Boolean) {
+        viewModelScope.launch {
+            runCatching {
+                if (toBeBookmarked) {
+                    bookmarkManager.save(Bookmark(verseIndex, currentTimeMillis()))
+                    emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.BOOKMARK_ADDED)))
+                } else {
+                    bookmarkManager.remove(verseIndex)
+                    emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.BOOKMARK_REMOVED)))
+                }
+                emitViewAction(ViewAction.BookmarkSaved(toBeBookmarked))
+            }.onFailure { e ->
+                showError(ViewState.Error.BookmarkSavingError, e, "Failed to update bookmark")
+            }
         }
     }
 
-    fun downloadCrossReferences(): Flow<ViewData<Int>> =
-        crossReferencesManager.download()
-            .map { progress ->
-                when (progress) {
-                    -1 -> ViewData.Failure(CancellationException("Cross references downloading cancelled by user"))
-                    in 0 until 100 -> ViewData.Loading(progress)
-                    else -> ViewData.Success(100)
+    fun saveHighlight(verseIndex: VerseIndex, @Highlight.Companion.AvailableColor color: Int) {
+        viewModelScope.launch {
+            runCatching {
+                if (color == Highlight.COLOR_NONE) {
+                    highlightManager.remove(verseIndex)
+                } else {
+                    highlightManager.save(Highlight(verseIndex, color, currentTimeMillis()))
                 }
+                emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.HIGHLIGHT_UPDATED, color)))
+                emitViewAction(ViewAction.HighlightSaved(color))
+            }.onFailure { e ->
+                showError(ViewState.Error.HighlightSavingError, e, "Failed to update highlight")
+            }
+        }
+    }
+
+    fun saveNote(verseIndex: VerseIndex, note: String) {
+        viewModelScope.launch {
+            runCatching {
+                if (note.isEmpty()) {
+                    noteManager.remove(verseIndex)
+                    emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.NOTE_REMOVED)))
+                } else {
+                    noteManager.save(Note(verseIndex, note, currentTimeMillis()))
+                    emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.NOTE_ADDED)))
+                }
+                emitViewAction(ViewAction.NoteSaved(note))
+            }.onFailure { e ->
+                showError(ViewState.Error.NoteSavingError, e, "Failed to update note")
+            }
+        }
+    }
+
+    fun downloadCrossReferences() {
+        if (downloadCrossReferencesJob != null) return // just in case the user clicks too fast
+
+        updateViewState { it.copy(crossReferencesDownloadingState = ViewState.DownloadingState.Downloading(0)) }
+        downloadCrossReferencesJob = crossReferencesManager.download()
+            .onEach { progress ->
+                updateViewState { it.copy(crossReferencesDownloadingState = progress.toDownloadingState()) }
             }
             .catch { e ->
-                Logger.withTag(tag).e(e) { "Failed to download cross references" }
-                emit(ViewData.Failure(e))
+                downloadCrossReferencesJob = null
+                updateViewState { it.copy(crossReferencesDownloadingState = ViewState.DownloadingState.Idle) }
+                showError(ViewState.Error.CrossReferencesDownloadingError, e, "Failed to download cross references")
             }
+            .launchIn(viewModelScope)
+    }
 
-    fun crossReferences(verseIndex: VerseIndex): Flow<ViewData<List<CrossReferenceItem>>> = viewData { readCrossReferences(verseIndex) }
+    fun cancelDownloadingCrossReferences() {
+        downloadCrossReferencesJob?.cancel()
+        downloadCrossReferencesJob = null
+        updateViewState { it.copy(crossReferencesDownloadingState = ViewState.DownloadingState.Idle) }
+    }
 
-    fun downloadStrongNumber(): Flow<ViewData<Int>> =
-        strongNumberManager.download()
-            .map { progress ->
-                when (progress) {
-                    -1 -> ViewData.Failure(CancellationException("Strong Number downloading cancelled by user"))
-                    in 0 until 100 -> ViewData.Loading(progress)
-                    else -> ViewData.Success(100)
-                }
+    fun markCrossReferencesDownloadingStateAsIdle() {
+        downloadCrossReferencesJob = null
+        updateViewState { it.copy(crossReferencesDownloadingState = ViewState.DownloadingState.Idle) }
+    }
+
+    fun loadCrossReferences(verseIndex: VerseIndex) {
+        viewModelScope.launch {
+            runCatching { readCrossReferences(verseIndex) }
+                .onSuccess { emitViewAction(ViewAction.ShowCrossReferences(it)) }
+                .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to load cross references" } }
+        }
+    }
+
+    fun downloadStrongNumber() {
+        if (downloadStrongNumberJob != null) return // just in case the user clicks too fast
+
+        updateViewState { it.copy(strongNumberDownloadingState = ViewState.DownloadingState.Downloading(0)) }
+        downloadStrongNumberJob = strongNumberManager.download()
+            .onEach { progress ->
+                updateViewState { it.copy(strongNumberDownloadingState = progress.toDownloadingState()) }
             }
             .catch { e ->
-                Logger.withTag(tag).e(e) { "Failed to download Strong Number" }
-                emit(ViewData.Failure(e))
+                downloadStrongNumberJob = null
+                updateViewState { it.copy(strongNumberDownloadingState = ViewState.DownloadingState.Idle) }
+                showError(ViewState.Error.StrongNumberDownloadingError, e, "Failed to download Strong Number")
             }
+            .launchIn(viewModelScope)
+    }
 
-    fun strongNumbers(verseIndex: VerseIndex): Flow<ViewData<List<StrongNumberItem>>> = viewData {
-        strongNumberManager.readStrongNumber(verseIndex).map { StrongNumberItem(it) }
+    fun cancelDownloadingStrongNumber() {
+        downloadStrongNumberJob?.cancel()
+        downloadStrongNumberJob = null
+        updateViewState { it.copy(strongNumberDownloadingState = ViewState.DownloadingState.Idle) }
+    }
+
+    fun markStrongNumberDownloadingStateAsIdle() {
+        downloadStrongNumberJob = null
+        updateViewState { it.copy(strongNumberDownloadingState = ViewState.DownloadingState.Idle) }
+    }
+
+    // -1 means cancelled; 99 means the data is downloaded and is being installed.
+    private fun Int.toDownloadingState(): ViewState.DownloadingState = when (this) {
+        -1 -> ViewState.DownloadingState.Idle
+        in 0 until 99 -> ViewState.DownloadingState.Downloading(this)
+        99 -> ViewState.DownloadingState.Installing
+        else -> ViewState.DownloadingState.Completed(successful = true)
+    }
+
+    fun loadStrongNumbers(verseIndex: VerseIndex) {
+        viewModelScope.launch {
+            runCatching { strongNumberManager.readStrongNumber(verseIndex).map { StrongNumberItem(it) } }
+                .onSuccess { emitViewAction(ViewAction.ShowStrongNumbers(it)) }
+                .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to load Strong Number" } }
+        }
     }
 
     fun startTrackingReadingProgress() {

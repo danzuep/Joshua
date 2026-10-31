@@ -20,14 +20,12 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
-import me.xizzhu.android.joshua.infra.BaseViewModel
 import me.xizzhu.android.joshua.tests.BaseUnitTest
 import me.xizzhu.android.joshua.tests.MockContents
 import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
@@ -35,16 +33,14 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
 class PreviewViewDataTest : BaseUnitTest() {
     @Test
     fun `test loadPreview with invalid verseIndex`() = runTest {
-        val actual = loadPreview(mockk(), mockk(), VerseIndex.INVALID, mockk()).toList()
-        assertEquals(2, actual.size)
-        assertTrue(actual[0] is BaseViewModel.ViewData.Loading)
-        assertTrue(actual[1] is BaseViewModel.ViewData.Failure)
+        assertFailsWith<IllegalArgumentException> { loadPreview(mockk(), mockk(), VerseIndex.INVALID, mockk()) }
     }
 
     @Test
@@ -58,13 +54,11 @@ class PreviewViewDataTest : BaseUnitTest() {
         val converter: List<Verse>.() -> List<BaseItem> = mockk()
         every { converter(any()) } returns listOf()
 
-        val actual = loadPreview(bibleReadingManager, settingsManager, VerseIndex(0, 0, 0), converter).toList()
-        assertEquals(2, actual.size)
-        assertTrue(actual[0] is BaseViewModel.ViewData.Loading)
-        assertEquals(Settings.DEFAULT, (actual[1] as BaseViewModel.ViewData.Success).data.settings)
-        assertEquals("Gen., 1", (actual[1] as BaseViewModel.ViewData.Success).data.title)
-        assertTrue((actual[1] as BaseViewModel.ViewData.Success).data.items.isEmpty())
-        assertEquals(0, (actual[1] as BaseViewModel.ViewData.Success).data.currentPosition)
+        val actual = loadPreview(bibleReadingManager, settingsManager, VerseIndex(0, 0, 0), converter)
+        assertEquals(Settings.DEFAULT, actual.settings)
+        assertEquals("Gen., 1", actual.title)
+        assertTrue(actual.items.isEmpty())
+        assertEquals(0, actual.currentPosition)
     }
 
     @Test

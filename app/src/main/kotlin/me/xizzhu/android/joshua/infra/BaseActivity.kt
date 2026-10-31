@@ -27,35 +27,32 @@ import me.xizzhu.android.joshua.Navigator
 import co.touchlab.kermit.Logger
 import javax.inject.Inject
 
-abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatActivity() {
+abstract class BaseActivity<VB : ViewBinding, ViewAction, ViewState, VM : BaseViewModel<ViewAction, ViewState>> : AppCompatActivity() {
     protected val tag: String = javaClass.simpleName
 
     @Inject
     internal lateinit var navigator: Navigator
 
-    protected lateinit var viewBinding: VB
+    protected abstract val viewModel: VM
+
+    protected abstract val viewBinding: VB
+
+    protected abstract fun initializeView()
+
+    protected abstract fun onViewActionEmitted(viewAction: ViewAction)
+
+    protected abstract fun onViewStateUpdated(viewState: ViewState)
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Logger.withTag(tag).i { "onCreate()" }
 
-        viewBinding = inflateViewBinding()
         setContentView(viewBinding.root)
+        initializeView()
 
-        observeSettings()
-    }
-
-    protected abstract fun inflateViewBinding(): VB
-
-    protected abstract fun viewModel(): VM
-
-    private fun observeSettings() {
-        viewModel().settings()
-                .onEach { settings ->
-                    window.decorView.keepScreenOn = settings.keepScreenOn
-                }
-                .launchIn(lifecycleScope)
+        viewModel.viewAction().onEach(::onViewActionEmitted).launchIn(lifecycleScope)
+        viewModel.viewState().onEach(::onViewStateUpdated).launchIn(lifecycleScope)
     }
 
     @CallSuper

@@ -27,7 +27,7 @@ import me.xizzhu.android.joshua.Navigator
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import me.xizzhu.android.joshua.databinding.ActivitySearchBinding
-import me.xizzhu.android.joshua.infra.BaseActivityV2
+import me.xizzhu.android.joshua.infra.BaseActivity
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.fadeIn
 import me.xizzhu.android.joshua.ui.hideKeyboard
@@ -38,7 +38,7 @@ import me.xizzhu.android.joshua.preview.Preview
 import me.xizzhu.android.joshua.preview.PreviewAdapter
 
 @AndroidEntryPoint
-class SearchActivity : BaseActivityV2<ActivitySearchBinding, SearchViewModel.ViewAction, SearchViewModel.ViewState, SearchViewModel>() {
+class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewAction, SearchViewModel.ViewState, SearchViewModel>() {
     @Inject
     lateinit var coroutineDispatcherProvider: CoroutineDispatcherProvider
 
