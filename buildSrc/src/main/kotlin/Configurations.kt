@@ -86,7 +86,7 @@ object Versions {
     const val kermit = "2.2.0"
     const val materialComponent = "1.11.0"
     const val mockk = "1.14.11"
-    const val robolectric = "4.17"
+    const val robolectric = "4.16.1"
 }
 
 object Dependencies {
