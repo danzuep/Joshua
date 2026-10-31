@@ -52,6 +52,7 @@ import javax.inject.Inject
 import me.xizzhu.android.joshua.preview.Preview
 import me.xizzhu.android.joshua.preview.buildPreviewVerseWithQueryItems
 
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val bibleReadingManager: BibleReadingManager,
@@ -100,7 +101,6 @@ class SearchViewModel @Inject constructor(
         RecentSearchProvider.SearchSuggestions(application, viewModelScope, coroutineDispatcherProvider)
     }
 
-    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     init {
         searchManager.configuration()
             .onEach { searchConfig ->
