@@ -6,7 +6,7 @@
 
 # Joshua
 
-A simple, ad-free Bible reader for Android with a minimalist design. Read offline, compare translations side by side, search every verse, and keep your notes, bookmarks and highlights, all in a small install.
+A simple, free and open source software Bible reader for Android with a minimalist design. Read offline, compare translations side by side, search every verse, and keep your notes, bookmarks and highlights, all in a tiny install of less than 4 MB.
 
 The default Bible is the **World English Bible (WEB)**, a modern-English public domain translation, so it is free to read, share and redistribute.
 
@@ -16,8 +16,8 @@ Get the latest APK from **[GitHub Releases](https://github.com/danzuep/Joshua/re
 
 | File | What it is |
 |------|------------|
-| `Joshua-vX.Y.Z-with-WEB.apk` | **Recommended.** Includes the WEB Bible, so it works offline from the first launch. |
-| `Joshua-vX.Y.Z.apk` | Smaller. Download translations from inside the app. |
+| `Joshua-vX.Y.Z-with-WEB.apk` | **Recommended.** Includes the WEB Bible, so it works offline from the first launch. 3.33 MB as of v0.21.2 |
+| `Joshua-vX.Y.Z.apk` | Download translations from inside the app. 1.67 MB as of v0.21.2 |
 
 Open the APK on your device and allow installs from your browser or file manager when asked.
 
@@ -32,7 +32,7 @@ Open the APK on your device and allow installs from your browser or file manager
 
 ## Features
 
-* Free and ad-free
+* Free and open source software
 * Reads without a network connection
 * Small download and install size
 * Read multiple translations at the same time
@@ -46,9 +46,9 @@ Tens of other translations can be downloaded in the app. See the [full list](doc
 
 ## About this project
 
-The WEB was produced by **Michael Johnson**, who also maintains many other public domain works at [eBible.org](https://ebible.org/engwebu/MRK01.htm). He wanted a Bible app for them, so this project was forked to build one: a FOSS app for his public domain translations.
-
 Thank you to [Xizhi Zhu](https://github.com/xizzhu) for creating [the original Joshua](https://github.com/xizzhu/Joshua), which this is built on. After the original appeared to be abandoned, this fork updated it to build with JDK 25 and brought the unit tests back to green. See [docs/RELEASING.md](docs/RELEASING.md) for how releases are built.
+
+The WEB was produced by **Michael Johnson**, who also maintains many other public domain works at [eBible.org](https://ebible.org/engwebu/MRK01.htm). He wanted a Bible app for them, so this project was forked to build one: a FOSS app for his public domain translations.
 
 License
 -------
