@@ -4,42 +4,51 @@
 [![API](https://img.shields.io/badge/API-19%2B-blue.svg?style=flat)](https://www.android.com/versions/kit-kat-4-4/)
 [![Apache License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
 
-This project was forked [here](https://github.com/danzuep/Joshua) after the [original](https://github.com/xizzhu/Joshua) appears to have been abandoned. My goal was to work with the [WEB](https://ebible.org/engwebu/MRK01.htm) translator to create a [FOSS](https://f-droid.org/) app for the many public domain licenced works he has, but as this is my first time using Kotlin that may be unrealistic. So far I've updated the project from JDK 11 to build in a JDK 25 devcontainer, and gotten all the unit tests to pass again.
+# Joshua
 
-Joshua
-======
+A simple, ad-free Bible reader for Android with a minimalist design. Read offline, compare translations side by side, search every verse, and keep your notes, bookmarks and highlights, all in a small install.
 
-A simple and easy-to-use Bible reader for your Android device, with minimalist design. It supports offline reading, multi-versions, full-text search, and many other features, while maintaining a small download and install size. 
+The default Bible is the **World English Bible (WEB)**, a modern-English public domain translation, so it is free to read, share and redistribute.
 
-You can download the APK from [Play Store](https://play.google.com/store/apps/details?id=me.xizzhu.android.joshua) or [here](https://github.com/xizzhu/Joshua/releases). Recent changes are listed [here](docs/CHANGELOG.md). Feel free to request new features or report bugs [here](https://github.com/xizzhu/Joshua/issues).
-You can download the APK from [GitHub](https://github.com/danzuep/Joshua/releases). Recent changes are listed [here](docs/CHANGELOG.md). Feel free to request new features or report bugs [here](https://github.com/danzuep/Joshua/issues).
+## Download
 
+Get the latest APK from **[GitHub Releases](https://github.com/danzuep/Joshua/releases/latest)**. Two files are published with each release:
 
-A simple and easy-to-use Bible reader for your Android device, with minimalist design. It supports offline reading, multi-versions, full-text search, and many other features, while maintaining a small download and install size.
+| File | What it is |
+|------|------------|
+| `Joshua-vX.Y.Z-with-WEB.apk` | **Recommended.** Includes the WEB Bible, so it works offline from the first launch. |
+| `Joshua-vX.Y.Z.apk` | Smaller. Download translations from inside the app. |
 
-~~You can download the APK from [Play Store](https://play.google.com/store/apps/details?id=me.xizzhu.android.joshua) or [here](https://github.com/xizzhu/Joshua/releases). Recent changes are listed [here](docs/CHANGELOG.md). Feel free to request new features or report bugs [here](https://github.com/xizzhu/Joshua/issues).~~
+Open the APK on your device and allow installs from your browser or file manager when asked.
 
-Main Features
--------------
-* Download it for free, and read the Bible ads-free
-* Read without network connection
-* Small download and installation size
-* Read multiple versions at the same time
+### Stay up to date with Obtainium
+
+[Obtainium](https://github.com/ImranR98/Obtainium) installs and updates apps straight from GitHub Releases, so you don't need an app store.
+
+1. Install Obtainium from its [releases page](https://github.com/ImranR98/Obtainium/releases/latest) (or F-Droid).
+2. Open Obtainium, tap **Add App**, and enter `https://github.com/danzuep/Joshua` as the source URL.
+3. Under the app's additional options, set **Filter APKs by regular expression** to `with-WEB`. This picks the WEB-bundled APK. Leave it empty for the smaller one.
+4. Tap **Add**, then **Install**. Obtainium will notify you when a new release is out.
+
+## Features
+
+* Free and ad-free
+* Reads without a network connection
+* Small download and install size
+* Read multiple translations at the same time
 * Full-text search
-* Add bookmarks and highlights to your favorite verses
-* Add your own notes
-* Study with cross references, and Strong's Numbers
-* Share verses with friends through your favorite social media, email, SMS, etc.
-* Customize font size
-* Day / night mode
+* Bookmarks, highlights and your own notes
+* Cross references and Strong's Numbers
+* Share verses through your favorite apps
+* Adjustable font size and day / night mode
 
-We currently support tens of different translations, with more added regularly. A full list of available translations can be found [here](docs/TRANSLATIONS.md).
+Tens of other translations can be downloaded in the app. See the [full list](docs/TRANSLATIONS.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/Joshua/issues).
 
-~~Donations~~
-~~---------~~
-~~If you would like to support this project, feel free to donate. Your support is highly appreciated. Thank you!~~
-~~* [PayPal](https://paypal.me/xizzhu)~~
-~~* [Venmo](https://www.venmo.com/u/xizzhu)~~
+## About this project
+
+The WEB was produced by **Michael Johnson**, who also maintains many other public domain works at [eBible.org](https://ebible.org/engwebu/MRK01.htm). He wanted a Bible app for them, so this project was forked to build one: a FOSS app for his public domain translations.
+
+Thank you to [Xizhi Zhu](https://github.com/xizzhu) for creating [the original Joshua](https://github.com/xizzhu/Joshua), which this is built on. After the original appeared to be abandoned, this fork updated it to build with JDK 25 and brought the unit tests back to green. See [docs/RELEASING.md](docs/RELEASING.md) for how releases are built.
 
 License
 -------
