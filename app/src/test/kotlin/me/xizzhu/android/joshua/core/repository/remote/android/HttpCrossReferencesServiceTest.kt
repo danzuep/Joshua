@@ -37,7 +37,7 @@ class HttpCrossReferencesServiceTest : BaseUnitTest() {
 
     @Test
     fun `test toRemoteStrongNumberIndexes()`() {
-        crossReferencesService.toRemoteCrossReferences(javaClass.classLoader.getResourceAsStream("cross_references.zip"))
+        crossReferencesService.toRemoteCrossReferences(javaClass.classLoader!!.getResourceAsStream("cross_references.zip"))
                 .references.forEach { (from, to) ->
                     assertTrue(from.isValid())
                     assertTrue(to.isNotEmpty())

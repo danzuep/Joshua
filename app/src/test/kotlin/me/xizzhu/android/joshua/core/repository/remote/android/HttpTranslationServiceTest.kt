@@ -68,7 +68,7 @@ class HttpTranslationServiceTest : BaseUnitTest() {
     @Test
     fun `test toRemoteTranslation()`() {
         val actual = httpTranslationService.toRemoteTranslation(
-                MockContents.kjvRemoteTranslationInfo, javaClass.classLoader.getResourceAsStream("KJV.zip")
+                MockContents.kjvRemoteTranslationInfo, javaClass.classLoader!!.getResourceAsStream("KJV.zip")
         )
         assertEquals(MockContents.kjvRemoteTranslationInfo, actual.translationInfo)
         assertEquals(Bible.BOOK_COUNT, actual.bookNames.size)

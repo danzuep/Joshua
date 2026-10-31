@@ -36,6 +36,7 @@ import kotlin.test.*
 import me.xizzhu.android.joshua.preview.PreviewItem
 
 @RunWith(RobolectricTestRunner::class)
+@Suppress("UNCHECKED_CAST")
 class SearchViewModelTest : BaseUnitTest() {
     private lateinit var bibleReadingManager: BibleReadingManager
     private lateinit var searchManager: SearchManager
@@ -852,10 +853,10 @@ class SearchViewModelTest : BaseUnitTest() {
         )
         assertEquals(
             "1:2 And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.",
-            (actual.preview?.items?.get(1) as PreviewItem.VerseWithQuery).textForDisplay.toString()
+            (actual.preview.items?.get(1) as PreviewItem.VerseWithQuery).textForDisplay.toString()
         )
-        assertEquals("1:3 And God said, Let there be light: and there was light.", (actual.preview?.items?.get(2) as PreviewItem.VerseWithQuery).textForDisplay.toString())
-        assertEquals(1, actual.preview?.currentPosition)
+        assertEquals("1:3 And God said, Let there be light: and there was light.", (actual.preview.items?.get(2) as PreviewItem.VerseWithQuery).textForDisplay.toString())
+        assertEquals(1, actual.preview.currentPosition)
         assertNull(actual.searchResultSummary)
         assertNull(actual.error)
 

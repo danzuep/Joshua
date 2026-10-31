@@ -129,7 +129,7 @@ class TranslationsViewModel @Inject constructor(
         forEach { translationInfo ->
             val language = translationInfo.language.split("_")[0]
             if (currentLanguage != language) {
-                items.add(TranslationsItem.Header(settings, Locale(language).displayLanguage, hideDivider = true))
+                items.add(TranslationsItem.Header(settings, Locale.forLanguageTag(language).displayLanguage, hideDivider = true))
                 currentLanguage = language
             }
             items.add(TranslationsItem.Translation(

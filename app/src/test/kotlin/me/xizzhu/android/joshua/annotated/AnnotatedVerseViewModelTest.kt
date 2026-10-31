@@ -48,6 +48,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+@Suppress("UNCHECKED_CAST")
 class AnnotatedVerseViewModelTest : BaseUnitTest() {
     private class TestVerseAnnotation(verseIndex: VerseIndex, timestamp: Long) : VerseAnnotation(verseIndex, timestamp)
 

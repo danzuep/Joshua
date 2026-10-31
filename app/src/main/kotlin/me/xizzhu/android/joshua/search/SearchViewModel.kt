@@ -19,6 +19,8 @@ package me.xizzhu.android.joshua.search
 import android.app.Application
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -50,6 +52,7 @@ import javax.inject.Inject
 import me.xizzhu.android.joshua.preview.Preview
 import me.xizzhu.android.joshua.preview.buildPreviewVerseWithQueryItems
 
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val bibleReadingManager: BibleReadingManager,
