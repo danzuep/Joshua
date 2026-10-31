@@ -36,6 +36,7 @@ import kotlin.test.*
 import me.xizzhu.android.joshua.preview.PreviewItem
 
 @RunWith(RobolectricTestRunner::class)
+@Suppress("UNCHECKED_CAST")
 class SearchViewModelTest : BaseUnitTest() {
     private lateinit var bibleReadingManager: BibleReadingManager
     private lateinit var searchManager: SearchManager

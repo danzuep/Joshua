@@ -57,7 +57,8 @@ class ChapterListView : ExpandableListView {
 
     private fun expandBook(bookIndex: Int) {
         val groupToExpand = bookIndex
-        if (isGroupExpanded(groupToExpand)) {
+        // The books may not be loaded yet; expanding a missing group crashes in the adapter.
+        if (groupToExpand !in 0 until adapter.groupCount || isGroupExpanded(groupToExpand)) {
             return
         }
 

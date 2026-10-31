@@ -19,6 +19,7 @@ package me.xizzhu.android.joshua.core.repository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import me.xizzhu.android.joshua.core.repository.local.LocalStrongNumberStorage
@@ -31,6 +32,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
+@OptIn(DelicateCoroutinesApi::class)
 class StrongNumberRepositoryTest : BaseUnitTest() {
     private lateinit var localStrongNumberStorage: LocalStrongNumberStorage
     private lateinit var remoteStrongNumberStorage: RemoteStrongNumberStorage

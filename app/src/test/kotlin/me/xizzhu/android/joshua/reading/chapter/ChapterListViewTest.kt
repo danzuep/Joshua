@@ -74,4 +74,21 @@ class ChapterListViewTest : BaseUnitTest() {
             assertEquals(index == 0, chapterListView.isGroupExpanded(index))
         }
     }
+
+    @Test
+    fun `test expandCurrentBook, before items are loaded`() {
+        val chapterListView = ChapterListView(ApplicationProvider.getApplicationContext())
+        chapterListView.initialize { fail() }
+        chapterListView.setCurrentChapter(currentBookIndex = 0, currentChapterIndex = 0)
+        chapterListView.expandCurrentBook()
+        assertFalse(chapterListView.isGroupExpanded(0))
+
+        chapterListView.setChapterSelectionItems(
+            chapterSelectionItems = MockContents.kjvBookNames.mapIndexed { index, bookName ->
+                ChapterSelectionItem(bookIndex = index, bookName = bookName, chapterCount = Bible.getChapterCount(index))
+            }
+        )
+        chapterListView.expandCurrentBook()
+        assertEquals(true, chapterListView.isGroupExpanded(0))
+    }
 }
