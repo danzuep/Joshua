@@ -54,26 +54,32 @@ class TranslationRepository(
 
     init {
         appScope.launch {
-            try {
-                updateTranslations(readTranslationsFromLocal())
+            // Publish only once, after any bundled install, so observers never see a transient "no translations" state
+            val local = try {
+                readTranslationsFromLocal()
             } catch (e: Exception) {
                 Logger.e(e) { "Failed to initialize translations" }
-                updateTranslations(emptyList())
+                emptyList()
             }
 
-            try {
-                installBundledTranslations()
-            } catch (e: Exception) {
-                Logger.e(e) { "Failed to install bundled translations" }
+            val installed = if (local.none { it.downloaded }) {
+                try {
+                    installBundledTranslations()
+                } catch (e: Exception) {
+                    Logger.e(e) { "Failed to install bundled translations" }
+                    false
+                }
+            } else {
+                false
             }
+
+            updateTranslations(if (installed) readTranslationsFromLocal() else local)
         }
     }
 
-    private suspend fun installBundledTranslations() {
-        if (_downloadedTranslations.value?.isNotEmpty() == true) return
-
+    private suspend fun installBundledTranslations(): Boolean {
         val bundled = remoteTranslationService.fetchBundledTranslations()
-        if (bundled.isEmpty()) return
+        if (bundled.isEmpty()) return false
 
         Logger.withTag(TAG).i { "Installing bundled translations - ${bundled.map { it.translationInfo.shortName }}" }
         bundled.forEach { translation ->
@@ -82,7 +88,7 @@ class TranslationRepository(
                 translation.bookNames, translation.bookShortNames, translation.verses
             )
         }
-        updateTranslations(readTranslationsFromLocal())
+        return true
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
