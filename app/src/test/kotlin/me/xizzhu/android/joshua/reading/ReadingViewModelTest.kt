@@ -469,7 +469,7 @@ class ReadingViewModelTest : BaseUnitTest() {
     @Test
     fun `test saveBookmark with exception`() = runTest {
         currentTimeMillis = 1L
-        coEvery { bookmarkManager.save(any()) } throws RuntimeException("random exception")
+        coEvery { bookmarkManager.save(Bookmark(VerseIndex(1, 2, 3), 1L)) } throws RuntimeException("random exception")
         val actions = collectViewActions()
 
         readingViewModel.saveBookmark(VerseIndex(1, 2, 3), toBeBookmarked = true)
