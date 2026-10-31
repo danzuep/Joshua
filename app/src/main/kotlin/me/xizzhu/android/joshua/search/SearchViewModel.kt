@@ -19,6 +19,8 @@ package me.xizzhu.android.joshua.search
 import android.app.Application
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -98,6 +100,7 @@ class SearchViewModel @Inject constructor(
         RecentSearchProvider.SearchSuggestions(application, viewModelScope, coroutineDispatcherProvider)
     }
 
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     init {
         searchManager.configuration()
             .onEach { searchConfig ->

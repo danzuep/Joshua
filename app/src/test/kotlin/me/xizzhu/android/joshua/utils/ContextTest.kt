@@ -20,6 +20,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import androidx.core.content.IntentCompat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
@@ -70,11 +71,11 @@ class ContextTest : BaseUnitTest() {
         assertEquals(Intent.ACTION_CHOOSER, chooseIntent.action)
         assertEquals(title, chooseIntent.getStringExtra(Intent.EXTRA_TITLE))
 
-        val primaryIntent = chooseIntent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
+        val primaryIntent = IntentCompat.getParcelableExtra(chooseIntent, Intent.EXTRA_INTENT, Intent::class.java)
         assertNotNull(primaryIntent)
         verifyShareIntent(primaryIntent, "name0", "packageName0")
 
-        val filteredIntents = chooseIntent.getParcelableArrayExtra(Intent.EXTRA_INITIAL_INTENTS)
+        val filteredIntents = IntentCompat.getParcelableArrayExtra(chooseIntent, Intent.EXTRA_INITIAL_INTENTS, Intent::class.java)
         assertNotNull(filteredIntents)
         assertEquals(resolveInfoList.size - 2, filteredIntents.size)
         for ((i, intent) in filteredIntents.withIndex()) {

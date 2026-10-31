@@ -33,6 +33,7 @@ android {
     }
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         compilerOptions {
+            freeCompilerArgs.add("-Xannotation-default-target=param-property")
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(Versions.Kotlin.jvmTarget))
         }
     }

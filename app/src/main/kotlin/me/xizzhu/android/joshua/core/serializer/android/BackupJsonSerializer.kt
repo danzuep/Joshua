@@ -151,7 +151,7 @@ class BackupJsonSerializer : BackupManager.Serializer {
         if (notes == null) throw IllegalStateException("Missing notes")
         if (readingProgress?.isValid() != true) throw IllegalStateException("Missing reading progress")
 
-        return BackupManager.Data(bookmarks!!, highlights!!, notes!!, readingProgress!!)
+        return BackupManager.Data(bookmarks, highlights, notes, readingProgress)
     }
 
     private fun JsonReader.readBookMarks(): List<Bookmark> {

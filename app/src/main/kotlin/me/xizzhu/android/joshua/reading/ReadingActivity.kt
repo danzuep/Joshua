@@ -281,7 +281,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
         }
         downloadCrossReferencesDialog = progressDialog(R.string.dialog_title_downloading, 100) { downloadCrossReferencesJob?.cancel() }
 
-        lifecycleScope.launchWhenStarted {
+        lifecycleScope.launch {
             readingViewModel.downloadCrossReferences()
                 .onEach(
                     onLoading = { progress ->
@@ -326,7 +326,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel>()
         }
         downloadStrongNumberDialog = progressDialog(R.string.dialog_title_downloading, 100) { downloadStrongNumberJob?.cancel() }
 
-        lifecycleScope.launchWhenStarted {
+        lifecycleScope.launch {
             readingViewModel.downloadStrongNumber()
                 .onEach(
                     onLoading = { progress ->

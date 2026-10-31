@@ -20,6 +20,7 @@ import androidx.annotation.CallSuper
 import java.util.Locale
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -29,6 +30,7 @@ import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class BaseUnitTest {
     private val testDispatcher = UnconfinedTestDispatcher()
     protected val testScope = CoroutineScope(SupervisorJob() + testDispatcher)
