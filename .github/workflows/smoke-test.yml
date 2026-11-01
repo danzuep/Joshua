@@ -12,7 +12,13 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
     - uses: gradle/actions/setup-gradle@v6
-    - run: ./gradlew assembleRelease
+    - name: Bundle a minimal World English Bible (John 1 only)
+      run: |
+        mkdir -p bundled-assets/bundled/translations
+        curl -fsSL "https://ebible.org/Scriptures/engwebu_usfm.zip" -o full-engwebu.zip
+        bash .github/scripts/make-minimal-web.sh full-engwebu.zip bundled-assets/bundled/translations/engwebu.zip
+        printf 'engwebu\tWorld English Bible Updated\teng\n' > bundled-assets/bundled/list.tsv
+    - run: ./gradlew assembleRelease -PbundledAssetsDir="$PWD/bundled-assets"
     - name: Enable KVM
       run: |
         echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -22,13 +28,7 @@ jobs:
       with:
         api-level: 34
         arch: x86_64
-        script: |
-          adb install app/build/outputs/apk/release/app-release.apk
-          adb logcat -c
-          adb shell am start -W -n me.xizzhu.android.joshua/.LauncherActivity
-          sleep 20
-          adb logcat -d > logcat.txt
-          adb exec-out screencap -p > screen.png
+        script: bash .github/scripts/smoke-test.sh
     - uses: actions/upload-artifact@v7
       if: always()
       with:
@@ -36,3 +36,4 @@ jobs:
         path: |
           logcat.txt
           screen.png
+          ui.xml

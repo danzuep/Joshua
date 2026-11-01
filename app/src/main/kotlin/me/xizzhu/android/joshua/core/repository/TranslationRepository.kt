@@ -31,7 +31,9 @@ import me.xizzhu.android.joshua.core.provider.TimeProvider
 import me.xizzhu.android.joshua.core.repository.local.LocalTranslationStorage
 import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslationInfo
 import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslationService
+import me.xizzhu.android.joshua.core.repository.remote.DEFAULT_DOWNLOAD_SITE
 import co.touchlab.kermit.Logger
+import java.io.IOException
 
 class TranslationRepository(
     private val localTranslationStorage: LocalTranslationStorage,
@@ -137,7 +139,8 @@ class TranslationRepository(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     suspend fun readTranslationsFromBackend(): List<TranslationInfo> {
         Logger.withTag(TAG).i { "Start fetching translation list" }
-        val fetchedTranslations = remoteTranslationService.fetchTranslations()
+        val fetchedTranslations = remoteTranslationService.fetchTranslations(readDownloadSites())
+        if (fetchedTranslations.isEmpty()) throw IOException("No translations found on the download sites")
         Logger.withTag(TAG).i { "Translation list downloaded" }
         val localTranslations = readTranslationsFromLocal()
 
@@ -153,6 +156,10 @@ class TranslationRepository(
             translations.add(fetched.toTranslationInfo(downloaded))
         }
 
+        // keeps the translations that are installed but not listed (any more) on the download sites
+        localTranslations.filter { local -> local.downloaded && translations.none { it.shortName == local.shortName } }
+            .let { translations.addAll(it) }
+
         localTranslationStorage.replaceTranslations(translations)
 
         try {
@@ -165,6 +172,11 @@ class TranslationRepository(
 
         return translations
     }
+
+    suspend fun readDownloadSites(): List<String> =
+        localTranslationStorage.readDownloadSites().ifEmpty { listOf(DEFAULT_DOWNLOAD_SITE) }
+
+    suspend fun saveDownloadSites(sites: List<String>) = localTranslationStorage.saveDownloadSites(sites)
 
     suspend fun readTranslationsFromLocal(): List<TranslationInfo> = localTranslationStorage.readTranslations()
 
@@ -198,7 +210,7 @@ class TranslationRepository(
     suspend fun downloadTranslation(downloadProgressChannel: SendChannel<Int>, translationInfo: TranslationInfo) {
         Logger.withTag(TAG).i { "Start downloading translation - ${translationInfo.shortName}" }
         val toDownload = RemoteTranslationInfo.fromTranslationInfo(translationInfo)
-        val translation = remoteTranslationService.fetchTranslation(downloadProgressChannel, toDownload)
+        val translation = remoteTranslationService.fetchTranslation(downloadProgressChannel, toDownload, readDownloadSites())
         Logger.withTag(TAG).i { "Translation downloaded" }
         downloadProgressChannel.trySend(100)
 

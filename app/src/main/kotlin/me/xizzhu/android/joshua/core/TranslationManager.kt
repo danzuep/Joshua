@@ -30,6 +30,12 @@ class TranslationManager(private val translationRepository: TranslationRepositor
         translationRepository.reload(forceRefresh)
     }
 
+    suspend fun readDownloadSites(): List<String> = translationRepository.readDownloadSites()
+
+    suspend fun saveDownloadSites(sites: List<String>) {
+        translationRepository.saveDownloadSites(sites)
+    }
+
     fun downloadTranslation(translationToDownload: TranslationInfo): Flow<Int> = translationRepository.downloadTranslation(translationToDownload)
 
     suspend fun removeTranslation(translationInfo: TranslationInfo) {

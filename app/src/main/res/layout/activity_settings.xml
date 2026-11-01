@@ -49,15 +49,6 @@
                 app:settingSectionHeaderTitle="@string/settings_header_reading" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/simple_reading_mode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="@dimen/item_height"
-                android:paddingStart="@dimen/padding"
-                android:paddingEnd="@dimen/padding"
-                android:text="@string/settings_title_simple_reading" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/hide_search_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

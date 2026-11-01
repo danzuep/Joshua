@@ -39,10 +39,8 @@ class VerseDetailViewLayout : FrameLayout {
     companion object {
         const val VERSE_DETAIL_VERSES = 0
         const val VERSE_DETAIL_NOTE = 1
-        const val VERSE_DETAIL_CROSS_REFERENCES = 2
-        const val VERSE_DETAIL_STRONG_NUMBER = 3
 
-        @IntDef(VERSE_DETAIL_VERSES, VERSE_DETAIL_NOTE, VERSE_DETAIL_CROSS_REFERENCES, VERSE_DETAIL_STRONG_NUMBER)
+        @IntDef(VERSE_DETAIL_VERSES, VERSE_DETAIL_NOTE)
         @Retention(AnnotationRetention.SOURCE)
         annotation class VerseDetail
 
@@ -85,8 +83,6 @@ class VerseDetailViewLayout : FrameLayout {
             updateBookmark: (VerseIndex, Boolean) -> Unit,
             updateHighlight: (VerseIndex, Int) -> Unit,
             updateNote: (VerseIndex, String) -> Unit,
-            requestCrossReferences: () -> Unit,
-            requestStrongNumber: () -> Unit,
             hide: Boolean
     ) {
         setOnClickListener { onClicked() }
@@ -96,11 +92,7 @@ class VerseDetailViewLayout : FrameLayout {
         viewBinding.highlight.setOnClickListener {
             adapter.verseDetail?.let { updateHighlight(it.verseIndex, it.highlightColor) }
         }
-        adapter.initialize(
-                updateNote = updateNote,
-                requestCrossReferences = requestCrossReferences,
-                requestStrongNumber = requestStrongNumber
-        )
+        adapter.initialize(updateNote = updateNote)
 
         if (hide) post { hide() }
     }
@@ -123,23 +115,11 @@ class VerseDetailViewLayout : FrameLayout {
         adapter.verseDetail?.note = note
     }
 
-    fun setCrossReferences(crossReferences: List<CrossReferenceItem>) {
-        adapter.verseDetail?.crossReferencedItems = crossReferences
-        adapter.notifyItemChanged(VerseDetailPagerAdapter.PAGE_CROSS_REFERENCES)
-    }
-
-    fun setStrongNumbers(strongNumbers: List<StrongNumberItem>) {
-        adapter.verseDetail?.strongNumberItems = strongNumbers
-        adapter.notifyItemChanged(VerseDetailPagerAdapter.PAGE_STRONG_NUMBER)
-    }
-
     fun show(@VerseDetail verseDetail: Int) {
         animate().translationY(0.0F)
         viewBinding.viewPager.currentItem = when (verseDetail) {
             VERSE_DETAIL_VERSES -> VerseDetailPagerAdapter.PAGE_VERSES
             VERSE_DETAIL_NOTE -> VerseDetailPagerAdapter.PAGE_NOTE
-            VERSE_DETAIL_CROSS_REFERENCES -> VerseDetailPagerAdapter.PAGE_CROSS_REFERENCES
-            VERSE_DETAIL_STRONG_NUMBER -> VerseDetailPagerAdapter.PAGE_STRONG_NUMBER
             else -> 0
         }
     }

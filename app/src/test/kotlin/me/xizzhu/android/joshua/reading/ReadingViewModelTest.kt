@@ -25,20 +25,15 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Bookmark
-import me.xizzhu.android.joshua.core.CrossReferences
-import me.xizzhu.android.joshua.core.CrossReferencesManager
 import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.ReadingProgressManager
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.SettingsManager
-import me.xizzhu.android.joshua.core.StrongNumber
-import me.xizzhu.android.joshua.core.StrongNumberManager
 import me.xizzhu.android.joshua.core.TranslationManager
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseAnnotationManager
@@ -56,13 +51,11 @@ import kotlin.test.fail
 
 class ReadingViewModelTest : BaseUnitTest() {
     private lateinit var bibleReadingManager: BibleReadingManager
-    private lateinit var crossReferencesManager: CrossReferencesManager
     private lateinit var readingProgressManager: ReadingProgressManager
     private lateinit var translationManager: TranslationManager
     private lateinit var bookmarkManager: VerseAnnotationManager<Bookmark>
     private lateinit var highlightManager: VerseAnnotationManager<Highlight>
     private lateinit var noteManager: VerseAnnotationManager<Note>
-    private lateinit var strongNumberManager: StrongNumberManager
     private lateinit var settingsManager: SettingsManager
     private lateinit var application: Application
     private val timeProvider = TestTimeProvider()
@@ -76,14 +69,12 @@ class ReadingViewModelTest : BaseUnitTest() {
         every { bibleReadingManager.currentTranslation() } returns emptyFlow()
         every { bibleReadingManager.parallelTranslations() } returns emptyFlow()
         every { bibleReadingManager.currentVerseIndex() } returns emptyFlow()
-        crossReferencesManager = mockk()
         readingProgressManager = mockk()
         translationManager = mockk()
         every { translationManager.downloadedTranslations() } returns emptyFlow()
         bookmarkManager = mockk()
         highlightManager = mockk()
         noteManager = mockk()
-        strongNumberManager = mockk()
         settingsManager = mockk()
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
         application = mockk()
@@ -94,7 +85,7 @@ class ReadingViewModelTest : BaseUnitTest() {
     private fun createViewModel() = ReadingViewModel(
         bibleReadingManager, readingProgressManager, translationManager,
         bookmarkManager, highlightManager, noteManager,
-        crossReferencesManager, strongNumberManager, settingsManager, timeProvider, application
+        settingsManager, timeProvider, application
     )
 
     private fun collectViewActions(): List<ReadingViewModel.ViewAction> =
@@ -129,8 +120,6 @@ class ReadingViewModelTest : BaseUnitTest() {
             ReadingViewModel.ViewState(
                 settings = Settings.DEFAULT,
                 currentReadingStatus = null,
-                crossReferencesDownloadingState = ReadingViewModel.ViewState.DownloadingState.Idle,
-                strongNumberDownloadingState = ReadingViewModel.ViewState.DownloadingState.Idle,
                 error = null,
             ),
             readingViewModel.viewState().first()
@@ -215,7 +204,7 @@ class ReadingViewModelTest : BaseUnitTest() {
 
         readingViewModel.selectVerse(VerseIndex(1, 2, 3))
 
-        assertEquals(listOf<ReadingViewModel.ViewAction>(ReadingViewModel.ViewAction.DismissPreview), actions)
+        assertTrue(actions.isEmpty())
     }
 
     @Test
@@ -237,14 +226,12 @@ class ReadingViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test loadVerses with simple reading mode on`() = runTest {
+    fun `test loadVerses`() = runTest {
         every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
-        every { bibleReadingManager.parallelTranslations() } returns flowOf(emptyList())
-        coEvery { bibleReadingManager.readVerses(MockContents.kjvShortName, 0, 0) } returns MockContents.kjvVerses
+        coEvery { bibleReadingManager.readStructuredVerses(MockContents.kjvShortName, 0, 0) } returns MockContents.kjvVerses
         coEvery { bookmarkManager.read(0, 0) } returns emptyList()
         coEvery { highlightManager.read(0, 0) } returns emptyList()
         coEvery { noteManager.read(0, 0) } returns emptyList()
-        every { settingsManager.settings() } returns flowOf(Settings.DEFAULT.copy(simpleReadingModeOn = true))
 
         val actions = collectViewActions()
 
@@ -254,33 +241,14 @@ class ReadingViewModelTest : BaseUnitTest() {
         with(actions[0] as ReadingViewModel.ViewAction.ShowVerses) {
             assertEquals(0, bookIndex)
             assertEquals(0, chapterIndex)
-            assertEquals(MockContents.kjvVerses.size, items.size)
+            assertEquals(1, items.size)
         }
-    }
-
-    @Test
-    fun `test loadVerses with simple reading mode off`() = runTest {
-        every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
-        every { bibleReadingManager.parallelTranslations() } returns flowOf(listOf(MockContents.cuvShortName))
-        coEvery { bibleReadingManager.readVerses(MockContents.kjvShortName, listOf(MockContents.cuvShortName), 0, 0) } returns MockContents.kjvVersesWithCuvParallel
-        coEvery { bookmarkManager.read(0, 0) } returns emptyList()
-        coEvery { highlightManager.read(0, 0) } returns emptyList()
-        coEvery { noteManager.read(0, 0) } returns emptyList()
-        every { settingsManager.settings() } returns flowOf(Settings.DEFAULT.copy(simpleReadingModeOn = false))
-
-        val actions = collectViewActions()
-
-        readingViewModel.loadVerses(0, 0)
-
-        assertEquals(1, actions.size)
-        assertTrue(actions[0] is ReadingViewModel.ViewAction.ShowVerses)
     }
 
     @Test
     fun `test loadVerses with exception`() = runTest {
         every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
-        every { bibleReadingManager.parallelTranslations() } returns flowOf(emptyList())
-        coEvery { bibleReadingManager.readVerses(MockContents.kjvShortName, 0, 0) } throws RuntimeException("random exception")
+        coEvery { bibleReadingManager.readStructuredVerses(MockContents.kjvShortName, 0, 0) } throws RuntimeException("random exception")
         coEvery { bookmarkManager.read(0, 0) } returns emptyList()
         coEvery { highlightManager.read(0, 0) } returns emptyList()
         coEvery { noteManager.read(0, 0) } returns emptyList()
@@ -296,17 +264,10 @@ class ReadingViewModelTest : BaseUnitTest() {
         coEvery { bookmarkManager.read(verseIndex) } returns Bookmark(verseIndex, 12345L)
         coEvery { highlightManager.read(verseIndex) } returns Highlight(verseIndex, Highlight.COLOR_PURPLE, 12345L)
         coEvery { noteManager.read(verseIndex) } returns Note(verseIndex, "just a note", 12345L)
-        coEvery { crossReferencesManager.readCrossReferences(verseIndex) } returns CrossReferences(verseIndex, MockContents.crossReferences.getValue(verseIndex))
-        coEvery { strongNumberManager.readStrongNumber(verseIndex) } returns MockContents.strongNumber.getValue(verseIndex)
         every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
         every { translationManager.downloadedTranslations() } returns flowOf(listOf(
                 MockContents.kjvDownloadedTranslationInfo, MockContents.cuvDownloadedTranslationInfo, MockContents.bbeDownloadedTranslationInfo
         ))
-        coEvery {
-            bibleReadingManager.readVerses(MockContents.kjvShortName, listOf(VerseIndex(18, 133, 2), VerseIndex(18, 101, 24), VerseIndex(61, 0, 0)))
-        } returns mapOf(
-                VerseIndex(18, 133, 2) to Verse(VerseIndex(18, 133, 2), Verse.Text(MockContents.kjvShortName, "The LORD that made heaven and earth bless thee out of Zion."), emptyList())
-        )
         coEvery {
             bibleReadingManager.readVerses(
                     MockContents.kjvShortName, listOf(MockContents.bbeShortName, MockContents.cuvShortName),
@@ -346,26 +307,6 @@ class ReadingViewModelTest : BaseUnitTest() {
         assertTrue(detail.bookmarked)
         assertEquals(Highlight.COLOR_PURPLE, detail.highlightColor)
         assertEquals("just a note", detail.note)
-        detail.crossReferencedItems.forEachIndexed { index, item ->
-            when (index) {
-                0 -> {
-                    assertEquals(VerseIndex(18, 133, 2), item.verseIndex)
-                    assertEquals(Verse.Text("KJV", "The LORD that made heaven and earth bless thee out of Zion."), item.verseText)
-                }
-                else -> fail()
-            }
-        }
-        assertEquals(
-                listOf(
-                        StrongNumber("H7225", "beginning, chief(-est), first(-fruits, part, time), principal thing."),
-                        StrongNumber("H1254", "choose, create (creator), cut down, dispatch, do, make (fat)."),
-                        StrongNumber("H430", "angels, [idiom] exceeding, God (gods) (-dess, -ly), [idiom] (very) great, judges, [idiom] mighty."),
-                        StrongNumber("H853", "(as such unrepresented in English)."),
-                        StrongNumber("H8064", "mantle"),
-                        StrongNumber("H776", "[idiom] common, country, earth, field, ground, land, [idiom] natins, way, [phrase] wilderness, world.")
-                ),
-                detail.strongNumberItems.map { it.strongNumber }
-        )
     }
 
     @Test
@@ -374,8 +315,6 @@ class ReadingViewModelTest : BaseUnitTest() {
         coEvery { bookmarkManager.read(verseIndex) } returns Bookmark(verseIndex, 0L)
         coEvery { highlightManager.read(verseIndex) } returns Highlight(verseIndex, Highlight.COLOR_PURPLE, 0L)
         coEvery { noteManager.read(verseIndex) } returns Note(verseIndex, "just a note", 0L)
-        coEvery { crossReferencesManager.readCrossReferences(verseIndex) } returns CrossReferences(verseIndex, emptyList())
-        coEvery { strongNumberManager.readStrongNumber(verseIndex) } returns MockContents.strongNumber.getValue(verseIndex)
         every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.msgShortName)
         every { translationManager.downloadedTranslations() } returns flowOf(listOf(
                 MockContents.kjvDownloadedTranslationInfo, MockContents.msgDownloadedTranslationInfo
@@ -417,17 +356,6 @@ class ReadingViewModelTest : BaseUnitTest() {
         assertFalse(detail.bookmarked)
         assertEquals(Highlight.COLOR_NONE, detail.highlightColor)
         assertTrue(detail.note.isEmpty())
-        assertEquals(
-                listOf(
-                        StrongNumber("H7225", "beginning, chief(-est), first(-fruits, part, time), principal thing."),
-                        StrongNumber("H1254", "choose, create (creator), cut down, dispatch, do, make (fat)."),
-                        StrongNumber("H430", "angels, [idiom] exceeding, God (gods) (-dess, -ly), [idiom] (very) great, judges, [idiom] mighty."),
-                        StrongNumber("H853", "(as such unrepresented in English)."),
-                        StrongNumber("H8064", "mantle"),
-                        StrongNumber("H776", "[idiom] common, country, earth, field, ground, land, [idiom] natins, way, [phrase] wilderness, world.")
-                ),
-                detail.strongNumberItems.map { it.strongNumber }
-        )
     }
 
     @Test
@@ -436,8 +364,6 @@ class ReadingViewModelTest : BaseUnitTest() {
         coEvery { bookmarkManager.read(verseIndex) } throws RuntimeException("random exception")
         coEvery { highlightManager.read(verseIndex) } returns Highlight(verseIndex, Highlight.COLOR_PURPLE, 0L)
         coEvery { noteManager.read(verseIndex) } returns Note(verseIndex, "just a note", 0L)
-        coEvery { crossReferencesManager.readCrossReferences(verseIndex) } returns CrossReferences(verseIndex, emptyList())
-        coEvery { strongNumberManager.readStrongNumber(verseIndex) } returns emptyList()
         every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
         coEvery { bibleReadingManager.readVerses(MockContents.kjvShortName, emptyList()) } returns emptyMap()
 
@@ -547,85 +473,4 @@ class ReadingViewModelTest : BaseUnitTest() {
         }
     }
 
-    @Test
-    fun `test downloadStrongNumber`() = runTest {
-        every { strongNumberManager.download() } returns flowOf(0, 20, 99, 100)
-
-        readingViewModel.downloadStrongNumber()
-
-        assertEquals(
-            ReadingViewModel.ViewState.DownloadingState.Completed(successful = true),
-            readingViewModel.viewState().first().strongNumberDownloadingState
-        )
-
-        readingViewModel.markStrongNumberDownloadingStateAsIdle()
-        assertEquals(ReadingViewModel.ViewState.DownloadingState.Idle, readingViewModel.viewState().first().strongNumberDownloadingState)
-    }
-
-    @Test
-    fun `test downloadStrongNumber installing`() = runTest {
-        every { strongNumberManager.download() } returns flowOf(0, 20, 99)
-
-        readingViewModel.downloadStrongNumber()
-
-        assertEquals(
-            ReadingViewModel.ViewState.DownloadingState.Installing,
-            readingViewModel.viewState().first().strongNumberDownloadingState
-        )
-    }
-
-    @Test
-    fun `test downloadStrongNumber cancelled`() = runTest {
-        every { strongNumberManager.download() } returns flowOf(0, -1)
-
-        readingViewModel.downloadStrongNumber()
-
-        val viewState = readingViewModel.viewState().first()
-        assertEquals(ReadingViewModel.ViewState.DownloadingState.Idle, viewState.strongNumberDownloadingState)
-        assertNull(viewState.error)
-    }
-
-    @Test
-    fun `test downloadStrongNumber with exception`() = runTest {
-        every { strongNumberManager.download() } returns flow { throw RuntimeException("random exception") }
-
-        readingViewModel.downloadStrongNumber()
-
-        val viewState = readingViewModel.viewState().first()
-        assertEquals(ReadingViewModel.ViewState.DownloadingState.Idle, viewState.strongNumberDownloadingState)
-        assertEquals(ReadingViewModel.ViewState.Error.StrongNumberDownloadingError, viewState.error)
-    }
-
-    @Test
-    fun `test downloadCrossReferences`() = runTest {
-        every { crossReferencesManager.download() } returns flowOf(0, 50, 100)
-
-        readingViewModel.downloadCrossReferences()
-
-        assertEquals(
-            ReadingViewModel.ViewState.DownloadingState.Completed(successful = true),
-            readingViewModel.viewState().first().crossReferencesDownloadingState
-        )
-    }
-
-    @Test
-    fun `test downloadCrossReferences with exception`() = runTest {
-        every { crossReferencesManager.download() } returns flow { throw RuntimeException("random exception") }
-
-        readingViewModel.downloadCrossReferences()
-
-        val viewState = readingViewModel.viewState().first()
-        assertEquals(ReadingViewModel.ViewState.DownloadingState.Idle, viewState.crossReferencesDownloadingState)
-        assertEquals(ReadingViewModel.ViewState.Error.CrossReferencesDownloadingError, viewState.error)
-    }
-
-    @Test
-    fun `test loadStrongNumbers`() = runTest {
-        coEvery { strongNumberManager.readStrongNumber(VerseIndex(0, 0, 0)) } returns MockContents.strongNumber.getValue(VerseIndex(0, 0, 0))
-        val actions = collectViewActions()
-
-        readingViewModel.loadStrongNumbers(VerseIndex(0, 0, 0))
-
-        assertEquals(6, (actions.single() as ReadingViewModel.ViewAction.ShowStrongNumbers).items.size)
-    }
 }

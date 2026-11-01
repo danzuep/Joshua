@@ -29,38 +29,30 @@ import me.xizzhu.android.joshua.core.provider.DefaultCoroutineDispatcherProvider
 import me.xizzhu.android.joshua.core.provider.DefaultTimeProvider
 import me.xizzhu.android.joshua.core.provider.TimeProvider
 import me.xizzhu.android.joshua.core.repository.local.android.db.AndroidDatabase
-import me.xizzhu.android.joshua.core.repository.remote.android.HttpCrossReferencesService
-import me.xizzhu.android.joshua.core.repository.remote.android.HttpStrongNumberService
 import me.xizzhu.android.joshua.core.repository.remote.android.HttpTranslationService
 import me.xizzhu.android.joshua.core.serializer.android.BackupJsonSerializer
 import javax.inject.Singleton
 import me.xizzhu.android.joshua.core.BackupManager
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Bookmark
-import me.xizzhu.android.joshua.core.CrossReferencesManager
 import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.ReadingProgressManager
 import me.xizzhu.android.joshua.core.SearchManager
 import me.xizzhu.android.joshua.core.SettingsManager
-import me.xizzhu.android.joshua.core.StrongNumberManager
 import me.xizzhu.android.joshua.core.TranslationManager
 import me.xizzhu.android.joshua.core.VerseAnnotationManager
 import me.xizzhu.android.joshua.core.repository.BibleReadingRepository
-import me.xizzhu.android.joshua.core.repository.CrossReferencesRepository
 import me.xizzhu.android.joshua.core.repository.ReadingProgressRepository
 import me.xizzhu.android.joshua.core.repository.SettingsRepository
-import me.xizzhu.android.joshua.core.repository.StrongNumberRepository
 import me.xizzhu.android.joshua.core.repository.TranslationRepository
 import me.xizzhu.android.joshua.core.repository.VerseAnnotationRepository
 import me.xizzhu.android.joshua.core.repository.local.android.AndroidBookmarkStorage
-import me.xizzhu.android.joshua.core.repository.local.android.AndroidCrossReferencesStorage
 import me.xizzhu.android.joshua.core.repository.local.android.AndroidHighlightStorage
 import me.xizzhu.android.joshua.core.repository.local.android.AndroidNoteStorage
 import me.xizzhu.android.joshua.core.repository.local.android.AndroidReadingProgressStorage
 import me.xizzhu.android.joshua.core.repository.local.android.AndroidReadingStorage
 import me.xizzhu.android.joshua.core.repository.local.android.AndroidSettingsStorage
-import me.xizzhu.android.joshua.core.repository.local.android.AndroidStrongNumberStorage
 import me.xizzhu.android.joshua.core.repository.local.android.AndroidTranslationStorage
 
 @Module
@@ -115,10 +107,6 @@ object ManagerModule {
 
     @Provides
     @Singleton
-    fun provideCrossReferencesManager(crossReferencesRepository: CrossReferencesRepository): CrossReferencesManager = CrossReferencesManager(crossReferencesRepository)
-
-    @Provides
-    @Singleton
     fun provideHighlightManager(highlightRepository: VerseAnnotationRepository<Highlight>): VerseAnnotationManager<Highlight> = VerseAnnotationManager(highlightRepository)
 
     @Provides
@@ -149,10 +137,6 @@ object ManagerModule {
 
     @Provides
     @Singleton
-    fun provideStrongNumberManager(strongNumberRepository: StrongNumberRepository): StrongNumberManager = StrongNumberManager(strongNumberRepository)
-
-    @Provides
-    @Singleton
     fun provideTranslationManager(translationRepository: TranslationRepository): TranslationManager = TranslationManager(translationRepository)
 }
 
@@ -175,11 +159,6 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideCrossReferencesRepository(app: Application, androidDatabase: AndroidDatabase): CrossReferencesRepository =
-        CrossReferencesRepository(AndroidCrossReferencesStorage(androidDatabase), HttpCrossReferencesService(app))
-
-    @Provides
-    @Singleton
     fun provideHighlightRepository(androidDatabase: AndroidDatabase, appScope: CoroutineScope): VerseAnnotationRepository<Highlight> =
         VerseAnnotationRepository(AndroidHighlightStorage(androidDatabase), appScope)
 
@@ -197,11 +176,6 @@ object RepositoryModule {
     @Singleton
     fun provideSettingsRepository(androidDatabase: AndroidDatabase, appScope: CoroutineScope): SettingsRepository =
         SettingsRepository(AndroidSettingsStorage(androidDatabase), appScope)
-
-    @Provides
-    @Singleton
-    fun provideStrongNumberRepository(app: Application, androidDatabase: AndroidDatabase): StrongNumberRepository =
-        StrongNumberRepository(AndroidStrongNumberStorage(androidDatabase), HttpStrongNumberService(app))
 
     @Provides
     @Singleton

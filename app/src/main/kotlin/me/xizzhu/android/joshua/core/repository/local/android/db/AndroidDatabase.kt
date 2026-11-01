@@ -37,19 +37,15 @@ import me.xizzhu.android.joshua.core.toKeywords
 class AndroidDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
         const val DATABASE_NAME = "DATABASE_JOSHUA"
-        const val DATABASE_VERSION = 6
+        const val DATABASE_VERSION = 7
     }
 
     val bookmarkDao = BookmarkDao(this)
     val bookNamesDao = BookNamesDao(this)
-    val crossReferencesDao = CrossReferencesDao(this)
     val highlightDao = HighlightDao(this)
     val metadataDao = MetadataDao(this)
     val noteDao = NoteDao(this)
     val readingProgressDao = ReadingProgressDao(this)
-    val strongNumberIndexDao = StrongNumberIndexDao(this)
-    val strongNumberReverseIndexDao = StrongNumberReverseIndexDao(this)
-    val strongNumberWordDao = StrongNumberWordDao(this)
     val translationDao = TranslationDao(this)
     val translationInfoDao = TranslationInfoDao(this)
 
@@ -57,14 +53,10 @@ class AndroidDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         db.transaction {
             bookmarkDao.createTable(db)
             bookNamesDao.createTable(db)
-            crossReferencesDao.createTable(db)
             highlightDao.createTable(db)
             metadataDao.createTable(db)
             noteDao.createTable(db)
             readingProgressDao.createTable(db)
-            strongNumberIndexDao.createTable(db)
-            strongNumberReverseIndexDao.createTable(db)
-            strongNumberWordDao.createTable(db)
             translationInfoDao.createTable(db)
         }
     }
@@ -72,11 +64,6 @@ class AndroidDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion <= 1) {
             highlightDao.createTable(db)
-        }
-        if (oldVersion <= 2) {
-            strongNumberIndexDao.createTable(db)
-            strongNumberReverseIndexDao.createTable(db)
-            strongNumberWordDao.createTable(db)
         }
         if (oldVersion <= 3) {
             val oldFontSizeScale = db.select("metadata", "value") { "key" eq "fontSizeScale" }
@@ -100,8 +87,9 @@ class AndroidDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
                 it["value"] = if (nightModeOn) Settings.NIGHT_MODE_ON.toString() else Settings.NIGHT_MODE_OFF.toString()
             }
         }
-        if (oldVersion <= 5) {
-            crossReferencesDao.createTable(db)
+        if (oldVersion <= 6) {
+            // Strong's numbers and cross references came from a site that is no longer used.
+            listOf("crossReferences", "strongNumberIndex", "strongNumberReverseIndex", "sn_en").forEach { db.execSQL("DROP TABLE IF EXISTS $it") }
         }
     }
 }

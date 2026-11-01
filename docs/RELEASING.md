@@ -40,4 +40,4 @@ More about app signing can be found [here](https://developer.android.com/studio/
 ## Automated releases
 
 - Merging a PR into `master` runs the *Auto Tag* workflow, which creates the next `vX.Y.Z` tag from the first word of the PR title: `major ...` bumps X, `minor ...` bumps Y, anything else bumps Z. It then starts the *Release APK* workflow.
-- The release workflow stamps the tag into the app (`versionName` and `versionCode` via `-PappVersion`) and publishes two APKs: `Joshua-vX.Y.Z.apk`, and `Joshua-vX.Y.Z-with-WEB.apk`, which has the WEB Bible prepackaged (installed on first launch when no translation is present; built with `-PbundledAssetsDir=<dir>` containing `bundled/list.json` and `bundled/translations/WEB.zip`).
+- The release workflow stamps the tag into the app (`versionName` and `versionCode` via `-PappVersion`) and publishes two APKs: `Joshua-vX.Y.Z.apk`, and `Joshua-vX.Y.Z-with-WEB.apk`, which has the WEB Bible prepackaged (installed on first launch when no translation is present; built with `-PbundledAssetsDir=<dir>` containing `bundled/list.tsv` (id, name and language separated by tabs) and `bundled/translations/<id>.zip` (USFM)`).

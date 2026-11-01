@@ -16,6 +16,7 @@
 
 package me.xizzhu.android.joshua.core.repository.local.android.db
 
+import me.xizzhu.android.joshua.core.stripStructure
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import androidx.annotation.WorkerThread
@@ -90,7 +91,7 @@ class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
             if (hasTableAndLogIfNoTable(translation)) {
                 select(translation, COLUMN_TEXT) {
                     (COLUMN_BOOK_INDEX eq bookIndex) and (COLUMN_CHAPTER_INDEX eq chapterIndex)
-                }.orderBy(COLUMN_VERSE_INDEX).toList { Verse.Text(translation, it.getString(COLUMN_TEXT)) }
+                }.orderBy(COLUMN_VERSE_INDEX).toList { Verse.Text(translation, it.getString(COLUMN_TEXT).stripStructure()) }
             } else {
                 emptyList()
             }
@@ -114,7 +115,7 @@ class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
                 condition
             }.forEach { row ->
                 val verseIndex = VerseIndex(row.getInt(COLUMN_BOOK_INDEX), row.getInt(COLUMN_CHAPTER_INDEX), row.getInt(COLUMN_VERSE_INDEX))
-                verses[verseIndex] = Verse(verseIndex, Verse.Text(translationShortName, row.getString(COLUMN_TEXT)), emptyList())
+                verses[verseIndex] = Verse(verseIndex, Verse.Text(translationShortName, row.getString(COLUMN_TEXT).stripStructure()), emptyList())
             }
         }
         verses
@@ -142,7 +143,7 @@ class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
         }.orderBy(COLUMN_BOOK_INDEX, COLUMN_CHAPTER_INDEX, COLUMN_VERSE_INDEX).toList { row ->
             Verse(
                     VerseIndex(row.getInt(COLUMN_BOOK_INDEX), row.getInt(COLUMN_CHAPTER_INDEX), row.getInt(COLUMN_VERSE_INDEX)),
-                    Verse.Text(query.translation, row.getString(COLUMN_TEXT)), emptyList()
+                    Verse.Text(query.translation, row.getString(COLUMN_TEXT).stripStructure()), emptyList()
             )
         }
     }

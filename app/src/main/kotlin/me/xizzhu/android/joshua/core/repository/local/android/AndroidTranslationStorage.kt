@@ -29,6 +29,14 @@ class AndroidTranslationStorage(private val androidDatabase: AndroidDatabase) : 
         androidDatabase.metadataDao.read(MetadataDao.KEY_TRANSLATION_LIST_REFRESH_TIMESTAMP, "0").toLong()
     }
 
+    override suspend fun readDownloadSites(): List<String> = withContext(Dispatchers.IO) {
+        androidDatabase.metadataDao.read(MetadataDao.KEY_DOWNLOAD_SITES, "").lines().map { it.trim() }.filter { it.isNotEmpty() }
+    }
+
+    override suspend fun saveDownloadSites(sites: List<String>) {
+        withContext(Dispatchers.IO) { androidDatabase.metadataDao.save(MetadataDao.KEY_DOWNLOAD_SITES, sites.joinToString("\n")) }
+    }
+
     override suspend fun saveTranslationListRefreshTimestamp(timestamp: Long) {
         withContext(Dispatchers.IO) { androidDatabase.metadataDao.save(MetadataDao.KEY_TRANSLATION_LIST_REFRESH_TIMESTAMP, timestamp.toString()) }
     }

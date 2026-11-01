@@ -53,7 +53,6 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
 
     override fun initializeView() = with(viewBinding) {
         keepScreenOn.setOnCheckedChangeByUserListener(viewModel::saveKeepScreenOn)
-        simpleReadingMode.setOnCheckedChangeByUserListener(viewModel::saveSimpleReadingModeOn)
         hideSearchButton.setOnCheckedChangeByUserListener(viewModel::saveHideSearchButton)
         consolidatedSharing.setOnCheckedChangeByUserListener(viewModel::saveConsolidateVersesForSharing)
         fontSize.setOnSingleClickListener(viewModel::selectFontSizeScale)
@@ -93,7 +92,6 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         setTextSize(bodyTextSizePx = viewState.bodyTextSizePx, captionTextSizePx = viewState.captionTextSizePx)
 
         keepScreenOn.isChecked = viewState.keepScreenOn
-        simpleReadingMode.isChecked = viewState.simpleReadingModeOn
         hideSearchButton.isChecked = viewState.hideSearchButton
         consolidatedSharing.isChecked = viewState.consolidateVersesForSharing
 
@@ -115,7 +113,6 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         keepScreenOn.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         nightMode.setTextSize(bodyTextSizePx, captionTextSizePx)
         reading.setTextSize(bodyTextSizePx)
-        simpleReadingMode.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         hideSearchButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         consolidatedSharing.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         defaultHighlightColor.setTextSize(bodyTextSizePx, captionTextSizePx)

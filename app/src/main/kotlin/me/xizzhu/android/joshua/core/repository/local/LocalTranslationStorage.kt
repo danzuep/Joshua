@@ -23,6 +23,11 @@ interface LocalTranslationStorage {
 
     suspend fun saveTranslationListRefreshTimestamp(timestamp: Long)
 
+    /** The user-added download sites, in order; empty if the user never changed them. */
+    suspend fun readDownloadSites(): List<String>
+
+    suspend fun saveDownloadSites(sites: List<String>)
+
     suspend fun readTranslations(): List<TranslationInfo>
 
     suspend fun replaceTranslations(translations: List<TranslationInfo>)

@@ -19,129 +19,70 @@ package me.xizzhu.android.joshua.reading.verse
 import android.content.Context
 import me.xizzhu.android.joshua.core.Bookmark
 import me.xizzhu.android.joshua.core.Highlight
+import me.xizzhu.android.joshua.core.HEADING
 import me.xizzhu.android.joshua.core.Note
+import me.xizzhu.android.joshua.core.PARAGRAPH
+import me.xizzhu.android.joshua.core.stripStructure
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
 
-fun List<Verse>.toVerseItems(
-        context: Context, bookmarks: List<Bookmark>, highlights: List<Highlight>, notes: List<Note>, simpleReadingModeOn: Boolean
+/**
+ * Builds the flowing paragraphs of a chapter from verses that still have their structure, see [PARAGRAPH] and [HEADING].
+ * Empty verses (e.g. the second verse of a bridge like 2-3) are skipped.
+ */
+fun List<Verse>.toParagraphItems(
+        context: Context, bookmarks: List<Bookmark>, highlights: List<Highlight>, notes: List<Note>
 ): List<BaseItem> {
-    val items = ArrayList<BaseItem>(size)
+    val bookmarkSet = bookmarks.mapTo(mutableSetOf()) { it.verseIndex.verseIndex }
+    val highlightMap = highlights.filter { it.color != Highlight.COLOR_NONE }
+            .associateTo(mutableMapOf()) { it.verseIndex.verseIndex to it.color }
+    val noteSet = notes.mapTo(mutableSetOf()) { it.verseIndex.verseIndex }
+    val selected = mutableSetOf<Int>()
 
-    val verseIterator = iterator()
-    var verse: Verse? = null
-    val bookmarkIterator = bookmarks.iterator()
-    var bookmark: Bookmark? = null
-    val highlightIterator = highlights.iterator()
-    var highlight: Highlight? = null
-    val noteIterator = notes.iterator()
-    var note: Note? = null
-    while (verse != null || verseIterator.hasNext()) {
-        verse = verse ?: verseIterator.next()
-
-        val (nextVerse, parallel, followingEmptyVerseCount) = verseIterator.nextNonEmpty(verse)
-
-        val verseIndex = verse.verseIndex.verseIndex
-        if (bookmark == null || bookmark.verseIndex.verseIndex < verseIndex) {
-            while (bookmarkIterator.hasNext()) {
-                bookmark = bookmarkIterator.next()
-                if (bookmark.verseIndex.verseIndex >= verseIndex) {
-                    break
-                }
-            }
+    val items = ArrayList<BaseItem>()
+    var heading: String? = null
+    var segments = ArrayList<ParagraphItem.Segment>()
+    fun flush() {
+        if (segments.isNotEmpty()) {
+            items.add(ParagraphItem(context, heading, segments, bookmarkSet, highlightMap, noteSet, selected))
+            heading = null
+            segments = ArrayList()
         }
-        val hasBookmark = bookmark?.let { it.verseIndex.verseIndex == verseIndex } ?: false
-
-        if (highlight == null || highlight.verseIndex.verseIndex < verseIndex) {
-            while (highlightIterator.hasNext()) {
-                highlight = highlightIterator.next()
-                if (highlight.verseIndex.verseIndex >= verseIndex) {
-                    break
-                }
-            }
-        }
-        val highlightColor = highlight
-                ?.let { if (it.verseIndex.verseIndex == verseIndex) it.color else Highlight.COLOR_NONE }
-                ?: Highlight.COLOR_NONE
-
-        if (note == null || note.verseIndex.verseIndex < verseIndex) {
-            while (noteIterator.hasNext()) {
-                note = noteIterator.next()
-                if (note.verseIndex.verseIndex >= verseIndex) {
-                    break
-                }
-            }
-        }
-        val hasNote = note?.let { it.verseIndex.verseIndex == verseIndex } ?: false
-
-        if (simpleReadingModeOn) {
-            items.add(SimpleVerseItem(
-                    context = context,
-                    verse = verse.transform(parallel),
-                    totalVerseCount = size,
-                    followingEmptyVerseCount = followingEmptyVerseCount,
-                    hasBookmark = hasBookmark,
-                    highlightColor = highlightColor,
-                    hasNote = hasNote,
-                    selected = false
-            ))
-        } else {
-            items.add(VerseItem(
-                    verse = verse.transform(parallel),
-                    followingEmptyVerseCount = followingEmptyVerseCount,
-                    hasBookmark = hasBookmark,
-                    highlightColor = highlightColor,
-                    hasNote = hasNote,
-                    selected = false
-            ))
-        }
-
-        verse = nextVerse
     }
 
+    forEachIndexed { index, verse ->
+        var text = verse.text.text
+        if (text.stripStructure().isEmpty()) return@forEachIndexed
+
+        if (text.startsWith(HEADING)) {
+            val end = text.indexOf(HEADING, 1)
+            if (end > 0) {
+                flush()
+                heading = text.substring(1, end)
+                text = text.substring(end + 1)
+            }
+        }
+
+        var followingEmptyVerseCount = 0
+        while (index + followingEmptyVerseCount + 1 < size
+                && this[index + followingEmptyVerseCount + 1].text.text.stripStructure().isEmpty()) {
+            followingEmptyVerseCount++
+        }
+        if (index + followingEmptyVerseCount + 1 >= size) followingEmptyVerseCount = 0
+
+        val verseNumber = verse.verseIndex.verseIndex + 1
+        var label: String? = if (followingEmptyVerseCount > 0) "$verseNumber-${verseNumber + followingEmptyVerseCount}" else verseNumber.toString()
+        text.split(PARAGRAPH).forEachIndexed { partIndex, part ->
+            if (partIndex > 0) flush()
+            val trimmed = if (segments.isEmpty()) part.trimStart('\n') else part
+            if (trimmed.isNotBlank()) {
+                segments.add(ParagraphItem.Segment(verse, trimmed.trimEnd(), label))
+                label = null
+            }
+        }
+    }
+    flush()
     return items
-}
-
-// skips the empty verses, and concatenates the parallels
-private fun Iterator<Verse>.nextNonEmpty(current: Verse): Triple<Verse?, Array<StringBuilder>, Int> {
-    val parallel = Array(current.parallel.size) { StringBuilder() }.append(current.parallel)
-
-    var nextVerse: Verse? = null
-    while (hasNext()) {
-        nextVerse = next()
-        if (nextVerse.text.text.isEmpty()) {
-            parallel.append(nextVerse.parallel)
-            nextVerse = null
-        } else {
-            break
-        }
-    }
-
-    val followingEmptyVerseCount = nextVerse
-            ?.let { it.verseIndex.verseIndex - 1 - current.verseIndex.verseIndex }
-            ?: 0
-
-    return Triple(nextVerse, parallel, followingEmptyVerseCount)
-}
-
-private fun Array<StringBuilder>.append(texts: List<Verse.Text>): Array<StringBuilder> {
-    texts.forEachIndexed { index, text ->
-        with(get(index)) {
-            if (isNotEmpty()) append(' ')
-            append(text.text)
-        }
-    }
-    return this
-}
-
-private fun Verse.transform(concatenatedParallel: Array<StringBuilder>): Verse {
-    if (parallel.isEmpty() || concatenatedParallel.isEmpty()) return this
-
-    val parallelTexts = ArrayList<Verse.Text>(concatenatedParallel.size)
-    parallel.forEachIndexed { index, text ->
-        parallelTexts.add(Verse.Text(text.translationShortName, concatenatedParallel[index].toString()))
-    }
-    return copy(parallel = parallelTexts)
 }
 
 fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Boolean): String {

@@ -16,6 +16,9 @@
 
 package me.xizzhu.android.joshua.core.repository
 
+import me.xizzhu.android.joshua.core.repository.remote.DEFAULT_DOWNLOAD_SITE
+import java.io.IOException
+import kotlin.test.assertFailsWith
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -50,6 +53,7 @@ class TranslationRepositoryTest : BaseUnitTest() {
         super.setup()
 
         localTranslationStorage = mockk()
+        coEvery { localTranslationStorage.readDownloadSites() } returns emptyList()
         coEvery { localTranslationStorage.readTranslations() } returns emptyList()
 
         remoteTranslationService = mockk()
@@ -221,7 +225,7 @@ class TranslationRepositoryTest : BaseUnitTest() {
     fun `test readTranslationsFromBackend()`() = runTest {
         coEvery { localTranslationStorage.readTranslations() } returns listOf(MockContents.kjvDownloadedTranslationInfo)
         coEvery { localTranslationStorage.replaceTranslations(any()) } returns Unit
-        coEvery { remoteTranslationService.fetchTranslations() } returns listOf(
+        coEvery { remoteTranslationService.fetchTranslations(listOf(DEFAULT_DOWNLOAD_SITE)) } returns listOf(
                 RemoteTranslationInfo.fromTranslationInfo(MockContents.kjvTranslationInfo),
                 RemoteTranslationInfo.fromTranslationInfo(MockContents.cuvTranslationInfo)
         )
@@ -235,22 +239,36 @@ class TranslationRepositoryTest : BaseUnitTest() {
             localTranslationStorage.replaceTranslations(listOf(MockContents.kjvDownloadedTranslationInfo, MockContents.cuvTranslationInfo))
             localTranslationStorage.saveTranslationListRefreshTimestamp(12345L)
 
-            remoteTranslationService.fetchTranslations()
+            remoteTranslationService.fetchTranslations(listOf(DEFAULT_DOWNLOAD_SITE))
         }
     }
 
     @Test
     fun `test readTranslationsFromBackend() with empty list`() = runTest {
-        coEvery { localTranslationStorage.replaceTranslations(emptyList()) } returns Unit
-        coEvery { remoteTranslationService.fetchTranslations() } returns emptyList()
+        coEvery { remoteTranslationService.fetchTranslations(listOf(DEFAULT_DOWNLOAD_SITE)) } returns emptyList()
 
         val translationRepository = TranslationRepository(localTranslationStorage, remoteTranslationService, TestTimeProvider(currentTimeMillis = 12345L), testScope)
-        assertTrue(translationRepository.readTranslationsFromBackend().isEmpty())
-        coVerify(exactly = 1) {
-            localTranslationStorage.replaceTranslations(emptyList())
-            remoteTranslationService.fetchTranslations()
+        assertFailsWith<IOException> { translationRepository.readTranslationsFromBackend() }
+        coVerify(exactly = 0) {
+            localTranslationStorage.replaceTranslations(any())
+            localTranslationStorage.saveTranslationListRefreshTimestamp(any())
         }
-        coVerify(exactly = 0) { localTranslationStorage.saveTranslationListRefreshTimestamp(12345L) }
+    }
+
+    @Test
+    fun `test readTranslationsFromBackend() keeps installed translations that are no longer listed`() = runTest {
+        coEvery { localTranslationStorage.readTranslations() } returns listOf(MockContents.kjvDownloadedTranslationInfo)
+        coEvery { localTranslationStorage.replaceTranslations(any()) } returns Unit
+        coEvery { localTranslationStorage.saveTranslationListRefreshTimestamp(any()) } returns Unit
+        coEvery { remoteTranslationService.fetchTranslations(listOf(DEFAULT_DOWNLOAD_SITE)) } returns listOf(
+                RemoteTranslationInfo.fromTranslationInfo(MockContents.cuvTranslationInfo)
+        )
+
+        val translationRepository = TranslationRepository(localTranslationStorage, remoteTranslationService, TestTimeProvider(currentTimeMillis = 12345L), testScope)
+        assertEquals(
+                listOf(MockContents.cuvTranslationInfo, MockContents.kjvDownloadedTranslationInfo),
+                translationRepository.readTranslationsFromBackend()
+        )
     }
 
     @Test
@@ -260,7 +278,7 @@ class TranslationRepositoryTest : BaseUnitTest() {
             localTranslationStorage.replaceTranslations(listOf(MockContents.kjvDownloadedTranslationInfo, MockContents.cuvTranslationInfo))
         } returns Unit
         coEvery { localTranslationStorage.saveTranslationListRefreshTimestamp(12345L) } throws RuntimeException("Random exception")
-        coEvery { remoteTranslationService.fetchTranslations() } returns listOf(
+        coEvery { remoteTranslationService.fetchTranslations(listOf(DEFAULT_DOWNLOAD_SITE)) } returns listOf(
                 RemoteTranslationInfo.fromTranslationInfo(MockContents.kjvTranslationInfo),
                 RemoteTranslationInfo.fromTranslationInfo(MockContents.cuvTranslationInfo)
         )
@@ -308,7 +326,7 @@ class TranslationRepositoryTest : BaseUnitTest() {
 
         val channel = Channel<Int>()
         coEvery {
-            remoteTranslationService.fetchTranslation(channel, RemoteTranslationInfo.fromTranslationInfo(MockContents.kjvTranslationInfo))
+            remoteTranslationService.fetchTranslation(channel, RemoteTranslationInfo.fromTranslationInfo(MockContents.kjvTranslationInfo), listOf(DEFAULT_DOWNLOAD_SITE))
         } returns RemoteTranslation(
                 RemoteTranslationInfo.fromTranslationInfo(MockContents.kjvTranslationInfo),
                 MockContents.kjvBookNames, MockContents.kjvBookShortNames, MockContents.kjvVerses.toMap()

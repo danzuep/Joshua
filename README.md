@@ -38,11 +38,10 @@ Open the APK on your device and allow installs from your browser or file manager
 * Read multiple translations at the same time
 * Full-text search
 * Bookmarks, highlights and your own notes
-* Cross references and Strong's Numbers
 * Share verses through your favorite apps
 * Adjustable font size and day / night mode
 
-Tens of other translations can be downloaded in the app. See the [full list](docs/TRANSLATIONS.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/Joshua/issues).
+Hundreds of other translations can be downloaded in the app from [eBible.org](https://ebible.org/download.php), or from download sites you add yourself. See the [full list](docs/TRANSLATIONS.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/Joshua/issues).
 
 ## About this project
 

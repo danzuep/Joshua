@@ -23,140 +23,60 @@ import me.xizzhu.android.joshua.tests.MockContents
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
 import kotlin.test.assertTrue
 
 class VerseTransformerTest : BaseUnitTest() {
+    private fun verse(index: Int, text: String) = Verse(VerseIndex(0, 0, index), Verse.Text("T", text), emptyList())
+
+    private fun List<BaseItem>.paragraphs() = map { it as ParagraphItem }
+
     @Test
-    fun `test toVerseItems with simple reading mode`() {
-        val verses = MockContents.kjvVerses
-        val actual = verses.toVerseItems(mockk(), emptyList(), emptyList(), emptyList(), true)
-        assertEquals(verses.size, actual.size)
-        actual.forEachIndexed { index, verseItem ->
-            assertTrue(verseItem is SimpleVerseItem)
-            assertEquals(verses[index], verseItem.verse)
-            assertEquals(Highlight.COLOR_NONE, verseItem.highlightColor)
-        }
+    fun `test toParagraphItems without structure is one paragraph`() {
+        val items = listOf(verse(0, "In"), verse(1, "the"), verse(2, "beginning")).toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()
+        assertEquals(1, items.size)
+        assertNull(items[0].heading)
+        assertEquals(listOf("In", "the", "beginning"), items[0].segments.map { it.text })
+        assertEquals(listOf("1", "2", "3"), items[0].segments.map { it.label })
     }
 
     @Test
-    fun `test toVerseItems with simple reading mode and following empty verse`() {
-        val verses = MockContents.msgVerses
-        val actual = verses.toVerseItems(mockk(), emptyList(), emptyList(), emptyList(), true)
-        assertTrue(verses.size > actual.size)
-
-        var index = 0
-        actual.forEach { verseItem ->
-            assertTrue(verseItem is SimpleVerseItem)
-            while (index < verses.size) {
-                if (verses[index] == verseItem.verse) {
-                    break
-                }
-                index++
-            }
-            assertTrue(index < verses.size)
-
-            assertEquals(Highlight.COLOR_NONE, verseItem.highlightColor)
-        }
-    }
-
-    @Test
-    fun `test toVerseItems with simple reading mode, following empty verse, and parallel`() {
-        val verses = MockContents.msgVersesWithKjvParallel
-        val actual = verses.toVerseItems(mockk(), emptyList(), emptyList(), emptyList(), true)
-        assertEquals(1, actual.size)
-        assertEquals(
-                Verse(
-                        VerseIndex(0, 0, 0), verses[0].text,
-                        listOf(Verse.Text(MockContents.kjvShortName, "${MockContents.msgVersesWithKjvParallel[0].parallel[0].text} ${MockContents.msgVersesWithKjvParallel[1].parallel[0].text}"))
-                ),
-                (actual[0] as SimpleVerseItem).verse)
-    }
-
-    @Test
-    fun `test toVerseItems with simple reading mode, bookmarks, highlights, and notes`() {
-        val verses = MockContents.kjvVerses
-        val simpleVerseItems = verses.toVerseItems(
-                mockk(),
-                listOf(
-                        Bookmark(VerseIndex(0, 0, 0), 0L),
-                        Bookmark(VerseIndex(0, 0, 5), 0L),
-                        Bookmark(VerseIndex(0, 0, 10), 0L)
-                ),
-                listOf(
-                        Highlight(VerseIndex(0, 0, 0), Highlight.COLOR_PINK, 1L),
-                        Highlight(VerseIndex(0, 0, 6), Highlight.COLOR_BLUE, 2L),
-                        Highlight(VerseIndex(0, 0, 10), Highlight.COLOR_PURPLE, 3L)
-                ),
-                listOf(
-                        Note(VerseIndex(0, 0, 0), "", 0L),
-                        Note(VerseIndex(0, 0, 7), "", 0L),
-                        Note(VerseIndex(0, 0, 10), "", 0L)
-                ),
-                true
+    fun `test toParagraphItems with headings and paragraphs`() {
+        val verses = listOf(
+                verse(0, "${HEADING}Creation${HEADING}${PARAGRAPH}One"),
+                verse(1, "Two ${PARAGRAPH}Three"),
+                verse(2, "${PARAGRAPH}Four")
         )
-        assertEquals(verses.size, simpleVerseItems.size)
-        simpleVerseItems.forEachIndexed { index, verseItem ->
-            assertTrue(verseItem is SimpleVerseItem)
-            assertEquals(verses[index], verseItem.verse)
-            assertTrue(if (index == 0 || index == 5) verseItem.hasBookmark else !verseItem.hasBookmark)
-            assertEquals(when (index) {
-                0 -> Highlight.COLOR_PINK
-                6 -> Highlight.COLOR_BLUE
-                else -> Highlight.COLOR_NONE
-            }, verseItem.highlightColor)
-            assertTrue(if (index == 0 || index == 7) verseItem.hasNote else !verseItem.hasNote)
-        }
+        val items = verses.toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()
+        assertEquals(3, items.size)
+        assertEquals("Creation", items[0].heading)
+        assertEquals(listOf("One", "Two"), items[0].segments.map { it.text })
+        assertEquals(listOf("Three"), items[1].segments.map { it.text })
+        assertNull(items[1].segments[0].label)
+        assertEquals(listOf("Four"), items[2].segments.map { it.text })
+        assertEquals("3", items[2].segments[0].label)
     }
 
     @Test
-    fun `test toVerseItems`() {
-        val verses = MockContents.kjvVerses
-        val verseItems = verses.toVerseItems(mockk(), emptyList(), emptyList(), emptyList(), false)
-        assertEquals(verses.size, verseItems.size)
-        verseItems.forEachIndexed { index, verseItem ->
-            assertTrue(verseItem is VerseItem)
-            assertEquals(verses[index], verseItem.verse)
-            assertFalse(verseItem.hasBookmark)
-            assertEquals(Highlight.COLOR_NONE, verseItem.highlightColor)
-            assertFalse(verseItem.hasNote)
-        }
+    fun `test toParagraphItems with bridged verses`() {
+        val items = listOf(verse(0, "One"), verse(1, "Two"), verse(2, ""), verse(3, "Four"))
+                .toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()
+        assertEquals(listOf("1", "2-3", "4"), items.single().segments.map { it.label })
     }
 
     @Test
-    fun `test toVerseItems with bookmarks, highlights, and notes`() {
-        val verses = MockContents.kjvVerses
-        val verseItems = verses.toVerseItems(
-                mockk(),
-                listOf(
-                        Bookmark(VerseIndex(0, 0, 0), 0L),
-                        Bookmark(VerseIndex(0, 0, 5), 0L),
-                        Bookmark(VerseIndex(0, 0, 10), 0L)
-                ),
-                listOf(
-                        Highlight(VerseIndex(0, 0, 0), Highlight.COLOR_PINK, 1L),
-                        Highlight(VerseIndex(0, 0, 6), Highlight.COLOR_BLUE, 2L),
-                        Highlight(VerseIndex(0, 0, 10), Highlight.COLOR_PURPLE, 3L)
-                ),
-                listOf(
-                        Note(VerseIndex(0, 0, 0), "", 0L),
-                        Note(VerseIndex(0, 0, 7), "", 0L),
-                        Note(VerseIndex(0, 0, 10), "", 0L)
-                ),
-                false
-        )
-        assertEquals(verses.size, verseItems.size)
-        verseItems.forEachIndexed { index, verseItem ->
-            assertTrue(verseItem is VerseItem)
-            assertEquals(verses[index], verseItem.verse)
-            assertTrue(if (index == 0 || index == 5) verseItem.hasBookmark else !verseItem.hasBookmark)
-            assertEquals(when (index) {
-                0 -> Highlight.COLOR_PINK
-                6 -> Highlight.COLOR_BLUE
-                else -> Highlight.COLOR_NONE
-            }, verseItem.highlightColor)
-            assertTrue(if (index == 0 || index == 7) verseItem.hasNote else !verseItem.hasNote)
-        }
+    fun `test toParagraphItems with poetry`() {
+        val items = listOf(verse(0, "${PARAGRAPH}\nLine one"), verse(1, "\n\u2003Line two"))
+                .toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()
+        assertEquals(listOf("Line one", "\n\u2003Line two"), items.single().segments.map { it.text })
     }
+
+    @Test
+    fun `test stripStructure`() {
+        assertEquals("One Two Three", "${HEADING}Title${HEADING}${PARAGRAPH}One\n\u2003Two${PARAGRAPH}Three".stripStructure())
+    }
+
 
     @Test
     fun testVerseToStringForSharing() {

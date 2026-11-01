@@ -16,7 +16,6 @@
 
 package me.xizzhu.android.joshua.tests
 
-import me.xizzhu.android.joshua.core.StrongNumber
 import me.xizzhu.android.joshua.core.TranslationInfo
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
@@ -137,60 +136,6 @@ object MockContents {
     val msgVersesWithKjvParallel = listOf(
             Verse(VerseIndex(0, 0, 0), Verse.Text(msgShortName, "First this: God created the Heavens and Earth—all you see, all you don't see. Earth was a soup of nothingness, a bottomless emptiness, an inky blackness. God's Spirit brooded like a bird above the watery abyss."), listOf(Verse.Text(kjvShortName, "In the beginning God created the heaven and the earth."))),
             Verse(VerseIndex(0, 0, 1), Verse.Text(msgShortName, ""), listOf(Verse.Text(kjvShortName, "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.")))
-    )
-
-    const val kjvCuvTranslationInfoJson = "{\"translations\":[{\"name\":\"Authorized King James\",\"shortName\":\"KJV\",\"language\":\"en_gb\",\"size\":1860978},{\"name\":\"中文和合本（简体）\",\"shortName\":\"中文和合本\",\"language\":\"zh_cn\",\"size\":1781521}]}"
-
-    val strongNumberIndex = mapOf(
-            VerseIndex(0, 0, 0) to listOf("H7225", "H1254", "H430", "H853", "H8064", "H776"),
-            VerseIndex(39, 0, 0) to listOf("G976", "G1078", "G2424", "G5547", "G5207", "G1138", "G5207", "G11")
-    )
-    val strongNumberReverseIndex = mapOf(
-            "H7225" to listOf(VerseIndex(0, 0, 0), VerseIndex(0, 9, 9)),
-            "H1254" to listOf(VerseIndex(0, 0, 0)),
-            "G976" to listOf(VerseIndex(39, 0, 0)),
-            "G1078" to listOf(VerseIndex(39, 0, 0))
-    )
-    val strongNumberWords = mapOf(
-            "H7225" to "beginning, chief(-est), first(-fruits, part, time), principal thing.",
-            "H1254" to "choose, create (creator), cut down, dispatch, do, make (fat).",
-            "H430" to "angels, [idiom] exceeding, God (gods) (-dess, -ly), [idiom] (very) great, judges, [idiom] mighty.",
-            "H853" to "(as such unrepresented in English).",
-            "H8064" to "mantle",
-            "H776" to "[idiom] common, country, earth, field, ground, land, [idiom] natins, way, [phrase] wilderness, world.",
-            "G976" to "book",
-            "G1078" to "generation, nature(-ral)",
-            "G2424" to "Jesus",
-            "G5547" to "Christ",
-            "G5207" to "child, foal, son",
-            "G1138" to "David",
-            "G11" to "Abraham"
-    )
-    val strongNumber = mapOf(
-            VerseIndex(0, 0, 0) to listOf(
-                    StrongNumber("H7225", strongNumberWords.getValue("H7225")),
-                    StrongNumber("H1254", strongNumberWords.getValue("H1254")),
-                    StrongNumber("H430", strongNumberWords.getValue("H430")),
-                    StrongNumber("H853", strongNumberWords.getValue("H853")),
-                    StrongNumber("H8064", strongNumberWords.getValue("H8064")),
-                    StrongNumber("H776", strongNumberWords.getValue("H776"))
-            ),
-            VerseIndex(39, 0, 0) to listOf(
-                    StrongNumber("G976", strongNumberWords.getValue("G976")),
-                    StrongNumber("G1078", strongNumberWords.getValue("G1078")),
-                    StrongNumber("G2424", strongNumberWords.getValue("G2424")),
-                    StrongNumber("G5547", strongNumberWords.getValue("G5547")),
-                    StrongNumber("G5207", strongNumberWords.getValue("G5207")),
-                    StrongNumber("G1138", strongNumberWords.getValue("G1138")),
-                    StrongNumber("G5207", strongNumberWords.getValue("G5207")),
-                    StrongNumber("G11", strongNumberWords.getValue("G11"))
-            )
-    )
-
-    val crossReferences = mapOf(
-            VerseIndex(0, 0, 0) to listOf(VerseIndex(18, 133, 2), VerseIndex(18, 101, 24), VerseIndex(61, 0, 0)),
-            VerseIndex(0, 0, 1) to listOf(VerseIndex(17, 25, 6)),
-            VerseIndex(0, 0, 3) to listOf(VerseIndex(20, 1, 12), VerseIndex(0, 0, 24), VerseIndex(0, 0, 9))
     )
 }
 

@@ -17,65 +17,79 @@
 package me.xizzhu.android.joshua.core.repository.remote.android
 
 import android.content.Context
-import android.util.JsonReader
-import androidx.annotation.VisibleForTesting
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.withContext
 import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslation
+import me.xizzhu.android.joshua.core.repository.remote.DEFAULT_DOWNLOAD_SITE
 import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslationInfo
+import me.xizzhu.android.joshua.core.repository.remote.parseTranslationTsv
 import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslationService
-import java.io.*
-import java.util.zip.ZipInputStream
+import me.xizzhu.android.joshua.core.repository.remote.parseTranslationTable
+import me.xizzhu.android.joshua.core.repository.remote.readUsfmZip
+import me.xizzhu.android.joshua.core.repository.remote.siteOrigin
+import me.xizzhu.android.joshua.core.repository.remote.toRemoteTranslation as buildRemoteTranslation
+import me.xizzhu.android.joshua.core.repository.remote.toRemoteTranslationInfo
+import me.xizzhu.android.joshua.core.repository.remote.usfmZipUrl
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.InputStream
+
+private const val TAG = "HttpTranslationService"
 
 class HttpTranslationService(private val context: Context) : RemoteTranslationService {
     private val cacheDir: File by lazy { File(context.cacheDir, "translations").apply { mkdirs() } }
 
-    override suspend fun fetchTranslations(): List<RemoteTranslationInfo> = withContext(Dispatchers.IO) {
-        return@withContext toRemoteTranslations(getInputStream("list.json"))
+    override suspend fun fetchTranslations(sites: List<String>): List<RemoteTranslationInfo> = withContext(Dispatchers.IO) {
+        sites.flatMap { site ->
+            try {
+                readTable(site).map { it.toRemoteTranslationInfo() }
+            } catch (e: Exception) {
+                Logger.withTag(TAG).w(e) { "Failed to read translations from $site" }
+                emptyList()
+            }
+        }.distinctBy { it.shortName }
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    internal fun toRemoteTranslations(inputStream: InputStream): List<RemoteTranslationInfo> =
-            JsonReader(BufferedReader(InputStreamReader(inputStream, "UTF-8"))).use { reader -> reader.readListJson() }
+    // The default site is read from the bundled copy of its table, other sites are scraped.
+    private fun readTable(site: String) = if (site == DEFAULT_DOWNLOAD_SITE) {
+        parseTranslationTsv(context.assets.open("ebible_downloads.tsv").use { it.readBytes().toString(Charsets.UTF_8) }, site)
+    } else {
+        parseTranslationTable(fetchText(site), site)
+    }
 
     override suspend fun fetchTranslation(
-            downloadProgress: SendChannel<Int>, translationInfo: RemoteTranslationInfo
+            downloadProgress: SendChannel<Int>, translationInfo: RemoteTranslationInfo, sites: List<String>
     ): RemoteTranslation = withContext(Dispatchers.IO) {
-        return@withContext File(cacheDir, translationInfo.shortName).apply {
-            download(downloadProgress, "translations/${translationInfo.shortName}.zip", translationInfo.size, this)
-        }.let { downloaded ->
-            FileInputStream(downloaded).use { input ->
-                toRemoteTranslation(translationInfo, input)
+        val destination = File(cacheDir, translationInfo.shortName)
+        var lastError: Exception? = null
+        for (origin in sites.mapNotNull { siteOrigin(it) }.distinct()) {
+            try {
+                download(downloadProgress, usfmZipUrl(origin, translationInfo.shortName), translationInfo.size, destination)
+                return@withContext FileInputStream(destination).use { toRemoteTranslation(translationInfo, it) }
+            } catch (e: Exception) {
+                Logger.withTag(TAG).w(e) { "Failed to download ${translationInfo.shortName} from $origin" }
+                lastError = e
             }
         }
+        throw lastError ?: IOException("No download site is available for ${translationInfo.shortName}")
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    internal fun toRemoteTranslation(translationInfo: RemoteTranslationInfo, inputStream: InputStream): RemoteTranslation {
-        val bookNames = arrayListOf<String>()
-        val bookShortNames = arrayListOf<String>()
-        val verses = HashMap<Pair<Int, Int>, List<String>>()
+    internal fun toRemoteTranslation(translationInfo: RemoteTranslationInfo, inputStream: InputStream): RemoteTranslation =
+            buildRemoteTranslation(translationInfo, readUsfmZip(inputStream))
 
-        ZipInputStream(BufferedInputStream(inputStream)).forEach { entryName, contentReader ->
-            if (entryName == "books.json") {
-                contentReader.readBooksJson(bookNames, bookShortNames)
-            } else {
-                val (bookIndex, chapterIndex) = entryName.substring(0, entryName.length - 5).split("-")
-                verses[Pair(bookIndex.toInt(), chapterIndex.toInt())] = contentReader.readChapterJson()
-            }
-        }
-
-        return RemoteTranslation(translationInfo, bookNames, bookShortNames, verses)
-    }
-
+    /** Reads `bundled/list.tsv` (`id<TAB>name<TAB>language` per line) and the matching `bundled/translations/<id>.zip` USFM zips. */
     override suspend fun fetchBundledTranslations(): List<RemoteTranslation> = withContext(Dispatchers.IO) {
-        val infos = try {
-            context.assets.open("bundled/list.json").use { toRemoteTranslations(it) }
+        val list = try {
+            context.assets.open("bundled/list.tsv").use { it.readBytes().toString(Charsets.UTF_8) }
         } catch (_: FileNotFoundException) {
             return@withContext emptyList()
         }
-        infos.map { info ->
+        list.lines().map { it.split('\t') }.filter { it.size >= 3 }.map { (shortName, name, language) ->
+            val info = RemoteTranslationInfo(shortName.trim(), name.trim(), language.trim(), 0L)
             context.assets.open("bundled/translations/${info.shortName}.zip").use { toRemoteTranslation(info, it) }
         }
     }
