@@ -17,9 +17,6 @@
 package me.xizzhu.android.joshua.reading.detail
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -28,7 +25,6 @@ import android.widget.FrameLayout
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import com.google.android.material.tabs.TabLayoutMediator
-import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.databinding.InnerVerseDetailViewBinding
@@ -43,9 +39,6 @@ class VerseDetailViewLayout : FrameLayout {
         @IntDef(VERSE_DETAIL_VERSES, VERSE_DETAIL_NOTE)
         @Retention(AnnotationRetention.SOURCE)
         annotation class VerseDetail
-
-        private val ON_COLOR_FILTER = PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY)
-        private val OFF_COLOR_FILTER = PorterDuffColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY)
     }
 
     constructor(context: Context) : super(context)
@@ -74,24 +67,14 @@ class VerseDetailViewLayout : FrameLayout {
         get() = adapter.verseDetail
         set(value) {
             adapter.verseDetail = value
-            viewBinding.bookmark.colorFilter = if (verseDetail?.bookmarked == true) ON_COLOR_FILTER else OFF_COLOR_FILTER
-            viewBinding.highlight.colorFilter = if (verseDetail?.highlightColor != Highlight.COLOR_NONE) ON_COLOR_FILTER else OFF_COLOR_FILTER
         }
 
     fun initialize(
             onClicked: () -> Boolean,
-            updateBookmark: (VerseIndex, Boolean) -> Unit,
-            updateHighlight: (VerseIndex, Int) -> Unit,
             updateNote: (VerseIndex, String) -> Unit,
             hide: Boolean
     ) {
         setOnClickListener { onClicked() }
-        viewBinding.bookmark.setOnClickListener {
-            adapter.verseDetail?.let { updateBookmark(it.verseIndex, it.bookmarked) }
-        }
-        viewBinding.highlight.setOnClickListener {
-            adapter.verseDetail?.let { updateHighlight(it.verseIndex, it.highlightColor) }
-        }
         adapter.initialize(updateNote = updateNote)
 
         if (hide) post { hide() }
@@ -99,16 +82,6 @@ class VerseDetailViewLayout : FrameLayout {
 
     fun setSettings(settings: Settings) {
         adapter.settings = settings
-    }
-
-    fun setBookmarked(bookmarked: Boolean) {
-        adapter.verseDetail?.bookmarked = bookmarked
-        viewBinding.bookmark.colorFilter = if (bookmarked) ON_COLOR_FILTER else OFF_COLOR_FILTER
-    }
-
-    fun setHighlightColor(@Highlight.Companion.AvailableColor highlightColor: Int) {
-        adapter.verseDetail?.highlightColor = highlightColor
-        viewBinding.highlight.colorFilter = if (highlightColor != Highlight.COLOR_NONE) ON_COLOR_FILTER else OFF_COLOR_FILTER
     }
 
     fun setNote(note: String) {

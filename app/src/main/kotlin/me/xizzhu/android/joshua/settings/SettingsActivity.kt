@@ -55,6 +55,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         keepScreenOn.setOnCheckedChangeByUserListener(viewModel::saveKeepScreenOn)
         hideSearchButton.setOnCheckedChangeByUserListener(viewModel::saveHideSearchButton)
         consolidatedSharing.setOnCheckedChangeByUserListener(viewModel::saveConsolidateVersesForSharing)
+        copyAsMarkdown.setOnCheckedChangeByUserListener(viewModel::saveCopyAsMarkdown)
         fontSize.setOnSingleClickListener(viewModel::selectFontSizeScale)
         nightMode.setOnSingleClickListener(viewModel::selectNightMode)
         defaultHighlightColor.setOnSingleClickListener(viewModel::selectHighlightColor)
@@ -94,6 +95,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         keepScreenOn.isChecked = viewState.keepScreenOn
         hideSearchButton.isChecked = viewState.hideSearchButton
         consolidatedSharing.isChecked = viewState.consolidateVersesForSharing
+        copyAsMarkdown.isChecked = viewState.copyAsMarkdown
 
         nightMode.setDescription(viewState.nightModeStringRes)
         defaultHighlightColor.setDescription(viewState.defaultHighlightColorStringRes)
@@ -115,6 +117,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         reading.setTextSize(bodyTextSizePx)
         hideSearchButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         consolidatedSharing.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
+        copyAsMarkdown.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         defaultHighlightColor.setTextSize(bodyTextSizePx, captionTextSizePx)
         backupRestore.setTextSize(bodyTextSizePx)
         backup.setTextSize(bodyTextSizePx, captionTextSizePx)

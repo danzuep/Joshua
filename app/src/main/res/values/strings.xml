@@ -41,6 +41,7 @@
     <string name="action_search_whole_words">Whole words only</string>
     <string name="action_clear_search_history">Delete Search History</string>
     <string name="action_bookmark_verse">Bookmark</string>
+    <string name="action_highlight_verse">Highlight</string>
     <string name="text_saved">saved</string>
     <string name="action_settings">Settings</string>
 
@@ -113,6 +114,7 @@
     <string name="settings_header_reading">Reading</string>
     <string name="settings_title_hide_search_button">Hide search button</string>
     <string name="settings_title_consolidated_sharing">Consolidate verses when sharing</string>
+    <string name="settings_title_copy_as_markdown">Copy as Markdown</string>
     <string name="settings_title_default_highlight_color">Default highlight color</string>
     <string name="settings_header_backup_restore">Backup &amp; restore</string>
     <string name="settings_title_backup">Backup all my data</string>

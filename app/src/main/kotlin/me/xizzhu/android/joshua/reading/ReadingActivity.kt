@@ -51,6 +51,7 @@ import me.xizzhu.android.joshua.reading.verse.VersePagerAdapter
 import me.xizzhu.android.joshua.reading.verse.toBookIndex
 import me.xizzhu.android.joshua.reading.verse.toChapterIndex
 import me.xizzhu.android.joshua.reading.verse.toPagePosition
+import me.xizzhu.android.joshua.reading.verse.toStringForCopy
 import me.xizzhu.android.joshua.reading.verse.toStringForSharing
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.listDialog
@@ -58,7 +59,6 @@ import me.xizzhu.android.joshua.ui.makeLessSensitive
 import me.xizzhu.android.joshua.ui.toast
 import me.xizzhu.android.joshua.utils.copyToClipBoard
 import me.xizzhu.android.joshua.utils.shareToSystem
-import kotlin.math.max
 
 @AndroidEntryPoint
 class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.ViewAction, ReadingViewModel.ViewState, ReadingViewModel>(),
@@ -90,6 +90,10 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean = false
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = when (item.itemId) {
+            R.id.action_highlight_verse -> {
+                highlightSelectedVerses()
+                true
+            }
             R.id.action_copy -> {
                 copy()
                 true
@@ -115,6 +119,8 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
 
     private fun consolidateVersesForSharing(): Boolean = settings?.consolidateVersesForSharing ?: false
 
+    private fun copyAsMarkdown(): Boolean = settings?.copyAsMarkdown ?: false
+
     private fun currentBookName(): String {
         val status = currentReadingStatus ?: return ""
         return status.bookNames.getOrElse(status.currentVerseIndex.bookIndex) { "" }
@@ -127,7 +133,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             val bookName = currentBookName()
             copyToClipBoard(
                 label = "${currentReadingStatus?.currentTranslation.orEmpty()} $bookName",
-                text = selectedVerses.toStringForSharing(bookName, consolidateVersesForSharing())
+                text = selectedVerses.toStringForCopy(bookName, consolidateVersesForSharing(), copyAsMarkdown())
             )
             toast(R.string.toast_verses_copied)
         } catch (e: Exception) {
@@ -238,8 +244,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         val openNoteWhenCreated = intent.getBooleanExtra(KEY_OPEN_NOTE, false)
         verseDetailView.initialize(
             onClicked = ::hideVerseDetail,
-            updateBookmark = ::onBookmarkClicked,
-            updateHighlight = ::onHighlightClicked,
             updateNote = viewModel::saveNote,
             hide = !openNoteWhenCreated
         )
@@ -266,8 +270,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 show(viewAction.content)
             }
             is ReadingViewModel.ViewAction.UpdateVerse -> versePagerAdapter.notifyVerseUpdate(viewAction.update)
-            is ReadingViewModel.ViewAction.BookmarkSaved -> viewBinding.verseDetailView.setBookmarked(viewAction.bookmarked)
-            is ReadingViewModel.ViewAction.HighlightSaved -> viewBinding.verseDetailView.setHighlightColor(viewAction.color)
+            is ReadingViewModel.ViewAction.BookmarkSaved, is ReadingViewModel.ViewAction.HighlightSaved -> Unit
             is ReadingViewModel.ViewAction.NoteSaved -> viewBinding.verseDetailView.setNote(viewAction.note)
         }
     }
@@ -439,24 +442,22 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         onVerseClicked(verse)
     }
 
-    fun onBookmarkClicked(verseIndex: VerseIndex, currentlyBookmarked: Boolean) {
-        viewModel.saveBookmark(verseIndex = verseIndex, toBeBookmarked = !currentlyBookmarked)
-    }
+    private fun highlightSelectedVerses() {
+        val verseIndexes = selectedVerses.map { it.verseIndex }
+        actionMode?.finish()
 
-    fun onHighlightClicked(verseIndex: VerseIndex, @Highlight.Companion.AvailableColor currentHighlightColor: Int) {
         val defaultHighlightColor = settings?.defaultHighlightColor ?: Highlight.COLOR_NONE
         if (Highlight.COLOR_NONE == defaultHighlightColor) {
             listDialog(
                 title = R.string.text_pick_highlight_color,
                 items = resources.getStringArray(R.array.text_highlight_colors),
-                selected = max(0, Highlight.AVAILABLE_COLORS.indexOf(currentHighlightColor)),
-                onSelected = { which -> viewModel.saveHighlight(verseIndex, Highlight.AVAILABLE_COLORS[which]) }
+                selected = 0,
+                onSelected = { which -> verseIndexes.forEach { viewModel.saveHighlight(it, Highlight.AVAILABLE_COLORS[which]) } }
             )
         } else {
-            viewModel.saveHighlight(verseIndex, if (currentHighlightColor == Highlight.COLOR_NONE) defaultHighlightColor else Highlight.COLOR_NONE)
+            verseIndexes.forEach { viewModel.saveHighlight(it, defaultHighlightColor) }
         }
     }
-
     fun onNoteClicked(verseIndex: VerseIndex) {
         showVerseDetail(verseIndex, VerseDetailViewLayout.VERSE_DETAIL_NOTE)
     }
@@ -471,7 +472,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 val bookName = viewModel.bookName(verse.text.translationShortName, verse.verseIndex.bookIndex)
                 copyToClipBoard(
                     label = "${verse.text.translationShortName} $bookName",
-                    text = verse.toStringForSharing(bookName)
+                    text = verse.toStringForCopy(bookName, copyAsMarkdown())
                 )
                 toast(R.string.toast_verses_copied)
             } catch (e: Exception) {

@@ -121,6 +121,7 @@ class SettingsViewModelTest : BaseUnitTest() {
         simpleReadingModeOn = Settings.DEFAULT.simpleReadingModeOn,
         hideSearchButton = Settings.DEFAULT.hideSearchButton,
         consolidateVersesForSharing = Settings.DEFAULT.consolidateVersesForSharing,
+        copyAsMarkdown = Settings.DEFAULT.copyAsMarkdown,
         defaultHighlightColorStringRes = R.string.text_highlight_color_none,
         backupState = SettingsViewModel.ViewState.BackupRestoreState.Idle,
         restoreState = SettingsViewModel.ViewState.BackupRestoreState.Idle,
@@ -242,6 +243,16 @@ class SettingsViewModelTest : BaseUnitTest() {
             createDefaultViewState().copy(error = SettingsViewModel.ViewState.Error.SettingsUpdatingError),
             settingsViewModel.viewState().first()
         )
+    }
+
+    @Test
+    fun `test saveCopyAsMarkdown()`() = runTest {
+        every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
+        coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(copyAsMarkdown = true)) } returns Unit
+
+        settingsViewModel.saveCopyAsMarkdown(copyAsMarkdown = true)
+
+        coVerify(exactly = 1) { settingsManager.saveSettings(Settings.DEFAULT.copy(copyAsMarkdown = true)) }
     }
 
     @Test

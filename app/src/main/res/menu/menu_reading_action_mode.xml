@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/action_highlight_verse"
+        android:icon="@drawable/ic_highlight"
+        android:title="@string/action_highlight_verse" />
+    <item
         android:id="@+id/action_copy"
         android:icon="@drawable/ic_copy"
         android:title="@string/action_copy" />
