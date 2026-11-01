@@ -25,9 +25,8 @@ adb shell am start -W -n me.xizzhu.android.joshua/.LauncherActivity
 # in the minimal package, so open the chapter drawer and select John 1.
 # Book names in the converted translation are USFM ids, so John is "JHN".
 opened=0
-nt_tapped=0
-for _ in $(seq 1 30); do
-  sleep 5
+for _ in $(seq 1 40); do
+  sleep 3
   dump_ui
   if tap_text "JHN"; then
     dump_ui
@@ -35,10 +34,10 @@ for _ in $(seq 1 30); do
       opened=1
       break
     fi
-  elif [ "$nt_tapped" -eq 0 ] && tap_text "NT"; then
-    # Jump the drawer's book list to the New Testament.
-    nt_tapped=1
-  elif ! grep -q 'text="OT"' ui.xml 2> /dev/null; then
+  elif grep -q 'text="OT"' ui.xml 2> /dev/null; then
+    # The chapter drawer is open but John is off screen, so scroll its book list.
+    adb shell input swipe 120 560 120 200 400
+  else
     # Open the chapter drawer from the left edge, staying clear of the system back gesture.
     adb shell input swipe 4 600 600 600 300
     sleep 2
