@@ -30,6 +30,7 @@ import kotlinx.coroutines.test.runTest
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Bookmark
 import me.xizzhu.android.joshua.core.Highlight
+import me.xizzhu.android.joshua.core.HEADING
 import me.xizzhu.android.joshua.core.NOTE_MARK
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.ReadingProgressManager
@@ -279,7 +280,7 @@ class ReadingViewModelTest : BaseUnitTest() {
             bibleReadingManager.readStructuredVerses(MockContents.kjvShortName, verseIndex.bookIndex, verseIndex.chapterIndex)
         } returns listOf(
                 Verse(verseIndex, Verse.Text(MockContents.kjvShortName,
-                        "In the beginning${NOTE_MARK}fa note${NOTE_MARK} God created${NOTE_MARK}x1:1 Gen 1:1${NOTE_MARK} the heaven"), emptyList())
+                        "${HEADING}Creation${HEADING}In the beginning${NOTE_MARK}fa note${NOTE_MARK} God created${NOTE_MARK}x1:1 Gen 1:1${NOTE_MARK} the heaven"), emptyList())
         )
         coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
         coEvery { bibleReadingManager.readBookNames(MockContents.bbeShortName) } returns MockContents.bbeBookNames
@@ -295,6 +296,10 @@ class ReadingViewModelTest : BaseUnitTest() {
         val detail = shown.verseDetail
         assertEquals(listOf("a note"), detail.footnotes)
         assertEquals(listOf("1:1 Gen 1:1"), detail.crossReferences)
+        assertEquals(listOf("Creation"), detail.headings)
+        assertEquals(3, detail.downloadedTranslationCount)
+        assertTrue(detail.hasParallel)
+        assertTrue(detail.hasParatext)
         with(actions[1] as ReadingViewModel.ViewAction.UpdateVerse) {
             assertEquals(VerseIndex(0, 0, 0), update.verseIndex)
             assertEquals(VerseUpdate.VERSE_SELECTED, update.operation)
@@ -366,6 +371,33 @@ class ReadingViewModelTest : BaseUnitTest() {
         assertFalse(detail.bookmarked)
         assertEquals(Highlight.COLOR_NONE, detail.highlightColor)
         assertTrue(detail.note.isEmpty())
+    }
+
+    @Test
+    fun `test loadVerseDetail with a single downloaded translation`() = runTest {
+        val verseIndex = VerseIndex(0, 0, 0)
+        coEvery { bookmarkManager.read(verseIndex) } returns Bookmark(verseIndex, 0L)
+        coEvery { highlightManager.read(verseIndex) } returns Highlight(verseIndex, Highlight.COLOR_NONE, 0L)
+        coEvery { noteManager.read(verseIndex) } returns Note(verseIndex, "", 0L)
+        every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
+        every { translationManager.downloadedTranslations() } returns flowOf(listOf(MockContents.kjvDownloadedTranslationInfo))
+        coEvery {
+            bibleReadingManager.readVerses(MockContents.kjvShortName, emptyList(), verseIndex.bookIndex, verseIndex.chapterIndex)
+        } returns listOf(Verse(verseIndex, Verse.Text(MockContents.kjvShortName, "In the beginning"), emptyList()))
+        coEvery {
+            bibleReadingManager.readStructuredVerses(MockContents.kjvShortName, verseIndex.bookIndex, verseIndex.chapterIndex)
+        } returns listOf(Verse(verseIndex, Verse.Text(MockContents.kjvShortName, "In the beginning"), emptyList()))
+        coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
+
+        val actions = collectViewActions()
+
+        readingViewModel.loadVerseDetail(verseIndex, VerseDetailViewLayout.VERSE_DETAIL_VERSES)
+
+        val detail = (actions[0] as ReadingViewModel.ViewAction.ShowVerseDetail).verseDetail
+        assertEquals(1, detail.downloadedTranslationCount)
+        assertFalse(detail.hasParallel)
+        assertFalse(detail.hasParatext)
+        assertEquals(1, detail.verseTextItems.size)
     }
 
     @Test

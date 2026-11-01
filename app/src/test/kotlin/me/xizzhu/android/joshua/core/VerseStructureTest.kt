@@ -49,4 +49,11 @@ class VerseStructureTest {
         assertTrue("God${NOTE_MARK}fnote${NOTE_MARK}".hasNotes())
         assertFalse("God made".hasNotes())
     }
+
+    @Test
+    fun `test extractHeadings()`() {
+        val text = "${HEADING}Creation${HEADING}${PARAGRAPH}In the beginning${HEADING}${HEADING}God made"
+        assertEquals(listOf("Creation"), text.extractHeadings())
+        assertEquals(emptyList(), "In the beginning God made".extractHeadings())
+    }
 }

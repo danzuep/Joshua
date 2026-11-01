@@ -19,10 +19,14 @@ package me.xizzhu.android.joshua.reading.detail
 import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.Resources
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.content.ContextCompat
 import androidx.viewbinding.ViewBinding
@@ -37,17 +41,20 @@ import me.xizzhu.android.joshua.ui.setPrimaryTextSize
 
 class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDetailPage<*>>() {
     companion object {
-        const val PAGE_VERSES = 0
-        const val PAGE_NOTE = 1
-        const val PAGE_NOTES = 2
-        private const val PAGE_COUNT = 3
+        const val PAGE_NOTE = 0
+        const val PAGE_VERSES = 1
+        const val PAGE_PARATEXT = 2
+        private const val NOTE_SAVE_DELAY_MILLIS = 1000L
     }
 
     private val resources: Resources = context.resources
     private val inflater: LayoutInflater = LayoutInflater.from(context)
+    private val handler = Handler(Looper.getMainLooper())
 
     private var updateNote: ((VerseIndex, String) -> Unit)? = null
     private var notePage: NotePage? = null
+    private var pendingNote: Pair<VerseIndex, String>? = null
+    private val saveNoteRunnable = Runnable { flushNote() }
 
     var settings: Settings? = null
         set(value) {
@@ -56,6 +63,7 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
         }
     var verseDetail: VerseDetailViewData? = null
         set(value) {
+            flushNote()
             field = value
             notifyDataSetChanged()
         }
@@ -68,16 +76,16 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
         val fullyInitialized = settings != null
                 && verseDetail != null
                 && updateNote != null
-        return if (fullyInitialized) PAGE_COUNT else 0
+        return if (fullyInitialized) visiblePages().size else 0
     }
 
-    override fun getItemViewType(position: Int): Int = position
+    override fun getItemViewType(position: Int): Int = visiblePages()[position]
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VerseDetailPage<*> =
             when (viewType) {
                 PAGE_VERSES -> VersesPage(inflater, parent)
-                PAGE_NOTE -> NotePage(inflater, parent, updateNote!!).also { notePage = it }
-                PAGE_NOTES -> NotesPage(inflater, parent)
+                PAGE_NOTE -> NotePage(inflater, parent, this::scheduleNoteSave).also { notePage = it }
+                PAGE_PARATEXT -> ParatextPage(inflater, parent)
                 else -> throw IllegalArgumentException("Unsupported view type: $viewType")
             }
 
@@ -93,18 +101,47 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
         }
     }
 
-    fun pageTitle(position: Int): CharSequence = when (position) {
+    private fun visiblePages(): List<Int> = verseDetail?.let { visibleVersePages(it) } ?: emptyList()
+
+    fun pageTitle(position: Int): CharSequence = when (visiblePages()[position]) {
+        PAGE_NOTE -> resources.getString(R.string.text_notes)
         PAGE_VERSES -> resources.getString(R.string.text_parallel)
-        PAGE_NOTE -> resources.getString(R.string.text_musings)
-        PAGE_NOTES -> resources.getString(R.string.text_notes)
+        PAGE_PARATEXT -> resources.getString(R.string.text_paratext)
         else -> throw IllegalArgumentException("Unsupported position: $position")
     }
+
+    fun pageIndexOf(page: Int): Int = visiblePages().indexOf(page)
+
+    fun defaultPageIndex(): Int = verseDetail?.let { pageIndexOf(defaultVersePage(it)) }?.coerceAtLeast(0) ?: 0
 
     fun markNoteSaved(note: String) {
         verseDetail?.note = note
         notePage?.markSaved()
     }
+
+    private fun scheduleNoteSave(verseIndex: VerseIndex, note: String) {
+        pendingNote = verseIndex to note
+        handler.removeCallbacks(saveNoteRunnable)
+        handler.postDelayed(saveNoteRunnable, NOTE_SAVE_DELAY_MILLIS)
+    }
+
+    fun flushNote() {
+        handler.removeCallbacks(saveNoteRunnable)
+        val (verseIndex, note) = pendingNote ?: return
+        pendingNote = null
+        updateNote?.invoke(verseIndex, note)
+    }
 }
+
+internal fun visibleVersePages(verseDetail: VerseDetailViewData): List<Int> = listOfNotNull(
+        VerseDetailPagerAdapter.PAGE_NOTE,
+        VerseDetailPagerAdapter.PAGE_VERSES.takeIf { verseDetail.hasParallel },
+        VerseDetailPagerAdapter.PAGE_PARATEXT.takeIf { verseDetail.hasParatext }
+)
+
+internal fun defaultVersePage(verseDetail: VerseDetailViewData): Int =
+        if (verseDetail.hasParatext && verseDetail.note.isBlank()) VerseDetailPagerAdapter.PAGE_PARATEXT
+        else VerseDetailPagerAdapter.PAGE_NOTE
 
 abstract class VerseDetailPage<VB : ViewBinding>(val viewBinding: VB) : RecyclerView.ViewHolder(viewBinding.root) {
     abstract fun bind(verseDetail: VerseDetailViewData, settings: Settings)
@@ -125,26 +162,28 @@ private class VersesPage(inflater: LayoutInflater, container: ViewGroup)
     }
 }
 
-private class NotesPage(inflater: LayoutInflater, container: ViewGroup)
+private class ParatextPage(inflater: LayoutInflater, container: ViewGroup)
     : VerseDetailPage<PageVerseDetailNotesBinding>(PageVerseDetailNotesBinding.inflate(inflater, container, false)) {
     override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
-        val resources = viewBinding.root.resources
-        with(viewBinding.footnotes) {
-            text = verseDetail.footnotes.takeIf { it.isNotEmpty() }?.joinToString("\n\n")
-                ?: resources.getString(R.string.text_no_footnotes)
-            setPrimaryTextSize(settings)
-        }
-        with(viewBinding.crossReferences) {
-            text = verseDetail.crossReferences.takeIf { it.isNotEmpty() }?.joinToString("\n\n")
-                ?: resources.getString(R.string.text_no_cross_references)
-            setPrimaryTextSize(settings)
-        }
-        viewBinding.footnotesTitle.setPrimaryTextSize(settings)
-        viewBinding.crossReferencesTitle.setPrimaryTextSize(settings)
+        bindSection(viewBinding.headingsTitle, viewBinding.headingsScroll, viewBinding.headings,
+                verseDetail.headings, settings)
+        bindSection(viewBinding.footnotesTitle, viewBinding.footnotesScroll, viewBinding.footnotes,
+                verseDetail.footnotes, settings)
+        bindSection(viewBinding.crossReferencesTitle, viewBinding.crossReferencesScroll, viewBinding.crossReferences,
+                verseDetail.crossReferences, settings)
+    }
+
+    private fun bindSection(title: TextView, scroll: View, content: TextView, items: List<String>, settings: Settings) {
+        val visible = items.isNotEmpty()
+        title.visibility = if (visible) View.VISIBLE else View.GONE
+        scroll.visibility = if (visible) View.VISIBLE else View.GONE
+        content.text = items.joinToString("\n\n")
+        content.setPrimaryTextSize(settings)
+        title.setPrimaryTextSize(settings)
     }
 }
 
-private class NotePage(inflater: LayoutInflater, container: ViewGroup, updateNote: (VerseIndex, String) -> Unit)
+private class NotePage(inflater: LayoutInflater, container: ViewGroup, scheduleNoteSave: (VerseIndex, String) -> Unit)
     : VerseDetailPage<PageVerseDetailNoteBinding>(PageVerseDetailNoteBinding.inflate(inflater, container, false)) {
     private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -153,7 +192,7 @@ private class NotePage(inflater: LayoutInflater, container: ViewGroup, updateNot
 
         override fun afterTextChanged(s: Editable) {
             viewBinding.noteInputLayout.helperText = null
-            verseDetail?.let { updateNote(it.verseIndex, s.toString()) }
+            verseDetail?.let { scheduleNoteSave(it.verseIndex, s.toString()) }
         }
     }
 
