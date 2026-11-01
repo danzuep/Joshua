@@ -31,13 +31,20 @@ import me.xizzhu.android.joshua.reading.VerseUpdate
 import me.xizzhu.android.joshua.ui.fadeIn
 import me.xizzhu.android.joshua.ui.fadeOut
 import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
+import me.xizzhu.android.joshua.ui.recyclerview.TitleItem
 
 class VersePagerAdapter(
-        context: Context, private val loadVerses: (Int, Int) -> Unit, private val updateCurrentVerse: (VerseIndex) -> Unit
+    context: Context,
+    private val loadVerses: (Int, Int) -> Unit,
+    private val updateCurrentVerse: (VerseIndex) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val inflater = LayoutInflater.from(context)
+    private val chapterItems = mutableMapOf<Int, List<BaseItem>>()
+    private val loadingPositions = mutableSetOf<Int>()
+    private var currentPagePosition = RecyclerView.NO_POSITION
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
+            currentPagePosition = position
             val newBookIndex = position.toBookIndex()
             val newChapterIndex = position.toChapterIndex()
             if (currentVerseIndex.bookIndex != newBookIndex || currentVerseIndex.chapterIndex != newChapterIndex) {
@@ -47,7 +54,6 @@ class VersePagerAdapter(
     }
 
     private var attachedRecyclerView: RecyclerView? = null
-
     private var currentVerseIndex = VerseIndex.INVALID
     private var currentTranslation = ""
     private var parallelTranslations = emptyList<String>()
@@ -59,9 +65,6 @@ class VersePagerAdapter(
         }
 
     private fun notifyDataSetChangedSafely() {
-        // RecyclerView throws IllegalStateException if it is computing layout or scrolling when notifying
-        // item / data changes. This is a work-around for this issue.
-        // See RecyclerView.assertNotInLayoutOrScroll() for details.
         attachedRecyclerView?.let { recyclerView ->
             if (recyclerView.isComputingLayout) {
                 recyclerView.post { notifyDataSetChanged() }
@@ -72,26 +75,51 @@ class VersePagerAdapter(
     }
 
     fun setCurrent(verseIndex: VerseIndex, translation: String, parallel: List<String>) {
-        val shouldNotifyDataSetChanged = currentVerseIndex.bookIndex != verseIndex.bookIndex
-                || currentVerseIndex.chapterIndex != verseIndex.chapterIndex
-                || currentTranslation != translation
-                || parallelTranslations != parallel
-
+        val shouldNotifyDataSetChanged = currentTranslation != translation || parallelTranslations != parallel
+        if (shouldNotifyDataSetChanged) {
+            chapterItems.clear()
+            loadingPositions.clear()
+        }
         currentVerseIndex = verseIndex
         currentTranslation = translation
         parallelTranslations = parallel
-
         if (shouldNotifyDataSetChanged) notifyDataSetChangedSafely()
     }
 
     fun setVerses(bookIndex: Int, chapterIndex: Int, verses: List<BaseItem>) {
-        notifyItemChangedSafely(indexToPagePosition(bookIndex, chapterIndex), Verses(verses, currentVerseIndex))
+        val position = indexToPagePosition(bookIndex, chapterIndex)
+        loadingPositions.remove(position)
+        chapterItems[position] = verses
+        forEachAttachedPage { it.setChapter(position, verses) }
+    }
+
+    fun onVersesLoadFailed(bookIndex: Int, chapterIndex: Int) {
+        val position = indexToPagePosition(bookIndex, chapterIndex)
+        loadingPositions.remove(position)
+    }
+
+    fun containsChapterInCurrentPage(verseIndex: VerseIndex): Boolean {
+        val position = runCatching { verseIndex.toPagePosition() }.getOrNull() ?: return false
+        val page = attachedRecyclerView?.findViewHolderForAdapterPosition(currentPagePosition) as? Page ?: return false
+        return page.containsChapter(position)
+    }
+
+    private fun forEachAttachedPage(action: (Page) -> Unit) {
+        attachedRecyclerView?.let { recyclerView ->
+            for (index in 0 until recyclerView.childCount) {
+                (recyclerView.getChildViewHolder(recyclerView.getChildAt(index)) as? Page)?.let(action)
+            }
+        }
+    }
+
+    private fun getChapter(position: Int): List<BaseItem>? = chapterItems[position]
+
+    private fun loadChapter(position: Int) {
+        if (position !in 0 until Bible.TOTAL_CHAPTER_COUNT || !loadingPositions.add(position)) return
+        loadVerses(position.toBookIndex(), position.toChapterIndex())
     }
 
     private fun notifyItemChangedSafely(position: Int, payload: Any) {
-        // RecyclerView throws IllegalStateException if it is computing layout or scrolling when notifying
-        // item / data changes. This is a work-around for this issue.
-        // See RecyclerView.assertNotInLayoutOrScroll() for details.
         attachedRecyclerView?.let { recyclerView ->
             if (recyclerView.isComputingLayout) {
                 recyclerView.post { notifyItemChanged(position, payload) }
@@ -111,6 +139,7 @@ class VersePagerAdapter(
 
     fun notifyVerseUpdate(verseUpdate: VerseUpdate) {
         notifyItemChangedSafely(verseUpdate.verseIndex.toPagePosition(), verseUpdate)
+        forEachAttachedPage { it.notifyVerseUpdate(verseUpdate) }
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -120,17 +149,18 @@ class VersePagerAdapter(
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         attachedRecyclerView = null
+        currentPagePosition = RecyclerView.NO_POSITION
         (recyclerView.parent as ViewPager2).unregisterOnPageChangeCallback(pageChangeCallback)
     }
 
     override fun getItemCount(): Int =
-            if (currentVerseIndex.isValid() && currentTranslation.isNotEmpty() && settings != null) Bible.TOTAL_CHAPTER_COUNT else 0
+        if (currentVerseIndex.isValid() && currentTranslation.isNotEmpty() && settings != null) Bible.TOTAL_CHAPTER_COUNT else 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            Page(inflater, parent, loadVerses, updateCurrentVerse)
+        Page(inflater, parent, ::getChapter, ::loadChapter, updateCurrentVerse)
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as Page).bind(position.toBookIndex(), position.toChapterIndex(), settings!!)
+        (holder as Page).bind(position, settings!!, currentVerseIndex)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
@@ -142,108 +172,167 @@ class VersePagerAdapter(
     }
 }
 
-private class Verses(val verses: List<BaseItem>, val currentVerseIndex: VerseIndex)
-
 private class Page(
-        inflater: LayoutInflater, container: ViewGroup, private val loadVerses: (Int, Int) -> Unit, updateCurrentVerse: (VerseIndex) -> Unit
+    inflater: LayoutInflater,
+    container: ViewGroup,
+    private val getChapter: (Int) -> List<BaseItem>?,
+    private val loadChapter: (Int) -> Unit,
+    updateCurrentVerse: (VerseIndex) -> Unit
 ) : RecyclerView.ViewHolder(PageVerseBinding.inflate(inflater, container, false).root) {
+    private val chapters = sortedMapOf<Int, List<BaseItem>>()
+    private val requestedPositions = mutableSetOf<Int>()
+    private var pagePosition = RecyclerView.NO_POSITION
+    private var currentVerseIndex = VerseIndex.INVALID
+    private var hasRendered = false
+    private var renderedItems = emptyList<BaseItem>()
+
     private val viewBinding = PageVerseBinding.bind(itemView).apply {
         verseList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    updateCurrentVerse(VerseIndex(
-                            bookIndex = bookIndex,
-                            chapterIndex = chapterIndex,
-                            verseIndex = firstVisibleVerseIndex(recyclerView)
-                    ))
+                    firstVisibleVerse(recyclerView)?.let(updateCurrentVerse)
+                }
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy == 0 || chapters.isEmpty()) return
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                if (layoutManager.findFirstVisibleItemPosition() <= 1) {
+                    (chapters.firstKey() - 1).takeIf { it >= 0 }?.let(::ensureChapter)
+                }
+                if (layoutManager.findLastVisibleItemPosition() >= (recyclerView.adapter?.itemCount ?: 0) - 2) {
+                    (chapters.lastKey() + 1).takeIf { it < Bible.TOTAL_CHAPTER_COUNT }?.let(::ensureChapter)
                 }
             }
         })
     }
 
-    private fun firstVisibleVerseIndex(recyclerView: RecyclerView): Int {
-        val position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-        return (verses?.getOrNull(position) as? ParagraphItem)?.firstVerseIndex ?: 0
-    }
-
-    private var bookIndex = -1
-    private var chapterIndex = -1
-    private var verses: List<BaseItem>? = null
-
-    fun bind(bookIndex: Int, chapterIndex: Int, settings: Settings) {
-        this.bookIndex = bookIndex
-        this.chapterIndex = chapterIndex
-
-        viewBinding.verseList.setSettings(settings)
-
-        loadVerses(bookIndex, chapterIndex)
-
+    fun bind(position: Int, settings: Settings, currentVerseIndex: VerseIndex) {
+        pagePosition = position
+        this.currentVerseIndex = currentVerseIndex
+        hasRendered = false
+        renderedItems = emptyList()
+        chapters.clear()
+        requestedPositions.clear()
         viewBinding.verseList.visibility = View.GONE
         viewBinding.loadingSpinner.visibility = View.VISIBLE
+        viewBinding.verseList.setSettings(settings)
+
+        listOfNotNull((position - 1).takeIf { it >= 0 }, position,
+            (position + 1).takeIf { it < Bible.TOTAL_CHAPTER_COUNT }).forEach(::ensureChapter)
     }
 
     fun bind(payloads: MutableList<Any>) {
-        payloads.forEach { payload ->
-            when (payload) {
-                is VerseUpdate -> if (payload.operation == VerseUpdate.VERSE_SELECTED) {
-                    selectVerse(payload)
-                } else {
-                    notifyVerseUpdate(payload)
-                }
-                is Verses -> setVerses(payload)
-            }
-        }
+        payloads.filterIsInstance<VerseUpdate>().forEach(::notifyVerseUpdate)
     }
 
-    private fun setVerses(verses: Verses) {
+    private fun ensureChapter(position: Int) {
+        if (position in requestedPositions || position !in 0 until Bible.TOTAL_CHAPTER_COUNT) return
+        requestedPositions.add(position)
+        val cachedItems = getChapter(position)
+        if (cachedItems != null) setChapter(position, cachedItems) else loadChapter(position)
+    }
+
+    fun setChapter(position: Int, items: List<BaseItem>) {
+        if (position !in requestedPositions) return
+        if (viewBinding.verseList.isComputingLayout) {
+            viewBinding.verseList.post { setChapter(position, items) }
+            return
+        }
+
+        val anchorVerse = if (hasRendered) firstVisibleVerse(viewBinding.verseList) else null
+        val anchorOffset = if (anchorVerse != null) {
+            val layoutManager = viewBinding.verseList.layoutManager as LinearLayoutManager
+            layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition())
+                ?.let { layoutManager.getDecoratedTop(it) } ?: 0
+        } else 0
+
+        chapters[position] = items
+        if (!chapters.containsKey(pagePosition)) return
+        renderedItems = combinedItems()
+        if (renderedItems.isEmpty()) return
+
+        viewBinding.verseList.setItems(renderedItems)
         viewBinding.verseList.fadeIn()
         viewBinding.loadingSpinner.fadeOut()
 
-        this.verses = verses.verses
-        viewBinding.verseList.setItems(verses.verses)
-
-        if (verses.currentVerseIndex.verseIndex > 0
-                && verses.currentVerseIndex.bookIndex == bookIndex
-                && verses.currentVerseIndex.chapterIndex == chapterIndex) {
+        if (!hasRendered) {
+            hasRendered = true
+            val targetVerse = currentVerseIndex.takeIf { it.toPagePosition() == pagePosition }
             viewBinding.verseList.post {
-                (viewBinding.verseList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(verses.currentVerseIndex.toItemPosition(), 0)
+                val target = targetVerse?.let { renderedItems.positionOfVerse(it) }
+                    ?: renderedItems.positionOfChapter(pagePosition)
+                if (target >= 0) {
+                    (viewBinding.verseList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(target, 0)
+                }
             }
-        } else {
-            viewBinding.verseList.scrollToPosition(0)
+        } else if (anchorVerse != null) {
+            viewBinding.verseList.post {
+                val target = renderedItems.positionOfVerse(anchorVerse)
+                if (target >= 0) {
+                    (viewBinding.verseList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(target, anchorOffset)
+                }
+            }
         }
     }
 
-    // verses are grouped into paragraphs, so need to find the paragraph that has the verse
-    private fun VerseIndex.toItemPosition(): Int {
-        verses?.forEachIndexed { index, item ->
-            if (item is ParagraphItem && item.containsVerse(verseIndex)) return index
+    fun containsChapter(position: Int): Boolean = chapters.containsKey(position)
+
+    private fun combinedItems(): List<BaseItem> = buildList {
+        chapters.forEach { (position, items) ->
+            add(TitleItem("Chapter ${position.toChapterIndex() + 1}", hideDivider = false))
+            addAll(items)
+        }
+    }
+
+    private fun List<BaseItem>.positionOfChapter(position: Int): Int {
+        var itemPosition = 0
+        chapters.forEach { (chapterPosition, items) ->
+            if (chapterPosition == position) return itemPosition
+            itemPosition += items.size + 1
         }
         return RecyclerView.NO_POSITION
     }
 
-    private fun selectVerse(verseUpdate: VerseUpdate) {
-        if (verses == null) {
-            // when reading activity is opened from e.g. notes list, this is likely called before
-            // verses are set, therefore postpone notifying update
-            viewBinding.verseList.adapter?.let { adapter ->
-                adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-                    override fun onChanged() {
-                        adapter.unregisterAdapterDataObserver(this)
-                        viewBinding.verseList.post { notifyVerseUpdate(verseUpdate) }
-                    }
-                })
+    private fun List<BaseItem>.positionOfVerse(verseIndex: VerseIndex): Int {
+        forEachIndexed { index, item ->
+            if (item is ParagraphItem && item.firstVerse.bookIndex == verseIndex.bookIndex
+                && item.firstVerse.chapterIndex == verseIndex.chapterIndex && item.containsVerse(verseIndex.verseIndex)) {
+                return index
             }
-        } else {
-            notifyVerseUpdate(verseUpdate)
         }
+        return RecyclerView.NO_POSITION
     }
 
-    private fun notifyVerseUpdate(verseUpdate: VerseUpdate) {
+    private fun firstVisibleVerse(recyclerView: RecyclerView): VerseIndex? {
+        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+        val firstPosition = layoutManager.findFirstVisibleItemPosition()
+        val lastPosition = layoutManager.findLastVisibleItemPosition()
+        for (position in firstPosition..lastPosition) {
+            (renderedItems.getOrNull(position) as? ParagraphItem)?.let { return it.firstVerse }
+        }
+        return null
+    }
+
+    fun notifyVerseUpdate(verseUpdate: VerseUpdate) {
+        if (viewBinding.verseList.isComputingLayout) {
+            viewBinding.verseList.post { notifyVerseUpdate(verseUpdate) }
+            return
+        }
+        val chapterPosition = verseUpdate.verseIndex.toPagePosition()
+        if (!chapters.containsKey(chapterPosition)) return
         val adapter = viewBinding.verseList.adapter ?: return
-        verses?.forEachIndexed { index, item ->
-            if (item is ParagraphItem && item.containsVerse(verseUpdate.verseIndex.verseIndex)) {
-                adapter.notifyItemChanged(index, verseUpdate)
+        var itemPosition = 0
+        chapters.forEach { (position, chapterItems) ->
+            if (position == chapterPosition) {
+                chapterItems.forEachIndexed { index, item ->
+                    if (item is ParagraphItem && item.containsVerse(verseUpdate.verseIndex.verseIndex)) {
+                        adapter.notifyItemChanged(itemPosition + index + 1, verseUpdate)
+                    }
+                }
+                return
             }
+            itemPosition += chapterItems.size + 1
         }
     }
 }

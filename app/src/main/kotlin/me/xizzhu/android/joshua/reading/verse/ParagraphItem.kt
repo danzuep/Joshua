@@ -72,6 +72,7 @@ class ParagraphItem(
     private var ranges = emptyList<Range>()
 
     val firstVerseIndex: Int get() = segments.first().verse.verseIndex.verseIndex
+    val firstVerse: VerseIndex get() = segments.first().verse.verseIndex
 
     fun containsVerse(verseIndex: Int): Boolean = segments.any { it.verse.verseIndex.verseIndex == verseIndex }
 
