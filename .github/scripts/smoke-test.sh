@@ -23,19 +23,24 @@ adb shell am start -W -n me.xizzhu.android.joshua/.LauncherActivity
 
 # The bundled translation is imported on first launch. The reader opens at Genesis, which is empty
 # in the minimal package, so open the chapter drawer and select John 1.
+# Book names in the converted translation are USFM ids, so John is "JHN".
 opened=0
+nt_tapped=0
 for _ in $(seq 1 30); do
   sleep 5
   dump_ui
-  if tap_text "John"; then
+  if tap_text "JHN"; then
     dump_ui
     if tap_text "1"; then
       opened=1
       break
     fi
-  else
-    # Open the chapter drawer from the left edge.
-    adb shell input swipe 0 600 600 600 300
+  elif [ "$nt_tapped" -eq 0 ] && tap_text "NT"; then
+    # Jump the drawer's book list to the New Testament.
+    nt_tapped=1
+  elif ! grep -q 'text="OT"' ui.xml 2> /dev/null; then
+    # Open the chapter drawer from the left edge, staying clear of the system back gesture.
+    adb shell input swipe 4 600 600 600 300
     sleep 2
   fi
 done
