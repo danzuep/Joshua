@@ -32,10 +32,17 @@ class ChapterSelectionFragment : BaseFragment<FragmentChapterSelectionBinding, C
     override fun initializeView() {
         viewBinding.chapterSelectionView.initialize { viewEvent ->
             when (viewEvent) {
-                is ChapterSelectionView.ViewEvent.SelectChapter -> viewModel.selectChapter(bookToSelect = viewEvent.bookIndex, chapterToSelect = viewEvent.chapterIndex)
+                is ChapterSelectionView.ViewEvent.SelectBook -> viewModel.selectChapter(bookToSelect = viewEvent.bookIndex, chapterToSelect = 0)
+                is ChapterSelectionView.ViewEvent.SelectChapter -> {
+                    viewModel.selectChapter(bookToSelect = viewEvent.bookIndex, chapterToSelect = viewEvent.chapterIndex)
+                    onChapterSelected?.invoke()
+                }
             }
         }
     }
+
+    /** Invoked after the user picks a chapter, e.g. so the host can close the drawer. */
+    var onChapterSelected: (() -> Unit)? = null
 
     override fun onViewActionEmitted(viewAction: ChapterSelectionViewModel.ViewAction) {}
 

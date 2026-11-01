@@ -18,6 +18,7 @@ package me.xizzhu.android.joshua.progress
 
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.asExecutor
 import me.xizzhu.android.joshua.Navigator
@@ -35,6 +36,7 @@ class ReadingProgressActivity : BaseActivity<ActivityReadingProgressBinding, Rea
     lateinit var coroutineDispatcherProvider: CoroutineDispatcherProvider
 
     private lateinit var adapter: ReadingProgressAdapter
+    private var pendingScrollToCurrentBook = false
 
     override val viewModel: ReadingProgressViewModel by viewModels()
 
@@ -66,7 +68,9 @@ class ReadingProgressActivity : BaseActivity<ActivityReadingProgressBinding, Rea
             readingProgressList.fadeIn()
         }
 
-        adapter.submitList(viewState.items)
+        adapter.submitList(viewState.items) {
+            if (pendingScrollToCurrentBook) scrollToCurrentBook(viewState.items)
+        }
 
         viewState.error?.handle()
     }
@@ -93,8 +97,17 @@ class ReadingProgressActivity : BaseActivity<ActivityReadingProgressBinding, Rea
         }
     }
 
+    private fun scrollToCurrentBook(items: List<ReadingProgressItem>) {
+        val position = items.indexOfFirst { it is ReadingProgressItem.Book && it.isCurrentBook }
+        if (position < 0) return
+
+        pendingScrollToCurrentBook = false
+        (viewBinding.readingProgressList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, 0)
+    }
+
     override fun onStart() {
         super.onStart()
+        pendingScrollToCurrentBook = true
         viewModel.loadReadingProgress()
     }
 }

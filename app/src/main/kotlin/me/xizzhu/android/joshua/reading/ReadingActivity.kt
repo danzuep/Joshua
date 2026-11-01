@@ -156,6 +156,8 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var versePagerAdapter: VersePagerAdapter
+    private var verseReportedByScroll: VerseIndex? = null
+    private var userSwipingPager = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -194,14 +196,30 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             }
         })
 
-        versePagerAdapter = VersePagerAdapter(this@ReadingActivity, viewModel::loadVerses, viewModel::updateCurrentVerse)
+        versePagerAdapter = VersePagerAdapter(this@ReadingActivity, viewModel::loadVerses) { verseIndex ->
+            verseReportedByScroll = verseIndex
+            viewModel.updateCurrentVerse(verseIndex)
+        }
         verseViewPager.offscreenPageLimit = 1
         verseViewPager.adapter = versePagerAdapter
         verseViewPager.makeLessSensitive()
         verseViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrollStateChanged(state: Int) {
+                when (state) {
+                    ViewPager2.SCROLL_STATE_DRAGGING -> userSwipingPager = true
+                    ViewPager2.SCROLL_STATE_IDLE -> userSwipingPager = false
+                }
+            }
+
             override fun onPageSelected(position: Int) {
                 val bookIndex = position.toBookIndex()
                 val chapterIndex = position.toChapterIndex()
+                if (userSwipingPager) {
+                    // A swipe always lands on verse one of the new chapter.
+                    versePagerAdapter.scrollToChapterStart(position)
+                    viewModel.selectChapter(bookIndex, chapterIndex)
+                    return
+                }
                 lifecycleScope.launch {
                     val currentVerseIndex = viewModel.currentVerseIndex()
                     if (bookIndex != currentVerseIndex.bookIndex || chapterIndex != currentVerseIndex.chapterIndex) {
@@ -210,6 +228,10 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 }
             }
         })
+
+        chapterSelectionFragment.getFragment<ChapterSelectionFragment>().onChapterSelected = {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
 
         search.setOnClickListener { startActivity(Navigator.SCREEN_SEARCH) }
 
@@ -280,17 +302,19 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         currentReadingStatus = status
 
         with(viewBinding) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-
             versePagerAdapter.setCurrent(
                 verseIndex = status.currentVerseIndex,
                 translation = status.currentTranslation,
                 parallel = status.parallelTranslations
             )
+            // A verse reached by the user scrolling is already on screen; moving the pager would jump it to a chapter heading.
+            val reportedByScroll = status.currentVerseIndex == verseReportedByScroll
+            verseReportedByScroll = null
             val chapterChanged = previousVerseIndex.bookIndex != status.currentVerseIndex.bookIndex
                 || previousVerseIndex.chapterIndex != status.currentVerseIndex.chapterIndex
-            if (chapterChanged || !versePagerAdapter.containsChapterInCurrentPage(status.currentVerseIndex)) {
-                verseViewPager.setCurrentItem(status.currentVerseIndex.toPagePosition(), false)
+            if (!reportedByScroll && (chapterChanged || !versePagerAdapter.containsChapterInCurrentPage(status.currentVerseIndex))) {
+                val targetPage = status.currentVerseIndex.toPagePosition()
+                if (verseViewPager.currentItem != targetPage) verseViewPager.setCurrentItem(targetPage, false)
             }
         }
         hideVerseDetail()

@@ -38,6 +38,7 @@ class ChapterSelectionView : ConstraintLayout {
     }
 
     sealed class ViewEvent {
+        data class SelectBook(val bookIndex: Int) : ViewEvent()
         data class SelectChapter(val bookIndex: Int, val chapterIndex: Int) : ViewEvent()
     }
 
