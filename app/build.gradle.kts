@@ -125,14 +125,6 @@ android {
     }
 }
 
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "net.bytebuddy") {
-            useVersion("1.18.16")
-        }
-    }
-}
-
 dependencies {
     implementation(Dependencies.Kotlin.coroutines)
     implementation(Dependencies.AndroidX.activity)
