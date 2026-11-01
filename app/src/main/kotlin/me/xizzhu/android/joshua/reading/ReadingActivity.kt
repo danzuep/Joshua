@@ -35,6 +35,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.Navigator
 import me.xizzhu.android.joshua.R
+import me.xizzhu.android.joshua.core.Bible
 import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.Verse
@@ -64,6 +65,9 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     ParagraphItem.Callback, VerseTextItem.Callback {
     companion object {
         private const val KEY_OPEN_NOTE = "me.xizzhu.android.joshua.KEY_OPEN_NOTE"
+
+        /** Optional launch extra: the 0-based index of the book to open (e.g. 42 for John) instead of the last reading position. */
+        const val KEY_OPEN_BOOK = "me.xizzhu.android.joshua.KEY_OPEN_BOOK"
 
         fun bundleForOpenNote(): Bundle = Bundle().apply { putBoolean(KEY_OPEN_NOTE, true) }
     }
@@ -200,6 +204,9 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         })
 
         search.setOnClickListener { startActivity(Navigator.SCREEN_SEARCH) }
+
+        val openBook = intent.getIntExtra(KEY_OPEN_BOOK, -1)
+        if (savedInstanceState == null && openBook in 0 until Bible.BOOK_COUNT) viewModel.openBook(openBook)
 
         val openNoteWhenCreated = intent.getBooleanExtra(KEY_OPEN_NOTE, false)
         verseDetailView.initialize(

@@ -177,6 +177,14 @@ class ReadingViewModel @Inject constructor(
 
     suspend fun currentVerseIndex(): VerseIndex = bibleReadingManager.currentVerseIndex().first { it.isValid() }
 
+    fun openBook(bookIndex: Int) {
+        viewModelScope.launch {
+            // Wait for the stored position to load first, so it can't overwrite the requested book.
+            bibleReadingManager.currentVerseIndex().first()
+            selectChapter(bookIndex, 0)
+        }
+    }
+
     fun selectChapter(bookIndex: Int, chapterIndex: Int) {
         viewModelScope.launch {
             runCatching {
