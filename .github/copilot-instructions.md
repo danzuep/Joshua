@@ -1,1 +1,1 @@
-Read [AGENTS.md](../AGENTS.md) in the repository root before making changes. It explains why Gradle can't run in the sandbox (use GitHub Actions through `gh` instead), the project layout, and the release and PR-title conventions. Keep that file as the single source of truth and don't duplicate its content here.
+Read [AGENTS.md](../AGENTS.md) in the repository root before making changes. Keep that file as the single source of truth and don't duplicate its content here.
