@@ -3,4 +3,7 @@
 
     <color name="verse_pressed">#888888</color>
     <color name="verse_selected">#888888</color>
+
+    <color name="settings_heading_text">@color/light_gray</color>
+    <color name="chapter_heading_text">@color/light_gray</color>
 </resources>

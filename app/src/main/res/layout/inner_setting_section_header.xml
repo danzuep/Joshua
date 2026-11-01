@@ -9,8 +9,7 @@
         android:layout_gravity="bottom"
         android:paddingStart="@dimen/padding"
         android:paddingEnd="@dimen/padding"
-        android:textColor="@color/primary"
-        android:textStyle="bold" />
+        android:textColor="@color/settings_heading_text"
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
