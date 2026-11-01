@@ -17,6 +17,7 @@
 package me.xizzhu.android.joshua.core.repository.remote
 
 import me.xizzhu.android.joshua.core.HEADING
+import me.xizzhu.android.joshua.core.NOTE_MARK
 import me.xizzhu.android.joshua.core.PARAGRAPH
 import java.io.InputStream
 import java.util.TreeMap
@@ -31,15 +32,29 @@ internal val BOOK_CODES: List<String> = ("GEN EXO LEV NUM DEU JOS JDG RUT 1SA 2S
 class ScriptureBook(val code: String, val name: String?, val chapters: Map<Int, Map<Int, String>>)
 
 private val NOTE = Regex("""\\(f|fe|x|ef|ex)\b.*?\\\1\*""", RegexOption.DOT_MATCHES_ALL)
+private val NOTE_CALLER = Regex("""^\s*[^\s\\]*\s*""")
 private val WORD_ATTRIBUTES = Regex("""\|[^\\]*?(?=\\\+?w\*)""")
 private val MARKER = Regex("""\\\+?[a-z0-9-]+\*|\\\+?[a-z0-9-]+\s?""")
 private val WHITESPACE = Regex("""\s+""")
 private val VERSE = Regex("""\\v\s+(\d+)(?:-(\d+))?[a-z]?\s*""")
 private val NON_SCRIPTURE = Regex("""^\\(?:ms\d?|mr|s\d?|sr|r|d|sp|cl|cd|cp|qa|rem|h|toc\d|mt\d?|imt\d?|is\d?|ip|id|b)\b""")
 
-/** Strips notes, word attributes and markers, keeping the scripture text. */
+/** Strips word attributes and markers, keeping the scripture text. Notes become [NOTE_MARK]ed footnotes or cross-references. */
 internal fun stripUsfmMarkup(text: String): String =
-        text.replace(NOTE, "").replace(WORD_ATTRIBUTES, "").replace(MARKER, "").replace(WHITESPACE, " ").trim()
+        text.replace(NOTE) { noteMarkup(it) }.removeMarkers()
+
+private fun String.removeMarkers(): String =
+        replace(WORD_ATTRIBUTES, "").replace(MARKER, "").replace(WHITESPACE, " ").trim()
+
+/** A footnote (\f) or cross-reference (\x) without its caller, e.g. "1:1 Some text." */
+private fun noteMarkup(match: MatchResult): String {
+    val marker = match.groupValues[1]
+    val body = match.value.removePrefix("\\$marker").removeSuffix("\\$marker*")
+            .replace(NOTE_CALLER, "").removeMarkers()
+    if (body.isEmpty()) return ""
+    val kind = if (marker.contains('x')) 'x' else 'f'
+    return "$NOTE_MARK$kind$body$NOTE_MARK"
+}
 
 private val HEADING_LINE = Regex("""^\\(?:s\d?|ms\d?)\s+(.*)""")
 private val PARAGRAPH_LINE = Regex("""^\\(?:p|m|pi\d?|mi|pm[a-z]?|po|pr|cls|li\d?|lim\d?|ph\d?)(?:\s+(.*))?$""")

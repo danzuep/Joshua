@@ -35,6 +35,7 @@ import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.ReadingProgressManager
 import me.xizzhu.android.joshua.core.Settings
+import me.xizzhu.android.joshua.core.extractNotes
 import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.TranslationManager
 import me.xizzhu.android.joshua.core.provider.TimeProvider
@@ -53,7 +54,8 @@ import me.xizzhu.android.joshua.utils.firstNotEmpty
 
 class VerseDetailViewData(
     val verseIndex: VerseIndex, val verseTextItems: List<VerseTextItem>,
-    var bookmarked: Boolean, @Highlight.Companion.AvailableColor var highlightColor: Int, var note: String
+    var bookmarked: Boolean, @Highlight.Companion.AvailableColor var highlightColor: Int, var note: String,
+    val footnotes: List<String> = emptyList(), val crossReferences: List<String> = emptyList()
 )
 
 class VerseUpdate(val verseIndex: VerseIndex, @Operation val operation: Int, val data: Any? = null) {
@@ -281,7 +283,13 @@ class ReadingViewModel @Inject constructor(
         }
         if (verse == null) throw IllegalStateException("Failed to find verse '$verseIndex' for translation '$currentTranslation'")
 
-        // step 2: builds the parallel
+        // step 2: reads the footnotes and cross-references of the verse, which the stripped verses don't keep
+        val primaryIndex = verse.verseIndex
+        val primaryText = bibleReadingManager.readStructuredVerses(currentTranslation, verseIndex.bookIndex, verseIndex.chapterIndex)
+            .firstOrNull { it.verseIndex == primaryIndex }?.text?.text ?: ""
+        val verseNotes = primaryText.extractNotes()
+
+        // step 3: builds the parallel
         val parallel = Array(parallelTranslations.size) { StringBuilder() }
         val parallelBuilder: (index: Int, Verse.Text) -> Unit = { index, text ->
             with(parallel[index]) {
@@ -299,7 +307,7 @@ class ReadingViewModel @Inject constructor(
             followingEmptyVerseCount++
         }
 
-        // step 3: constructs verse text items
+        // step 4: constructs verse text items
         val verseTextItems = ArrayList<VerseTextItem>(parallelTranslations.size + 1)
         verseTextItems.add(VerseTextItem(
             verseIndex = verseIndex,
@@ -321,7 +329,9 @@ class ReadingViewModel @Inject constructor(
             verseTextItems = verseTextItems,
             bookmarked = bookmarked.await(),
             highlightColor = highlightColor.await(),
-            note = note.await()
+            note = note.await(),
+            footnotes = verseNotes.filter { !it.isCrossReference }.map { it.text },
+            crossReferences = verseNotes.filter { it.isCrossReference }.map { it.text }
         )
     }
 

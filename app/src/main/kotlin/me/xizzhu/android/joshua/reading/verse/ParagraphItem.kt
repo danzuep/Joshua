@@ -19,6 +19,7 @@ package me.xizzhu.android.joshua.reading.verse
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.ColorFilter
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.Typeface
@@ -53,13 +54,14 @@ import me.xizzhu.android.joshua.ui.setSpans
 class ParagraphItem(
         private val context: Context, val heading: String?, val segments: List<Segment>,
         private val bookmarks: MutableSet<Int>, private val highlights: MutableMap<Int, Int>, private val notes: MutableSet<Int>,
-        private val selected: MutableSet<Int> = mutableSetOf()
+        private val selected: MutableSet<Int> = mutableSetOf(), private val footnotes: Set<Int> = emptySet()
 ) : BaseItem(R.layout.item_paragraph, { inflater, parent -> ParagraphViewHolder(inflater, parent) }) {
     /** The part of [verse] that is in this paragraph; [label] (e.g. "2" or "3-4") is only set where the verse starts. */
     class Segment(val verse: Verse, val text: String, val label: String?)
 
     companion object {
         private val ICON_COLOR_FILTER = PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY)
+        private val FOOTNOTE_COLOR_FILTER = PorterDuffColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY)
     }
 
     interface Callback {
@@ -123,6 +125,7 @@ class ParagraphItem(
             if (segment.label != null) {
                 if (bookmarks.contains(verseIndex)) builder.appendDrawable(R.drawable.ic_bookmark)
                 if (notes.contains(verseIndex)) builder.appendDrawable(R.drawable.ic_note)
+                if (footnotes.contains(verseIndex)) builder.appendDrawable(R.drawable.ic_note, FOOTNOTE_COLOR_FILTER)
             }
 
             if (selected.contains(verseIndex)) {
@@ -135,8 +138,10 @@ class ParagraphItem(
         return builder
     }
 
-    private fun SpannableStringBuilder.appendDrawable(@DrawableRes drawableId: Int) {
-        createDrawableSpan(context, drawableId, DynamicDrawableSpan.ALIGN_BASELINE, ICON_COLOR_FILTER, 0.67F)?.let { span ->
+    private fun SpannableStringBuilder.appendDrawable(
+            @DrawableRes drawableId: Int, colorFilter: ColorFilter = ICON_COLOR_FILTER
+    ) {
+        createDrawableSpan(context, drawableId, DynamicDrawableSpan.ALIGN_BASELINE, colorFilter, 0.67F)?.let { span ->
             append(' ')
             append(' ')
             setSpan(span, length - 1, length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)

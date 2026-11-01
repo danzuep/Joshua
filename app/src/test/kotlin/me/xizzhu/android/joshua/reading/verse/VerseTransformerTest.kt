@@ -59,6 +59,34 @@ class VerseTransformerTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test toParagraphItems with a heading in the middle of a verse`() {
+        val items = listOf(verse(0, "In the beginning${HEADING}Creation${HEADING}${PARAGRAPH}God made"))
+                .toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()
+        assertEquals(2, items.size)
+        assertNull(items[0].heading)
+        assertEquals(listOf("In the beginning"), items[0].segments.map { it.text })
+        assertEquals("Creation", items[1].heading)
+        assertEquals(listOf("God made"), items[1].segments.map { it.text })
+    }
+
+    @Test
+    fun `test toParagraphItems keeps a heading of a verse without text`() {
+        val items = listOf(verse(0, "${HEADING}Title${HEADING}"), verse(1, "${PARAGRAPH}Text"))
+                .toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()
+        assertEquals(1, items.size)
+        assertEquals("Title", items[0].heading)
+        assertEquals(listOf("Text"), items[0].segments.map { it.text })
+        assertEquals("2", items[0].segments[0].label)
+    }
+
+    @Test
+    fun `test toParagraphItems leaves notes out of the text`() {
+        val items = listOf(verse(0, "In${NOTE_MARK}fa note${NOTE_MARK} the beginning"), verse(1, "God${NOTE_MARK}x1:1 ref${NOTE_MARK}"))
+                .toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()
+        assertEquals(listOf("In the beginning", "God"), items.single().segments.map { it.text })
+    }
+
+    @Test
     fun `test toParagraphItems with bridged verses`() {
         val items = listOf(verse(0, "One"), verse(1, "Two"), verse(2, ""), verse(3, "Four"))
                 .toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()

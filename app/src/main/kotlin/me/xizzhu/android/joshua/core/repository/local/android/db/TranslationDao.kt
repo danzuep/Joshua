@@ -148,7 +148,10 @@ class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
                     Verse.Text(query.translation, row.getString(COLUMN_TEXT).stripStructure()), emptyList()
             )
         }.filter { verse ->
-            !query.wholeWords || query.keyword.toKeywords().all { verse.text.text.containsWholeWord(it) }
+            // Headings and notes are stored with the text but not searchable, so each keyword must match the displayed text.
+            val keywords = query.keyword.toKeywords()
+            keywords.all { verse.text.text.contains(it, ignoreCase = true) }
+                    && (!query.wholeWords || keywords.all { verse.text.text.containsWholeWord(it) })
         }
     }
 
