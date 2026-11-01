@@ -10,10 +10,34 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <me.xizzhu.android.joshua.ui.recyclerview.VerticalRecyclerView
-            android:id="@+id/translation_list"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent">
+
+            <me.xizzhu.android.joshua.ui.recyclerview.VerticalRecyclerView
+                android:id="@+id/translation_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <View
+                android:id="@+id/fast_scroll_track"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end" />
+
+            <TextView
+                android:id="@+id/fast_scroll_bubble"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="top|end"
+                android:layout_marginEnd="40dp"
+                android:background="@drawable/background_fast_scroll_bubble"
+                android:gravity="center"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.appbar.AppBarLayout

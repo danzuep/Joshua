@@ -48,6 +48,20 @@
 
     <string name="dialog_title_no_translation_downloaded">No translation</string>
     <string name="action_download_sites">Download sites</string>
+    <string name="action_filter_translations">Filter</string>
+    <string name="action_download">Download</string>
+    <string name="action_download_engbsb">Berean Standard Bible</string>
+    <string name="action_download_engwebp">World English Bible</string>
+    <string name="action_download_engerv">Easy-to-Read Version</string>
+    <string name="dialog_title_filter_translations">Filter translations</string>
+    <string name="hint_filter_translations">Name, abbreviation or language</string>
+    <string name="text_all_languages">All languages</string>
+    <string name="translation_detail_id">ID</string>
+    <string name="translation_detail_territory">Territory</string>
+    <string name="translation_detail_language">Language</string>
+    <string name="translation_detail_language_english">Language (English)</string>
+    <string name="translation_detail_vernacular_title">Vernacular title</string>
+    <string name="translation_detail_english_title">English title</string>
     <string name="dialog_title_download_sites">Download sites</string>
     <string name="dialog_message_download_sites">One web address per line, for example https://ebible.org/download.php. Leave empty to use the default.</string>
     <string name="dialog_title_error">Error</string>

@@ -314,6 +314,18 @@ class TranslationRepositoryTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test downloadTranslation() does not duplicate an already downloaded translation`() = runTest {
+        coEvery { localTranslationStorage.readTranslations() } returns listOf(MockContents.kjvDownloadedTranslationInfo)
+
+        val translationRepository = spyk(TranslationRepository(localTranslationStorage, remoteTranslationService, TestTimeProvider(), testScope))
+        coEvery { translationRepository.downloadTranslation(any(), MockContents.kjvTranslationInfo) } returns Unit
+        translationRepository.updateTranslations(listOf(MockContents.kjvDownloadedTranslationInfo))
+
+        assertTrue(translationRepository.downloadTranslation(MockContents.kjvTranslationInfo).toList().isEmpty())
+        assertEquals(listOf(MockContents.kjvDownloadedTranslationInfo), translationRepository.downloadedTranslations.first())
+    }
+
+    @Test
     fun `test downloadTranslation() internal`() = runTest {
         coEvery { localTranslationStorage.readTranslations() } returns listOf(MockContents.kjvDownloadedTranslationInfo)
         coEvery {

@@ -9,12 +9,12 @@
         android:layout_gravity="bottom"
         android:paddingStart="@dimen/padding"
         android:paddingEnd="@dimen/padding"
-        android:textColor="@color/settings_heading_text"
+        android:textColor="?attr/colorPrimary"
         android:textStyle="bold" />
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:dividerColor="@color/primary" />
+        app:dividerColor="?attr/colorPrimary" />
 </merge>

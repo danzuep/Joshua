@@ -23,7 +23,7 @@
             android:layout_margin="@dimen/padding_big"
             android:contentDescription="@string/action_search"
             android:src="@drawable/ic_search"
-            app:backgroundTint="@color/primary"
+            app:backgroundTint="?attr/colorPrimary"
             app:layout_behavior="me.xizzhu.android.joshua.reading.search.FloatingActionButtonScrollAwareBehavior" />
 
         <com.google.android.material.appbar.AppBarLayout

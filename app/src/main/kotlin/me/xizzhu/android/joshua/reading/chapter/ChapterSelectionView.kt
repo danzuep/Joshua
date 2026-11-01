@@ -20,10 +20,12 @@ import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.AbsListView
 import android.widget.ExpandableListView
 import androidx.annotation.IntDef
 import androidx.constraintlayout.widget.ConstraintLayout
+import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.Bible
 import me.xizzhu.android.joshua.databinding.InnerChapterSelectionViewBinding
 
@@ -35,7 +37,17 @@ class ChapterSelectionView : ConstraintLayout {
         @IntDef(SELECTION_OLD_TESTAMENT, SELECTION_NEW_TESTAMENT)
         @Retention(AnnotationRetention.SOURCE)
         private annotation class Selection
+
+        /** A testament tab is only shown when at least one valid book of that testament is available. */
+        internal fun testamentTabVisibility(bookIndices: Collection<Int>): TestamentTabVisibility {
+            val validBookIndices = bookIndices.filter { it in 0 until Bible.BOOK_COUNT }
+            return TestamentTabVisibility(
+                showOldTestament = validBookIndices.any { it < Bible.OLD_TESTAMENT_COUNT },
+                showNewTestament = validBookIndices.any { it >= Bible.OLD_TESTAMENT_COUNT })
+        }
     }
+
+    internal data class TestamentTabVisibility(val showOldTestament: Boolean, val showNewTestament: Boolean)
 
     sealed class ViewEvent {
         data class SelectBook(val bookIndex: Int) : ViewEvent()
@@ -96,6 +108,30 @@ class ChapterSelectionView : ConstraintLayout {
 
     fun setChapterSelectionItems(chapterSelectionItems: List<ChapterSelectionItem>) {
         viewBinding.chapterListView.setChapterSelectionItems(chapterSelectionItems = chapterSelectionItems)
+        updateTestamentTabs(testamentTabVisibility(chapterSelectionItems.map { it.bookIndex }))
+    }
+
+    private fun updateTestamentTabs(visibility: TestamentTabVisibility) {
+        val oldTab = viewBinding.chapterSelectionOldTestament
+        val newTab = viewBinding.chapterSelectionNewTestament
+        oldTab.visibility = if (visibility.showOldTestament) View.VISIBLE else View.GONE
+        newTab.visibility = if (visibility.showNewTestament) View.VISIBLE else View.GONE
+
+        val bothShown = visibility.showOldTestament && visibility.showNewTestament
+        (oldTab.layoutParams as ConstraintLayout.LayoutParams).apply {
+            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            startToEnd = ConstraintLayout.LayoutParams.UNSET
+            endToStart = if (bothShown) R.id.chapter_selection_new_testament else ConstraintLayout.LayoutParams.UNSET
+            endToEnd = if (bothShown) ConstraintLayout.LayoutParams.UNSET else ConstraintLayout.LayoutParams.PARENT_ID
+        }
+        (newTab.layoutParams as ConstraintLayout.LayoutParams).apply {
+            endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            endToStart = ConstraintLayout.LayoutParams.UNSET
+            startToEnd = if (bothShown) R.id.chapter_selection_old_testament else ConstraintLayout.LayoutParams.UNSET
+            startToStart = if (bothShown) ConstraintLayout.LayoutParams.UNSET else ConstraintLayout.LayoutParams.PARENT_ID
+        }
+        oldTab.requestLayout()
+        newTab.requestLayout()
     }
 
     fun expandCurrentBook() {

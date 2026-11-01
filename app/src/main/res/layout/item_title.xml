@@ -12,7 +12,7 @@
         android:layout_marginTop="@dimen/padding_small"
         android:paddingStart="@dimen/padding"
         android:paddingEnd="@dimen/padding"
-        android:textColor="@color/primary"
+        android:textColor="?attr/colorPrimary"
         android:textStyle="bold" />
 
     <com.google.android.material.divider.MaterialDivider
@@ -20,5 +20,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:dividerColor="@color/primary" />
+        app:dividerColor="?attr/colorPrimary" />
 </FrameLayout>
