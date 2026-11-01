@@ -1,6 +1,7 @@
 name: Auto Tag
-# Bumps the version tag when a PR is merged into master, based on the first word of the PR title:
-#   "major ..." -> X+1.0.0, "minor ..." -> X.Y+1.0, anything else -> X.Y.Z+1
+# Bumps the version tag when a PR is merged into master, based on the prefix of the PR title:
+#   "major: ..." -> X+1.0.0, "minor: ..." -> X.Y+1.0, "patch: ..." -> X.Y.Z+1
+# Any other title (including one with no prefix) does not create a tag or a release.
 on:
   pull_request:
     types: [closed]
@@ -24,15 +25,20 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
         GH_TOKEN: ${{ github.token }}
       run: |
+        prefix=$(echo "$PR_TITLE" | sed -n -E 's/^[[:space:]]*(major|minor|patch):.*/\1/Ip' | tr 'A-Z' 'a-z')
+        if [ -z "$prefix" ]; then
+          echo "PR title has no major:/minor:/patch: prefix, so no tag is created."
+          exit 0
+        fi
+
         latest=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort -V | tail -n 1)
         latest=${latest:-v0.0.0}
         IFS=. read -r major minor patch <<< "${latest#v}"
 
-        first_word=$(echo "$PR_TITLE" | awk '{print tolower($1)}' | tr -cd 'a-z')
-        case "$first_word" in
+        case "$prefix" in
           major) major=$((major + 1)); minor=0; patch=0 ;;
           minor) minor=$((minor + 1)); patch=0 ;;
-          *) patch=$((patch + 1)) ;;
+          patch) patch=$((patch + 1)) ;;
         esac
         tag="v$major.$minor.$patch"
 
