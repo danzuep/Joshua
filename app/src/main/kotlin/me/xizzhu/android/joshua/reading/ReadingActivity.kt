@@ -98,6 +98,11 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 share()
                 true
             }
+            R.id.action_bookmark_verse -> {
+                selectedVerses.forEach { verse -> viewModel.saveBookmark(verse.verseIndex, true) }
+                actionMode?.finish()
+                true
+            }
             else -> false
         }
 

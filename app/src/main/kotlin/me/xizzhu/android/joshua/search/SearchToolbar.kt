@@ -47,6 +47,7 @@ class SearchToolbar : MaterialToolbar {
         onIncludeBookmarksChanged: (Boolean) -> Unit,
         onIncludeHighlightsChanged: (Boolean) -> Unit,
         onIncludeNotesChanged: (Boolean) -> Unit,
+        onWholeWordsChanged: (Boolean) -> Unit,
         onQueryTextListener: SearchView.OnQueryTextListener,
         clearHistory: () -> Unit
     ) {
@@ -74,6 +75,10 @@ class SearchToolbar : MaterialToolbar {
                     onIncludeNotesChanged(!menuItem.isChecked)
                     true
                 }
+                R.id.action_search_whole_words -> {
+                    onWholeWordsChanged(!menuItem.isChecked)
+                    true
+                }
                 R.id.action_clear_search_history -> {
                     clearHistory()
                     true
@@ -88,13 +93,15 @@ class SearchToolbar : MaterialToolbar {
         includeNewTestament: Boolean,
         includeBookmarks: Boolean,
         includeHighlights: Boolean,
-        includeNotes: Boolean
+        includeNotes: Boolean,
+        wholeWords: Boolean
     ) {
         menu.findItem(R.id.action_search_include_old_testament).isChecked = includeOldTestament
         menu.findItem(R.id.action_search_include_new_testament).isChecked = includeNewTestament
         menu.findItem(R.id.action_search_include_bookmarks).isChecked = includeBookmarks
         menu.findItem(R.id.action_search_include_highlights).isChecked = includeHighlights
         menu.findItem(R.id.action_search_include_notes).isChecked = includeNotes
+        menu.findItem(R.id.action_search_whole_words).isChecked = wholeWords
     }
 
     fun setSearchableInfo(searchable: SearchableInfo) {

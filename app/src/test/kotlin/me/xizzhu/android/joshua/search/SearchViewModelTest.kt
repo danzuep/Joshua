@@ -18,6 +18,7 @@ package me.xizzhu.android.joshua.search
 
 import android.app.Application
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -299,6 +300,16 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test instant search waits until typing stops`() = runTest {
+        searchViewModel.search("query", instanceSearch = true)
+        delay(200L)
+        coVerify(exactly = 0) { searchManager.search(any()) }
+
+        delay(400L)
+        coVerify(exactly = 1) { searchManager.search("query") }
+    }
+
+    @Test
     fun `test search(), with exception`() = runTest {
         every { bibleReadingManager.currentTranslation() } throws RuntimeException("random error")
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
@@ -390,18 +401,28 @@ class SearchViewModelTest : BaseUnitTest() {
         )
 
         searchViewModel.search("not used", false)
-        delay(100L) // delay is not long enough, so the search should NOT be executed
+        delay(100L) // Submitting should search immediately instead of waiting for the typing timeout.
         assertEquals(
             SearchViewModel.ViewState(
                 loading = false,
                 searchConfig = SearchConfiguration(
                     includeOldTestament = true, includeNewTestament = true, includeBookmarks = true, includeHighlights = true, includeNotes = true
                 ),
-                instantSearch = true,
-                items = emptyList(),
+                instantSearch = false,
+                items = listOf(
+                    SearchItem.Header(Settings.DEFAULT, "Genesis"),
+                    SearchItem.Verse(
+                        settings = Settings.DEFAULT,
+                        verseIndex = VerseIndex(0, 0, 1),
+                        bookShortName = "Gen.",
+                        verseText = MockContents.kjvVerses[1].text.text,
+                        query = "not used",
+                        highlightColor = Highlight.COLOR_NONE
+                    )
+                ),
                 scrollItemsToPosition = 0,
                 preview = null,
-                searchResultSummary = null,
+                searchResultSummary = "1 result(s) found.",
                 error = null
             ),
             searchViewModel.viewState().first()
@@ -845,7 +866,7 @@ class SearchViewModelTest : BaseUnitTest() {
         )
         assertFalse(actual.instantSearch)
         assertTrue(actual.items.isEmpty())
-        assertEquals("Gen., 1", actual.preview?.title)
+        assertEquals("Gen. 1", actual.preview?.title)
         assertEquals(3, actual.preview?.items?.size)
         assertEquals(
             "1:1 In the beginning God created the heaven and the earth.",

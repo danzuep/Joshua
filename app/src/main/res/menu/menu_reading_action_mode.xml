@@ -8,4 +8,8 @@
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share"
         android:title="@string/action_share" />
+    <item
+        android:id="@+id/action_bookmark_verse"
+        android:icon="@drawable/ic_bookmark"
+        android:title="@string/action_bookmark_verse" />
 </menu>

@@ -70,7 +70,7 @@ class ReadingToolbarViewModelTest : BaseUnitTest() {
 
         assertEquals(
             ReadingToolbarViewModel.ViewState(
-                title = "Ex., 3",
+                title = "Ex. 3",
                 translationItems = emptyList(),
                 error = null,
             ),

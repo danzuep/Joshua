@@ -56,7 +56,7 @@ class PreviewViewDataTest : BaseUnitTest() {
 
         val actual = loadPreview(bibleReadingManager, settingsManager, VerseIndex(0, 0, 0), converter)
         assertEquals(Settings.DEFAULT, actual.settings)
-        assertEquals("Gen., 1", actual.title)
+        assertEquals("Gen. 1", actual.title)
         assertTrue(actual.items.isEmpty())
         assertEquals(0, actual.currentPosition)
     }

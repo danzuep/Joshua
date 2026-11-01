@@ -66,7 +66,7 @@ class ReadingToolbarViewModel @Inject constructor(
             bibleReadingManager.currentVerseIndex().filterIsValid(),
         ) { currentTranslation, currentVerseIndex ->
             val currentBookShortName = bibleReadingManager.readBookShortNames(currentTranslation)[currentVerseIndex.bookIndex]
-            updateViewState { it.copy(title = "$currentBookShortName, ${currentVerseIndex.chapterIndex + 1}") }
+            updateViewState { it.copy(title = "$currentBookShortName ${currentVerseIndex.chapterIndex + 1}") }
         }.launchIn(viewModelScope)
 
         combine(

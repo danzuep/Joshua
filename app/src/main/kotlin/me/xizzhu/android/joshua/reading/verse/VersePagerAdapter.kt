@@ -239,6 +239,11 @@ private class Page(
     }
 
     private fun notifyVerseUpdate(verseUpdate: VerseUpdate) {
-        viewBinding.verseList.adapter?.notifyItemChanged(verseUpdate.verseIndex.toItemPosition(), verseUpdate)
+        val adapter = viewBinding.verseList.adapter ?: return
+        verses?.forEachIndexed { index, item ->
+            if (item is ParagraphItem && item.containsVerse(verseUpdate.verseIndex.verseIndex)) {
+                adapter.notifyItemChanged(index, verseUpdate)
+            }
+        }
     }
 }

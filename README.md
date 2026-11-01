@@ -41,6 +41,8 @@ Open the APK on your device and allow installs from your browser or file manager
 * Share verses through your favorite apps
 * Adjustable font size and day / night mode
 
+Double-tap a verse to bring up its actions, or long-press a verse to copy or share it. Notes are saved as you type.
+
 Hundreds of other translations can be downloaded in the app from [eBible.org](https://ebible.org/download.php), or from download sites you add yourself. See the [full list](docs/TRANSLATIONS.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/Joshua/issues).
 
 ## About this project

@@ -20,10 +20,9 @@ import android.app.Application
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -52,7 +51,7 @@ import javax.inject.Inject
 import me.xizzhu.android.joshua.preview.Preview
 import me.xizzhu.android.joshua.preview.buildPreviewVerseWithQueryItems
 
-@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val bibleReadingManager: BibleReadingManager,
@@ -94,9 +93,12 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private class SearchRequest(val query: String, val instantSearch: Boolean)
+    private data class SearchRequest(val query: String, val instantSearch: Boolean)
 
     private val searchRequest: MutableStateFlow<SearchRequest?> = MutableStateFlow(null)
+    private companion object {
+        const val SEARCH_TYPING_TIMEOUT_MS = 500L
+    }
     private val searchSuggestions: RecentSearchProvider.SearchSuggestions by lazy(LazyThreadSafetyMode.NONE) {
         RecentSearchProvider.SearchSuggestions(application, viewModelScope, coroutineDispatcherProvider)
     }
@@ -112,9 +114,11 @@ class SearchViewModel @Inject constructor(
         combine(
             settingsManager.settings(),
             searchRequest.filterNotNull()
-                .debounce(250L)
-                .distinctUntilChangedBy { it.query }
-                .mapLatest { it }
+                .distinctUntilChangedBy { it.query to it.instantSearch }
+                .mapLatest { request ->
+                    if (request.instantSearch) delay(SEARCH_TYPING_TIMEOUT_MS)
+                    request
+                }
         ) { settings, searchRequest ->
             doSearch(settings, searchRequest.query, searchRequest.instantSearch)
 
@@ -154,6 +158,10 @@ class SearchViewModel @Inject constructor(
 
     fun includeNotes(include: Boolean) {
         updateSearchConfig { it.copy(includeNotes = include) }
+    }
+
+    fun includeWholeWords(include: Boolean) {
+        updateSearchConfig { it.copy(wholeWords = include) }
     }
 
     fun search(query: String, instanceSearch: Boolean) {
@@ -313,7 +321,7 @@ class SearchViewModel @Inject constructor(
             runCatching {
                 val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
                 val preview = Preview(
-                    title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseToPreview.bookIndex]}, ${verseToPreview.chapterIndex + 1}",
+                    title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseToPreview.bookIndex]} ${verseToPreview.chapterIndex + 1}",
                     items = buildPreviewVerseWithQueryItems(
                         settings = settingsManager.settings().first(),
                         query = searchRequest.value?.query.orEmpty(),

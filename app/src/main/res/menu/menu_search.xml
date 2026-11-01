@@ -39,6 +39,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_search_whole_words"
+        android:checkable="true"
+        android:title="@string/action_search_whole_words"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_clear_search_history"
         android:title="@string/action_clear_search_history"
         app:showAsAction="never" />

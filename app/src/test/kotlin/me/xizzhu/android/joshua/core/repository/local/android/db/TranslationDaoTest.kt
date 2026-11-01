@@ -223,6 +223,21 @@ class TranslationDaoTest : BaseSqliteTest() {
     }
 
     @Test
+    fun testSearchWholeWordsOnly() {
+        androidDatabase.translationDao.save(
+            "whole_words",
+            mapOf(Pair(Pair(0, 0), listOf("God created", "godly created", "God's word", "a-God!")))
+        )
+
+        assertEquals(
+            listOf("God created", "God's word", "a-God!"),
+            androidDatabase.translationDao.search(
+                VerseSearchQuery("whole_words", "God", true, true, wholeWords = true)
+            ).map { it.text.text }
+        )
+    }
+
+    @Test
     fun testRemoveNonExistTranslation() {
         assertFalse(androidDatabase.readableDatabase.hasTable("non_exist"))
         androidDatabase.translationDao.remove("non_exist")

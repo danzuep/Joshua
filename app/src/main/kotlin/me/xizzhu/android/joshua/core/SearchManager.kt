@@ -28,10 +28,14 @@ import java.util.*
 
 data class SearchConfiguration(
         val includeOldTestament: Boolean, val includeNewTestament: Boolean,
-        val includeBookmarks: Boolean, val includeHighlights: Boolean, val includeNotes: Boolean
+        val includeBookmarks: Boolean, val includeHighlights: Boolean, val includeNotes: Boolean,
+        val wholeWords: Boolean = false
 )
 
-data class VerseSearchQuery(val translation: String, val keyword: String, val includeOldTestament: Boolean, val includeNewTestament: Boolean)
+data class VerseSearchQuery(
+        val translation: String, val keyword: String, val includeOldTestament: Boolean, val includeNewTestament: Boolean,
+        val wholeWords: Boolean = false
+)
 
 data class SearchResult(
         val verses: List<Verse>,
@@ -60,26 +64,26 @@ class SearchManager(
         val currentTranslation = bibleReadingRepository.currentTranslation.firstNotEmpty()
         val verses = async {
             bibleReadingRepository.search(
-                    VerseSearchQuery(currentTranslation, keyword, config.includeOldTestament, config.includeNewTestament)
+                    VerseSearchQuery(currentTranslation, keyword, config.includeOldTestament, config.includeNewTestament, config.wholeWords)
             )
         }
         val bookmarks = async {
             if (config.includeBookmarks) {
-                searchAnnotations(bookmarkRepository, currentTranslation, keyword)
+                searchAnnotations(bookmarkRepository, currentTranslation, keyword, config.wholeWords)
             } else {
                 emptyList()
             }
         }
         val highlights = async {
             if (config.includeHighlights) {
-                searchAnnotations(highlightRepository, currentTranslation, keyword)
+                searchAnnotations(highlightRepository, currentTranslation, keyword, config.wholeWords)
             } else {
                 emptyList()
             }
         }
         val notes = async {
             if (config.includeNotes) {
-                searchNotes(currentTranslation, keyword)
+                searchNotes(currentTranslation, keyword, config.wholeWords)
             } else {
                 emptyList()
             }
@@ -88,7 +92,7 @@ class SearchManager(
     }
 
     private suspend fun <V : VerseAnnotation> searchAnnotations(
-            verseAnnotationRepository: VerseAnnotationRepository<V>, currentTranslation: String, keyword: String
+            verseAnnotationRepository: VerseAnnotationRepository<V>, currentTranslation: String, keyword: String, wholeWords: Boolean
     ): List<Pair<V, Verse>> =
             verseAnnotationRepository.read(Constants.SORT_BY_BOOK)
                     .takeIf { it.isNotEmpty() }
@@ -99,24 +103,52 @@ class SearchManager(
                             // Annotations on verses that are empty or missing in this translation are intentionally left out of the results.
                             verses[annotation.verseIndex]
                                     ?.takeIf { it.text.text.isNotEmpty() }
-                                    ?.takeIf { verse -> keywords.any { verse.text.text.lowercase(Locale.getDefault()).contains(it, false) } }
+                                    ?.takeIf { verse ->
+                                        keywords.any { term ->
+                                            if (wholeWords) verse.text.text.containsWholeWord(term)
+                                            else verse.text.text.lowercase(Locale.getDefault()).contains(term, false)
+                                        }
+                                    }
                                     ?.let { Pair(annotation, it) }
                         }
                     }
                     ?: emptyList()
 
-    private suspend fun searchNotes(currentTranslation: String, keyword: String): List<Pair<Note, Verse>> =
+    private suspend fun searchNotes(currentTranslation: String, keyword: String, wholeWords: Boolean): List<Pair<Note, Verse>> =
             noteRepository.search(keyword)
                     .takeIf { it.isNotEmpty() }
                     ?.let { notes ->
                         val verses = bibleReadingRepository.readVerses(currentTranslation, notes.map { it.verseIndex })
                         notes.mapNotNull { note ->
                             // Notes on verses that are empty or missing in this translation are intentionally left out of the results.
-                            verses[note.verseIndex]?.takeIf { it.text.text.isNotEmpty() }?.let { Pair(note, it) }
+                            val noteMatches = !wholeWords || keyword.toKeywords().all { note.note.containsWholeWord(it) }
+                            verses[note.verseIndex]?.takeIf { it.text.text.isNotEmpty() && noteMatches }?.let { Pair(note, it) }
                         }
                     }
                     ?: emptyList()
 }
+
+internal fun String.containsWholeWord(keyword: String): Boolean {
+    val text = lowercase(Locale.getDefault())
+    val term = keyword.lowercase(Locale.getDefault())
+    if (term.isEmpty()) return false
+
+    var start = text.indexOf(term)
+    while (start >= 0) {
+        val end = start + term.length
+        val leftBoundary = start == 0 || !text.isWordCharacterBefore(start)
+        val rightBoundary = end == text.length || !text.isWordCharacterAt(end)
+        if (leftBoundary && rightBoundary) return true
+        start = text.indexOf(term, start + 1)
+    }
+    return false
+}
+
+private fun String.isWordCharacterBefore(index: Int): Boolean =
+        Character.isLetterOrDigit(Character.codePointBefore(this, index)) || Character.codePointBefore(this, index) == '_'.code
+
+private fun String.isWordCharacterAt(index: Int): Boolean =
+        Character.isLetterOrDigit(Character.codePointAt(this, index)) || Character.codePointAt(this, index) == '_'.code
 
 fun String.toKeywords(): List<String> {
     if (isEmpty()) return emptyList()

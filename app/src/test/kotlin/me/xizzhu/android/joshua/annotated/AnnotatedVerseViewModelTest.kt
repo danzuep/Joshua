@@ -426,7 +426,7 @@ class AnnotatedVerseViewModelTest : BaseUnitTest() {
         val actual = annotatedVerseViewModel.viewState().first()
         assertFalse(actual.loading)
         assertTrue(actual.items.isEmpty())
-        assertEquals("Gen., 1", actual.preview?.title)
+        assertEquals("Gen. 1", actual.preview?.title)
         assertEquals(3, actual.preview?.items?.size)
         assertEquals(1, actual.preview?.currentPosition)
         assertNull(actual.error)
