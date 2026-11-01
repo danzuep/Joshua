@@ -1,5 +1,5 @@
 ## Summary
-<!-- What changed and why, in 1-3 bullets. -->
+<!-- What changed and why, in 1-2 sentences. -->
 
 ## Changes
 -
@@ -9,4 +9,4 @@
 
 ## Checklist
 <!-- Only for completed feature requests. Don't repeat items already listed under Changes. -->
-- [ ] Feature request:
+- [ ] Feature: 
