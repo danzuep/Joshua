@@ -19,6 +19,7 @@ package me.xizzhu.android.joshua.core.repository.local.android.db
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.VerseSearchQuery
+import me.xizzhu.android.joshua.core.stripStructure
 import me.xizzhu.android.joshua.core.repository.local.android.BaseSqliteTest
 import me.xizzhu.android.joshua.tests.MockContents
 import me.xizzhu.android.joshua.tests.toMap
@@ -104,7 +105,7 @@ class TranslationDaoTest : BaseSqliteTest() {
                     listOf(
                             MockContents.cuvVerses[i].text,
                             Verse.Text(MockContents.bbeShortName, ""),
-                            if (MockContents.msgVerses.size > i) MockContents.msgVerses[i].text else Verse.Text(MockContents.msgShortName, "")
+                            if (MockContents.msgVerses.size > i) MockContents.msgVerses[i].stripStructure().text else Verse.Text(MockContents.msgShortName, "")
                     ), verse.parallel)
         }
     }
@@ -119,7 +120,7 @@ class TranslationDaoTest : BaseSqliteTest() {
                 listOf(MockContents.cuvShortName, MockContents.bbeShortName, MockContents.kjvShortName), 0, 0)
         assertEquals(MockContents.kjvVerses.size, actual.size)
         for ((i, verse) in actual.withIndex()) {
-            assertEquals(if (MockContents.msgVerses.size > i) MockContents.msgVerses[i].text else Verse.Text(MockContents.msgShortName, ""), verse.text)
+            assertEquals(if (MockContents.msgVerses.size > i) MockContents.msgVerses[i].stripStructure().text else Verse.Text(MockContents.msgShortName, ""), verse.text)
             assertEquals(listOf(MockContents.cuvVerses[i].text, Verse.Text(MockContents.bbeShortName, ""), MockContents.kjvVerses[i].text), verse.parallel)
         }
     }
