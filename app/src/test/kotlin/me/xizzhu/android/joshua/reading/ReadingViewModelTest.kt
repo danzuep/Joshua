@@ -30,6 +30,7 @@ import kotlinx.coroutines.test.runTest
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Bookmark
 import me.xizzhu.android.joshua.core.Highlight
+import me.xizzhu.android.joshua.core.NOTE_MARK
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.ReadingProgressManager
 import me.xizzhu.android.joshua.core.Settings
@@ -274,6 +275,12 @@ class ReadingViewModelTest : BaseUnitTest() {
                     verseIndex.bookIndex, verseIndex.chapterIndex
             )
         } returns MockContents.kjvVersesWithBbeCuvParallel
+        coEvery {
+            bibleReadingManager.readStructuredVerses(MockContents.kjvShortName, verseIndex.bookIndex, verseIndex.chapterIndex)
+        } returns listOf(
+                Verse(verseIndex, Verse.Text(MockContents.kjvShortName,
+                        "In the beginning${NOTE_MARK}fa note${NOTE_MARK} God created${NOTE_MARK}x1:1 Gen 1:1${NOTE_MARK} the heaven"), emptyList())
+        )
         coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
         coEvery { bibleReadingManager.readBookNames(MockContents.bbeShortName) } returns MockContents.bbeBookNames
         coEvery { bibleReadingManager.readBookNames(MockContents.cuvShortName) } returns MockContents.cuvBookNames
@@ -286,6 +293,8 @@ class ReadingViewModelTest : BaseUnitTest() {
         val shown = actions[0] as ReadingViewModel.ViewAction.ShowVerseDetail
         assertEquals(VerseDetailViewLayout.VERSE_DETAIL_NOTE, shown.content)
         val detail = shown.verseDetail
+        assertEquals(listOf("a note"), detail.footnotes)
+        assertEquals(listOf("1:1 Gen 1:1"), detail.crossReferences)
         with(actions[1] as ReadingViewModel.ViewAction.UpdateVerse) {
             assertEquals(VerseIndex(0, 0, 0), update.verseIndex)
             assertEquals(VerseUpdate.VERSE_SELECTED, update.operation)
@@ -320,6 +329,7 @@ class ReadingViewModelTest : BaseUnitTest() {
                 MockContents.kjvDownloadedTranslationInfo, MockContents.msgDownloadedTranslationInfo
         ))
         coEvery { bibleReadingManager.readVerses(MockContents.msgShortName, emptyList()) } returns emptyMap()
+        coEvery { bibleReadingManager.readStructuredVerses(MockContents.msgShortName, 0, 0) } returns emptyList()
         coEvery {
             bibleReadingManager.readVerses(
                     MockContents.msgShortName, listOf(MockContents.kjvShortName), verseIndex.bookIndex, verseIndex.chapterIndex

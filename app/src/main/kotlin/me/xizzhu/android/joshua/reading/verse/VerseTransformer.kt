@@ -22,10 +22,13 @@ import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.HEADING
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.PARAGRAPH
-import me.xizzhu.android.joshua.core.stripStructure
+import me.xizzhu.android.joshua.core.hasNotes
+import me.xizzhu.android.joshua.core.removeNotes
 import me.xizzhu.android.joshua.core.toDisplayedVerse
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
+
+private val STRUCTURE = Regex("$HEADING([^$HEADING]*)$HEADING|$PARAGRAPH")
 
 /**
  * Builds the flowing paragraphs of a chapter from verses that still have their structure, see [PARAGRAPH] and [HEADING].
@@ -38,6 +41,7 @@ fun List<Verse>.toParagraphItems(
     val highlightMap = highlights.filter { it.color != Highlight.COLOR_NONE }
             .associateTo(mutableMapOf()) { it.verseIndex.verseIndex to it.color }
     val noteSet = notes.mapTo(mutableSetOf()) { it.verseIndex.verseIndex }
+    val footnoteSet = filter { it.text.text.hasNotes() }.mapTo(mutableSetOf()) { it.verseIndex.verseIndex }
     val selected = mutableSetOf<Int>()
 
     val items = ArrayList<BaseItem>()
@@ -45,42 +49,42 @@ fun List<Verse>.toParagraphItems(
     var segments = ArrayList<ParagraphItem.Segment>()
     fun flush() {
         if (segments.isNotEmpty()) {
-            items.add(ParagraphItem(context, heading, segments, bookmarkSet, highlightMap, noteSet, selected))
+            items.add(ParagraphItem(context, heading, segments, bookmarkSet, highlightMap, noteSet, selected, footnoteSet))
             heading = null
             segments = ArrayList()
         }
     }
 
     forEachIndexed { index, verse ->
-        var text = verse.text.text
-        if (text.stripStructure().isEmpty()) return@forEachIndexed
-
-        if (text.startsWith(HEADING)) {
-            val end = text.indexOf(HEADING, 1)
-            if (end > 0) {
-                flush()
-                heading = text.substring(1, end)
-                text = text.substring(end + 1)
-            }
-        }
+        val text = verse.text.text
+        if (text.isEmpty()) return@forEachIndexed
 
         var followingEmptyVerseCount = 0
         while (index + followingEmptyVerseCount + 1 < size
-                && this[index + followingEmptyVerseCount + 1].text.text.stripStructure().isEmpty()) {
+                && this[index + followingEmptyVerseCount + 1].text.text.isEmpty()) {
             followingEmptyVerseCount++
         }
         if (index + followingEmptyVerseCount + 1 >= size) followingEmptyVerseCount = 0
 
         val verseNumber = verse.verseIndex.verseIndex + 1
         var label: String? = if (followingEmptyVerseCount > 0) "$verseNumber-${verseNumber + followingEmptyVerseCount}" else verseNumber.toString()
-        text.split(PARAGRAPH).forEachIndexed { partIndex, part ->
-            if (partIndex > 0) flush()
-            val trimmed = if (segments.isEmpty()) part.trimStart('\n') else part
+        fun addSegment(part: String) {
+            val trimmed = (if (segments.isEmpty()) part.trimStart('\n') else part).removeNotes()
             if (trimmed.isNotBlank()) {
                 segments.add(ParagraphItem.Segment(verse, trimmed.trimEnd(), label))
                 label = null
             }
         }
+
+        // Headings can start anywhere in a verse, and each one starts a new paragraph.
+        var cursor = 0
+        for (match in STRUCTURE.findAll(text)) {
+            addSegment(text.substring(cursor, match.range.first))
+            flush()
+            if (match.value.first() == HEADING) heading = match.groupValues[1]
+            cursor = match.range.last + 1
+        }
+        addSegment(text.substring(cursor))
     }
     flush()
     return items

@@ -30,6 +30,7 @@ import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.databinding.PageVerseDetailNoteBinding
+import me.xizzhu.android.joshua.databinding.PageVerseDetailNotesBinding
 import me.xizzhu.android.joshua.databinding.PageVerseDetailVersesBinding
 import me.xizzhu.android.joshua.reading.VerseDetailViewData
 import me.xizzhu.android.joshua.ui.setPrimaryTextSize
@@ -38,7 +39,8 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
     companion object {
         const val PAGE_VERSES = 0
         const val PAGE_NOTE = 1
-        private const val PAGE_COUNT = 2
+        const val PAGE_NOTES = 2
+        private const val PAGE_COUNT = 3
     }
 
     private val resources: Resources = context.resources
@@ -75,6 +77,7 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
             when (viewType) {
                 PAGE_VERSES -> VersesPage(inflater, parent)
                 PAGE_NOTE -> NotePage(inflater, parent, updateNote!!).also { notePage = it }
+                PAGE_NOTES -> NotesPage(inflater, parent)
                 else -> throw IllegalArgumentException("Unsupported view type: $viewType")
             }
 
@@ -91,8 +94,9 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
     }
 
     fun pageTitle(position: Int): CharSequence = when (position) {
-        PAGE_VERSES -> resources.getString(R.string.text_verse_comparison)
-        PAGE_NOTE -> resources.getString(R.string.text_note)
+        PAGE_VERSES -> resources.getString(R.string.text_parallel)
+        PAGE_NOTE -> resources.getString(R.string.text_musings)
+        PAGE_NOTES -> resources.getString(R.string.text_notes)
         else -> throw IllegalArgumentException("Unsupported position: $position")
     }
 
@@ -118,6 +122,25 @@ private class VersesPage(inflater: LayoutInflater, container: ViewGroup)
             setSettings(settings)
             scrollToPosition(0)
         }
+    }
+}
+
+private class NotesPage(inflater: LayoutInflater, container: ViewGroup)
+    : VerseDetailPage<PageVerseDetailNotesBinding>(PageVerseDetailNotesBinding.inflate(inflater, container, false)) {
+    override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
+        val resources = viewBinding.root.resources
+        with(viewBinding.footnotes) {
+            text = verseDetail.footnotes.takeIf { it.isNotEmpty() }?.joinToString("\n\n")
+                ?: resources.getString(R.string.text_no_footnotes)
+            setPrimaryTextSize(settings)
+        }
+        with(viewBinding.crossReferences) {
+            text = verseDetail.crossReferences.takeIf { it.isNotEmpty() }?.joinToString("\n\n")
+                ?: resources.getString(R.string.text_no_cross_references)
+            setPrimaryTextSize(settings)
+        }
+        viewBinding.footnotesTitle.setPrimaryTextSize(settings)
+        viewBinding.crossReferencesTitle.setPrimaryTextSize(settings)
     }
 }
 
