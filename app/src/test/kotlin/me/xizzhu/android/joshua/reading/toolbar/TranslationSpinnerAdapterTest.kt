@@ -53,6 +53,28 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test WEB Updated short name`() {
+        val adapter = TranslationSpinnerAdapter(
+            context = ApplicationProvider.getApplicationContext(),
+            onViewEvent = { fail() },
+        )
+        adapter.setItems(listOf(
+            TranslationItem.Translation(
+                translationShortName = "engwebu",
+                isCurrentTranslation = true,
+                isParallelTranslation = false,
+            )
+        ))
+
+        assertEquals("WEBu", (adapter.getView(0, null, FrameLayout(ApplicationProvider.getApplicationContext())) as TextView).text.toString())
+        assertEquals(
+            "WEBu",
+            adapter.getDropDownView(0, null, FrameLayout(ApplicationProvider.getApplicationContext()))
+                .findViewById<TextView>(R.id.title).text.toString()
+        )
+    }
+
+    @Test
     fun `test without parallel translations`() {
         var requestParallelTranslationCalled = 0
         val adapter = TranslationSpinnerAdapter(

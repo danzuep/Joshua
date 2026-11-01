@@ -35,6 +35,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/padding"
+        android:background="@drawable/background_chapter_selection"
+        android:padding="@dimen/padding_small"
         app:layout_constraintBottom_toBottomOf="@id/reading_progress_bar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/reading_progress_bar"

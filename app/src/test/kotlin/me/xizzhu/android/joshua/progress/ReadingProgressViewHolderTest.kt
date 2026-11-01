@@ -119,9 +119,11 @@ class ReadingProgressViewHolderTest : BaseUnitTest() {
                 chaptersRead = ArrayList<Boolean>().apply { repeat(Bible.getChapterCount(0)) { add(false) } },
                 chaptersReadCount = 0,
                 expanded = false,
+                isCurrentBook = true,
             )
         )
         assertEquals("Genesis", viewHolder.itemView.findViewById<TextView>(R.id.book_name).text.toString())
+        assertTrue(viewHolder.itemView.findViewById<TextView>(R.id.book_name).isSelected)
         assertEquals(0, viewHolder.itemView.findViewById<ReadingProgressBar>(R.id.reading_progress_bar).progress)
         assertFalse(viewHolder.itemView.findViewById<LinearLayout>(R.id.chapters).isVisible)
 

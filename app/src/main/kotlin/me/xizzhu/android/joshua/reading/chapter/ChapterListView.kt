@@ -89,7 +89,10 @@ class ChapterListView : ExpandableListView {
         expandBook(bookIndex = currentBookIndex)
     }
 
-    fun scrollToPosition(position: Int) {
-        smoothScrollToPositionFromTop(position, 0, 100)
+    fun scrollToGroupPosition(groupPosition: Int) {
+        val flatListPosition = getFlatListPosition(ExpandableListView.getPackedPositionForGroup(groupPosition))
+        if (flatListPosition >= 0) {
+            smoothScrollToPositionFromTop(flatListPosition, 0, 100)
+        }
     }
 }

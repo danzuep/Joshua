@@ -93,7 +93,8 @@ sealed class ReadingProgressItem(viewType: Int) : VerticalRecyclerViewItem(viewT
         val bookIndex: Int,
         val chaptersRead: List<Boolean>,
         val chaptersReadCount: Int,
-        val expanded: Boolean
+        val expanded: Boolean,
+        val isCurrentBook: Boolean = false,
     ) : ReadingProgressItem(VIEW_TYPE) {
         companion object {
             @JvmField val VIEW_TYPE = R.layout.item_reading_progress_book
@@ -160,6 +161,7 @@ sealed class ReadingProgressViewHolder<Item : ReadingProgressItem, VB : ViewBind
         override fun bind(item: ReadingProgressItem.Book, payloads: List<Any>) = with(viewBinding) {
             bookName.setPrimaryTextSize(item.settings)
             bookName.text = item.bookName
+            bookName.isSelected = item.isCurrentBook
 
             readingProgressBar.progress = item.chaptersReadCount * readingProgressBar.maxProgress / item.chaptersRead.size
             readingProgressBar.text = "${item.chaptersReadCount} / ${item.chaptersRead.size}"

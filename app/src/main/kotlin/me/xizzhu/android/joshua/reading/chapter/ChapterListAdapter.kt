@@ -75,6 +75,7 @@ class ChapterListAdapter(context: Context, onViewEvent: (ChapterSelectionView.Vi
         val binding = convertView?.let { ItemBookNameBinding.bind(it) }
             ?: ItemBookNameBinding.inflate(inflater, parent, false)
         binding.root.text = getGroup(groupPosition).bookName
+        binding.root.isSelected = groupPosition == currentBookIndex
         return binding.root
     }
 
