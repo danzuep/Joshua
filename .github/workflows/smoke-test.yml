@@ -12,10 +12,11 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
     - uses: gradle/actions/setup-gradle@v6
-    - name: Bundle the World English Bible
+    - name: Bundle a minimal World English Bible (John 1 only)
       run: |
         mkdir -p bundled-assets/bundled/translations
-        curl -fsSL "https://ebible.org/Scriptures/engwebu_usfm.zip" -o bundled-assets/bundled/translations/engwebu.zip
+        curl -fsSL "https://ebible.org/Scriptures/engwebu_usfm.zip" -o full-engwebu.zip
+        bash .github/scripts/make-minimal-web.sh full-engwebu.zip bundled-assets/bundled/translations/engwebu.zip
         printf 'engwebu\tWorld English Bible Updated\teng\n' > bundled-assets/bundled/list.tsv
     - run: ./gradlew assembleRelease -PbundledAssetsDir="$PWD/bundled-assets"
     - name: Enable KVM
