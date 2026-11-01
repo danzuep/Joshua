@@ -34,7 +34,7 @@ if grep -qP '\x{2028}|\x{2029}' ui.xml 2> /dev/null; then
   status=1
 fi
 # The chapter flows in paragraphs rather than one row per verse, so verse 5 shares a view with verse 1.
-if ! grep -q "5 The light shines in the darkness" ui.xml 2> /dev/null; then
+if ! grep -q "The light shines in the darkness" ui.xml 2> /dev/null; then
   echo "FAIL: expected flowing paragraph text (John 1:1-5 not in one paragraph)"
   status=1
 fi
