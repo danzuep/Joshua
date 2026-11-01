@@ -35,7 +35,7 @@ class HttpCrossReferencesService(context: Context) : RemoteCrossReferencesStorag
 
     override suspend fun fetchCrossReferences(downloadProgress: SendChannel<Int>): RemoteCrossReferences = withContext(Dispatchers.IO) {
         return@withContext File(cacheDir, "cross_references").apply {
-            download(downloadProgress, "tools/cross_references.zip", 1696214, this) // TODO #21
+            download(downloadProgress, "tools/cross_references.zip", destination = this)
         }.let { downloaded ->
             FileInputStream(downloaded).use { input ->
                 toRemoteCrossReferences(input)

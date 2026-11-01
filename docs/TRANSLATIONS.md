@@ -50,3 +50,12 @@ Available Translations
 * Traditional Chinese
   * 華語和合本
   * 華語新譯本
+
+Adding translations from eBible.org
+-----------------------------------
+Joshua uses its own JSON-in-ZIP format, not USFM/USX. To add a translation from [eBible.org](https://ebible.org/download.php),
+download its USFM zip and convert it with the `ebible-converter` module (66 books required, check each translation's license first):
+
+    ./gradlew :ebible-converter:run --args='eng-web_usfm.zip --short WEB --name "World English Bible" --language en_us --out dist'
+
+Upload `dist/list.json` and `dist/translations/` next to the existing translations.

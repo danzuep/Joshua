@@ -96,8 +96,7 @@ class SearchManager(
                         val keywords = keyword.toKeywords()
                         val verses = bibleReadingRepository.readVerses(currentTranslation, annotations.map { it.verseIndex })
                         annotations.mapNotNull { annotation ->
-                            // TODO What to do if the annotation is attached to a verse that is empty / not exist in this translation?
-                            // https://github.com/xizzhu/Joshua/issues/153
+                            // Annotations on verses that are empty or missing in this translation are intentionally left out of the results.
                             verses[annotation.verseIndex]
                                     ?.takeIf { it.text.text.isNotEmpty() }
                                     ?.takeIf { verse -> keywords.any { verse.text.text.lowercase(Locale.getDefault()).contains(it, false) } }
@@ -112,8 +111,7 @@ class SearchManager(
                     ?.let { notes ->
                         val verses = bibleReadingRepository.readVerses(currentTranslation, notes.map { it.verseIndex })
                         notes.mapNotNull { note ->
-                            // TODO What to do if the note is attached to a verse that is empty / not exist in this translation?
-                            // https://github.com/xizzhu/Joshua/issues/153
+                            // Notes on verses that are empty or missing in this translation are intentionally left out of the results.
                             verses[note.verseIndex]?.takeIf { it.text.text.isNotEmpty() }?.let { Pair(note, it) }
                         }
                     }

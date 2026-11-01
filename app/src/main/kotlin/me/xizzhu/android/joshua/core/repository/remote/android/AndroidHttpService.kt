@@ -23,6 +23,7 @@ import co.touchlab.kermit.Logger
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.StringReader
 import java.net.HttpURLConnection
@@ -43,7 +44,9 @@ private const val TAG = "AndroidHttpService"
 private const val TIMEOUT_IN_MILLISECONDS = 30000 // 30 seconds
 private const val BASE_URL = "https://xizzhu.me/bible/download"
 
-internal fun download(downloadProgress: SendChannel<Int>, relativeUrl: String, contentLength: Long, destination: File) {
+/** If [expectedLength] is not positive, the size is read from the server with a HEAD request. */
+internal fun download(downloadProgress: SendChannel<Int>, relativeUrl: String, expectedLength: Long = -1L, destination: File) {
+    val contentLength = if (expectedLength > 0L) expectedLength else fetchContentLength(relativeUrl)
     if (destination.length() == contentLength) return
 
     var deleteDestinationOnError = true
@@ -90,6 +93,15 @@ private fun getHttpConnection(relativeUrl: String): HttpURLConnection =
                     connectTimeout = TIMEOUT_IN_MILLISECONDS
                     readTimeout = TIMEOUT_IN_MILLISECONDS
                 }
+
+private fun fetchContentLength(relativeUrl: String): Long {
+    val connection = getHttpConnection(relativeUrl).apply { requestMethod = "HEAD" }
+    try {
+        return connection.contentLengthLong.also { if (it <= 0L) throw IOException("Unknown content length for $relativeUrl") }
+    } finally {
+        connection.disconnect()
+    }
+}
 
 private fun HttpURLConnection.supportsRangeRequests(): Boolean =
         getHeaderField("accept-ranges") == "bytes" && contentLength > 0L

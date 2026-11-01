@@ -46,7 +46,7 @@ import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.reading.detail.VerseDetailViewLayout
 import me.xizzhu.android.joshua.tests.BaseUnitTest
 import me.xizzhu.android.joshua.tests.MockContents
-import me.xizzhu.android.joshua.utils.currentTimeMillis
+import me.xizzhu.android.joshua.tests.TestTimeProvider
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -65,6 +65,7 @@ class ReadingViewModelTest : BaseUnitTest() {
     private lateinit var strongNumberManager: StrongNumberManager
     private lateinit var settingsManager: SettingsManager
     private lateinit var application: Application
+    private val timeProvider = TestTimeProvider()
 
     private lateinit var readingViewModel: ReadingViewModel
 
@@ -93,7 +94,7 @@ class ReadingViewModelTest : BaseUnitTest() {
     private fun createViewModel() = ReadingViewModel(
         bibleReadingManager, readingProgressManager, translationManager,
         bookmarkManager, highlightManager, noteManager,
-        crossReferencesManager, strongNumberManager, settingsManager, application
+        crossReferencesManager, strongNumberManager, settingsManager, timeProvider, application
     )
 
     private fun collectViewActions(): List<ReadingViewModel.ViewAction> =
@@ -450,7 +451,7 @@ class ReadingViewModelTest : BaseUnitTest() {
 
     @Test
     fun `test saveBookmark`() = runTest {
-        currentTimeMillis = 1L
+        timeProvider.currentTimeMillis = 1L
         coEvery { bookmarkManager.save(Bookmark(VerseIndex(1, 2, 3), 1L)) } returns Unit
         coEvery { bookmarkManager.remove(VerseIndex(1, 2, 3)) } returns Unit
         val actions = collectViewActions()
@@ -468,7 +469,7 @@ class ReadingViewModelTest : BaseUnitTest() {
 
     @Test
     fun `test saveBookmark with exception`() = runTest {
-        currentTimeMillis = 1L
+        timeProvider.currentTimeMillis = 1L
         coEvery { bookmarkManager.save(Bookmark(VerseIndex(1, 2, 3), 1L)) } throws RuntimeException("random exception")
         val actions = collectViewActions()
 
@@ -480,7 +481,7 @@ class ReadingViewModelTest : BaseUnitTest() {
 
     @Test
     fun `test saveHighlight`() = runTest {
-        currentTimeMillis = 1L
+        timeProvider.currentTimeMillis = 1L
         coEvery { highlightManager.save(Highlight(VerseIndex(1, 2, 3), Highlight.COLOR_BLUE, 1L)) } returns Unit
         coEvery { highlightManager.save(Highlight(VerseIndex(1, 2, 3), Highlight.COLOR_PURPLE, 1L)) } returns Unit
         coEvery { highlightManager.remove(VerseIndex(1, 2, 3)) } returns Unit
@@ -510,7 +511,7 @@ class ReadingViewModelTest : BaseUnitTest() {
 
     @Test
     fun `test saveNote`() = runTest {
-        currentTimeMillis = 1L
+        timeProvider.currentTimeMillis = 1L
         coEvery { noteManager.save(Note(VerseIndex(1, 2, 3), "note", 1L)) } returns Unit
         coEvery { noteManager.save(Note(VerseIndex(1, 2, 3), "updated note", 1L)) } returns Unit
         coEvery { noteManager.remove(VerseIndex(1, 2, 3)) } returns Unit

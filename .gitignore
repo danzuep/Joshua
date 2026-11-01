@@ -18,6 +18,3 @@ out
 # Key Store
 keystore.properties
 *.keystore
-
-# Firebase Config
-app/src/release/google-services.json
