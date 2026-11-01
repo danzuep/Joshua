@@ -50,7 +50,7 @@ class TranslationSpinnerAdapter(
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val binding = convertView?.let { SpinnerSelectedBinding.bind(it) }
             ?: SpinnerSelectedBinding.inflate(inflater, parent, false)
-        binding.root.text = (getItem(position) as? TranslationItem.Translation)?.translationShortName
+        binding.root.text = (getItem(position) as? TranslationItem.Translation)?.displayName
         return binding.root
     }
 
@@ -89,7 +89,7 @@ class TranslationSpinnerAdapter(
     private fun SpinnerDropDownBinding.bind(item: TranslationItem.Translation) {
         root.tag = item
 
-        title.text = item.translationShortName
+        title.text = item.displayName
         checkbox.isVisible = true
         checkbox.isEnabled = !item.isCurrentTranslation
         checkbox.isChecked = item.isCurrentTranslation or item.isParallelTranslation
@@ -106,6 +106,9 @@ class TranslationSpinnerAdapter(
 }
 
 sealed class TranslationItem {
-    data class Translation(val translationShortName: String, val isCurrentTranslation: Boolean, val isParallelTranslation: Boolean) : TranslationItem()
+    data class Translation(val translationShortName: String, val isCurrentTranslation: Boolean, val isParallelTranslation: Boolean) : TranslationItem() {
+        val displayName: String
+            get() = if (translationShortName == "engwebu") "WEBu" else translationShortName
+    }
     object More : TranslationItem()
 }

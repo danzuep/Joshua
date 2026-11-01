@@ -72,6 +72,7 @@ class ReadingProgressViewModel @Inject constructor(
                     settings = settingsManager.settings().first(),
                     readingProgress = readingProgressManager.read(),
                     bookNames = bibleReadingManager.readBookNames(bibleReadingManager.currentTranslation().firstNotEmpty()),
+                    currentBookIndex = bibleReadingManager.currentVerseIndex().first { it.isValid() }.bookIndex,
                 )
                 updateViewState { it.copy(loading = false, items = items) }
             }.onFailure { e ->
@@ -81,7 +82,12 @@ class ReadingProgressViewModel @Inject constructor(
         }
     }
 
-    private fun buildReadingProgressItems(settings: Settings, readingProgress: ReadingProgress, bookNames: List<String>): List<ReadingProgressItem> {
+    private fun buildReadingProgressItems(
+        settings: Settings,
+        readingProgress: ReadingProgress,
+        bookNames: List<String>,
+        currentBookIndex: Int,
+    ): List<ReadingProgressItem> {
         val items = ArrayList<ReadingProgressItem>(1 + Bible.BOOK_COUNT)
         items.add(ReadingProgressItem.Summary(settings, 0, 0, 0, 0, 0))
 
@@ -116,6 +122,7 @@ class ReadingProgressViewModel @Inject constructor(
                 settings = settings,
                 bookName = bookNames[bookIndex],
                 bookIndex = bookIndex,
+                isCurrentBook = bookIndex == currentBookIndex,
                 chaptersRead = chaptersRead,
                 chaptersReadCount = chaptersReadCount,
                 expanded = expanded[bookIndex]

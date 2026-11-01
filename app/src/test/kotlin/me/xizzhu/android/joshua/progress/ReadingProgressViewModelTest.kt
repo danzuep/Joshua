@@ -94,6 +94,7 @@ class ReadingProgressViewModelTest : BaseUnitTest() {
     @Test
     fun `test loadReadingProgress`() = runTest {
         coEvery { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
+        every { bibleReadingManager.currentVerseIndex() } returns flowOf(VerseIndex(12, 0, 0))
         coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
         coEvery { readingProgressManager.read() } returns ReadingProgress(
             continuousReadingDays = 2,
@@ -128,6 +129,7 @@ class ReadingProgressViewModelTest : BaseUnitTest() {
             assertTrue(item is ReadingProgressItem.Book)
             assertEquals(Settings.DEFAULT, item.settings)
             assertEquals(book, item.bookIndex)
+            assertEquals(book == 12, item.isCurrentBook)
             assertEquals(book == 0, item.expanded)
             when (book) {
                 0 -> {

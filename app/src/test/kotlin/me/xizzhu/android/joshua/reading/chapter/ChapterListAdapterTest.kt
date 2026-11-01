@@ -70,11 +70,11 @@ class ChapterListAdapterTest : BaseUnitTest() {
 
         val binding = ItemBookNameBinding.bind(adapter.getGroupView(1, false, null, FrameLayout(ApplicationProvider.getApplicationContext())))
         assertEquals("Exodus", binding.root.text.toString())
+        assertFalse(binding.root.isSelected)
 
-        assertEquals(
-            "Genesis",
-            ItemBookNameBinding.bind(adapter.getGroupView(0, true, binding.root, FrameLayout(ApplicationProvider.getApplicationContext()))).root.text.toString()
-        )
+        val currentBook = ItemBookNameBinding.bind(adapter.getGroupView(0, true, binding.root, FrameLayout(ApplicationProvider.getApplicationContext())))
+        assertEquals("Genesis", currentBook.root.text.toString())
+        assertTrue(currentBook.root.isSelected)
     }
 
     @Test

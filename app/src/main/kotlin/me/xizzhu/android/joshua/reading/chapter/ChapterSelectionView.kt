@@ -74,12 +74,12 @@ class ChapterSelectionView : ConstraintLayout {
             SELECTION_OLD_TESTAMENT -> {
                 viewBinding.chapterSelectionOldTestament.isSelected = true
                 viewBinding.chapterSelectionNewTestament.isSelected = false
-                if (scrollToFirstItem) viewBinding.chapterListView.scrollToPosition(0)
+                if (scrollToFirstItem) viewBinding.chapterListView.scrollToGroupPosition(0)
             }
             SELECTION_NEW_TESTAMENT -> {
                 viewBinding.chapterSelectionOldTestament.isSelected = false
                 viewBinding.chapterSelectionNewTestament.isSelected = true
-                if (scrollToFirstItem) viewBinding.chapterListView.scrollToPosition(Bible.OLD_TESTAMENT_COUNT)
+                if (scrollToFirstItem) viewBinding.chapterListView.scrollToGroupPosition(Bible.OLD_TESTAMENT_COUNT)
             }
             else -> throw IllegalArgumentException("Unsupported selection type - $selection")
         }
