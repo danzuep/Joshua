@@ -90,11 +90,18 @@ class VerseDetailViewLayout : FrameLayout {
 
     fun show(@VerseDetail verseDetail: Int) {
         animate().translationY(0.0F)
-        viewBinding.viewPager.currentItem = when (verseDetail) {
+        val requestedPage = when (verseDetail) {
             VERSE_DETAIL_VERSES -> VerseDetailPagerAdapter.PAGE_VERSES
             VERSE_DETAIL_NOTE -> VerseDetailPagerAdapter.PAGE_NOTE
-            else -> 0
+            else -> null
         }
+        viewBinding.viewPager.currentItem = requestedPage?.let { adapter.pageIndexOf(it) }?.takeIf { it >= 0 }
+                ?: adapter.defaultPageIndex()
+    }
+
+    override fun onDetachedFromWindow() {
+        adapter.flushNote()
+        super.onDetachedFromWindow()
     }
 
     /**

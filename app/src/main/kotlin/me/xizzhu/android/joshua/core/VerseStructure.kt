@@ -29,6 +29,7 @@ const val NOTE_MARK = '\u2027'
 private val HEADING_REGEX = Regex("$HEADING[^$HEADING]*$HEADING")
 private val NOTE_REGEX = Regex("$NOTE_MARK[fx][^$NOTE_MARK]*$NOTE_MARK")
 private val NOTE_CONTENT_REGEX = Regex("$NOTE_MARK([fx])([^$NOTE_MARK]*)$NOTE_MARK")
+private val HEADING_CONTENT_REGEX = Regex("$HEADING([^$HEADING]*)$HEADING")
 
 /** A footnote ([isCrossReference] = false) or a cross-reference of a verse. */
 class VerseNote(val isCrossReference: Boolean, val text: String)
@@ -36,6 +37,10 @@ class VerseNote(val isCrossReference: Boolean, val text: String)
 /** The footnotes and cross-references of a verse, in the order they appear. */
 fun String.extractNotes(): List<VerseNote> =
         NOTE_CONTENT_REGEX.findAll(this).map { VerseNote(it.groupValues[1] == "x", it.groupValues[2]) }.toList()
+
+/** The section headings of a verse, in the order they appear. */
+fun String.extractHeadings(): List<String> =
+        HEADING_CONTENT_REGEX.findAll(this).map { it.groupValues[1] }.filter { it.isNotBlank() }.toList()
 
 fun String.hasNotes(): Boolean = indexOf(NOTE_MARK) >= 0
 

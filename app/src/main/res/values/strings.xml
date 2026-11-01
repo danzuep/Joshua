@@ -109,12 +109,11 @@
     <string name="text_share_with">Share with</string>
 
     <string name="text_parallel">Parallel</string>
-    <string name="text_musings">Musings</string>
     <string name="text_notes">Notes</string>
+    <string name="text_paratext">Paratext</string>
+    <string name="text_headings">Headings</string>
     <string name="text_footnotes">Footnotes</string>
     <string name="text_cross_references">Cross-references</string>
-    <string name="text_no_footnotes">No footnotes.</string>
-    <string name="text_no_cross_references">No cross-references.</string>
 
     <string name="text_no_bookmarks">No bookmarks yet.</string>
     <string name="text_no_highlights">No highlights yet.</string>
