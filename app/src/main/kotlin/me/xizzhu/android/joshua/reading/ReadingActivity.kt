@@ -287,7 +287,11 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 translation = status.currentTranslation,
                 parallel = status.parallelTranslations
             )
-            verseViewPager.setCurrentItem(status.currentVerseIndex.toPagePosition(), false)
+            val chapterChanged = previousVerseIndex.bookIndex != status.currentVerseIndex.bookIndex
+                || previousVerseIndex.chapterIndex != status.currentVerseIndex.chapterIndex
+            if (chapterChanged || !versePagerAdapter.containsChapterInCurrentPage(status.currentVerseIndex)) {
+                verseViewPager.setCurrentItem(status.currentVerseIndex.toPagePosition(), false)
+            }
         }
         hideVerseDetail()
 
@@ -316,8 +320,11 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             is ReadingViewModel.ViewState.Error.VerseSelectionError -> showErrorDialog(R.string.dialog_message_failed_to_select_verse) {
                 viewModel.selectVerse(verseToSelect)
             }
-            is ReadingViewModel.ViewState.Error.VersesLoadingError -> showErrorDialog(R.string.dialog_message_failed_to_load_verses) {
-                viewModel.loadVerses(bookIndex, chapterIndex)
+            is ReadingViewModel.ViewState.Error.VersesLoadingError -> {
+                versePagerAdapter.onVersesLoadFailed(bookIndex, chapterIndex)
+                showErrorDialog(R.string.dialog_message_failed_to_load_verses) {
+                    viewModel.loadVerses(bookIndex, chapterIndex)
+                }
             }
             is ReadingViewModel.ViewState.Error.VerseDetailLoadingError -> showErrorDialog(R.string.dialog_message_failed_to_load_verse_detail) {
                 viewModel.loadVerseDetail(verseIndex, content)

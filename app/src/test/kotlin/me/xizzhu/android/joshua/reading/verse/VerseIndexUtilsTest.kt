@@ -87,6 +87,30 @@ class VerseIndexUtilsTest : BaseUnitTest() {
         assertEquals(1188, indexToPagePosition(65, 21))
     }
 
+    @Test
+    fun testBookBoundariesAndSwipeOrder() {
+        assertEquals(0, VerseIndex(0, 0, 0).toPagePosition())
+        assertEquals(1, VerseIndex(0, 1, 0).toPagePosition())
+        assertEquals(49, VerseIndex(0, 49, 0).toPagePosition())
+        assertEquals(50, VerseIndex(1, 0, 0).toPagePosition())
+        assertEquals(1187, VerseIndex(65, 20, 0).toPagePosition())
+        assertEquals(1188, VerseIndex(65, 21, 0).toPagePosition())
+
+        assertEquals(0, 0.toBookIndex())
+        assertEquals(1, 50.toBookIndex())
+        assertEquals(65, 1188.toBookIndex())
+    }
+
+    @Test
+    fun testAllPagePositionsRoundTrip() {
+        for (position in 0 until Bible.TOTAL_CHAPTER_COUNT) {
+            assertEquals(
+                position,
+                VerseIndex(position.toBookIndex(), position.toChapterIndex(), 0).toPagePosition()
+            )
+        }
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun testNegativeBookIndexToPosition() {
         indexToPagePosition(-1, 0)
