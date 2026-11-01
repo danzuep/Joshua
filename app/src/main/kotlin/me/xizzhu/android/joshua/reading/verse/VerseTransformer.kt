@@ -23,6 +23,7 @@ import me.xizzhu.android.joshua.core.HEADING
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.PARAGRAPH
 import me.xizzhu.android.joshua.core.stripStructure
+import me.xizzhu.android.joshua.core.toDisplayedVerse
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
 
@@ -85,7 +86,11 @@ fun List<Verse>.toParagraphItems(
     return items
 }
 
-fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Boolean): String {
+/** Text for the clipboard: the same line breaks as on screen, optionally formatted as Markdown quotes. */
+fun Collection<Verse>.toStringForCopy(bookName: String, consolidateVerses: Boolean, markdown: Boolean): String =
+        map { it.toDisplayedVerse() }.toStringForSharing(bookName, consolidateVerses, markdown)
+
+fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Boolean, markdown: Boolean = false): String {
     val sortedVerses = sortedBy { verse ->
         val verseIndex = verse.verseIndex
         verseIndex.bookIndex * 100000 + verseIndex.chapterIndex * 1000 + verseIndex.verseIndex
@@ -93,7 +98,7 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
 
     if (!consolidateVerses || size == 1) {
         return StringBuilder().apply {
-            sortedVerses.forEach { verse -> append(verse, bookName) }
+            sortedVerses.forEach { verse -> append(verse, bookName, markdown) }
         }.toString()
     }
 
@@ -128,6 +133,7 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
     val stringBuilder = StringBuilder()
 
     var currentVerseGroupIndex = 0
+    var bodyStart = 0
     val parallelVersesBuilder = Array(sortedVerses.first().parallel.size) { StringBuilder() }
     sortedVerses.forEach { verse ->
         val currentVerseGroup = verseGroups[currentVerseGroupIndex]
@@ -142,6 +148,7 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
                 stringBuilder.append('-').append(currentVerseGroup.second + 1)
             }
             stringBuilder.append('\n')
+            bodyStart = stringBuilder.length
 
             if (verse.parallel.isNotEmpty()) {
                 stringBuilder.append(verse.text.translationShortName).append(": ")
@@ -170,6 +177,11 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
             parallelVersesBuilder.forEach { parallelBuilder ->
                 stringBuilder.append('\n').append(parallelBuilder)
             }
+            if (markdown) {
+                val body = stringBuilder.substring(bodyStart)
+                stringBuilder.setLength(bodyStart)
+                stringBuilder.append(body.quoted())
+            }
 
             currentVerseGroupIndex++
         }
@@ -178,10 +190,23 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
     return stringBuilder.toString()
 }
 
-private fun StringBuilder.append(verse: Verse, bookName: String): StringBuilder {
-    if (isNotEmpty()) append('\n')
+private fun String.quoted(): String = split('\n').joinToString("\n") { "> $it" }
 
-    if (verse.parallel.isEmpty()) {
+private fun StringBuilder.append(verse: Verse, bookName: String, markdown: Boolean): StringBuilder {
+    if (isNotEmpty()) append(if (markdown) "\n\n" else "\n")
+
+    if (markdown) {
+        // format:
+        // <book name> <chapter index>:<verse index>
+        // > <verse text>
+        // or, with parallel translations, one "> <translation>: <verse text>" line per translation
+        append(bookName).append(' ')
+                .append(verse.verseIndex.chapterIndex + 1).append(':').append(verse.verseIndex.verseIndex + 1).append('\n')
+        val body = if (verse.parallel.isEmpty()) verse.text.text else {
+            (listOf(verse.text) + verse.parallel).joinToString("\n") { "${it.translationShortName}: ${it.text}" }
+        }
+        append(body.quoted())
+    } else if (verse.parallel.isEmpty()) {
         // format: <book name> <chapter index>:<verse index> <text>
         append(bookName).append(' ')
                 .append(verse.verseIndex.chapterIndex + 1).append(':').append(verse.verseIndex.verseIndex + 1).append(' ')
@@ -201,4 +226,7 @@ private fun StringBuilder.append(verse: Verse, bookName: String): StringBuilder 
     return this
 }
 
-fun Verse.toStringForSharing(bookName: String): String = StringBuilder().append(this, bookName).toString()
+fun Verse.toStringForSharing(bookName: String): String = StringBuilder().append(this, bookName, false).toString()
+
+fun Verse.toStringForCopy(bookName: String, markdown: Boolean): String =
+        StringBuilder().append(toDisplayedVerse(), bookName, markdown).toString()

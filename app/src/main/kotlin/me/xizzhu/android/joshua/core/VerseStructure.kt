@@ -35,3 +35,12 @@ fun Verse.stripStructure(): Verse = copy(
         text = text.copy(text = text.text.stripStructure()),
         parallel = parallel.map { it.copy(text = it.text.stripStructure()) }
 )
+
+/** The text as the reading screen shows it: headings removed, paragraph and poetry line breaks kept as '\n'. */
+fun String.toDisplayedText(): String =
+        replace(HEADING_REGEX, "").replace(PARAGRAPH, '\n').trim { it == '\n' || it == ' ' }
+
+fun Verse.toDisplayedVerse(): Verse = copy(
+        text = text.copy(text = text.text.toDisplayedText()),
+        parallel = parallel.map { it.copy(text = it.text.toDisplayedText()) }
+)

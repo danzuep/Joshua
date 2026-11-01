@@ -14,31 +14,11 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/bookmark"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:scaleType="center"
-            android:src="@drawable/ic_bookmark"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/top_divider" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/highlight"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:scaleType="center"
-            android:src="@drawable/ic_highlight"
-            app:layout_constraintEnd_toStartOf="@id/bookmark"
-            app:layout_constraintTop_toBottomOf="@id/top_divider" />
-
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            app:layout_constraintEnd_toStartOf="@id/highlight"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/top_divider"
             app:tabMode="scrollable" />
