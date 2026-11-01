@@ -73,7 +73,6 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
         )
 
         // It's possible that the system has no SearchManager available, and on some devices getSearchableInfo() could return null.
-        // See https://console.firebase.google.com/u/0/project/joshua-production/crashlytics/app/android:me.xizzhu.android.joshua/issues/45465ea5dc4f7722c6ce6b8889196249?time=last-seven-days&type=all
         (applicationContext.getSystemService(Context.SEARCH_SERVICE) as? SearchManager)
             ?.getSearchableInfo(componentName)?.let { viewBinding.toolbar.setSearchableInfo(it) }
 

@@ -39,7 +39,7 @@ class HttpStrongNumberService(context: Context) : RemoteStrongNumberStorage {
 
     override suspend fun fetchIndexes(downloadProgress: SendChannel<Int>): RemoteStrongNumberIndexes = withContext(Dispatchers.IO) {
         return@withContext File(cacheDir, "sn_indexes").apply {
-            download(downloadProgress, "tools/sn_indexes.zip", 1195800, this) // TODO #21
+            download(downloadProgress, "tools/sn_indexes.zip", destination = this)
         }.let { downloaded ->
             FileInputStream(downloaded).use { input ->
                 toRemoteStrongNumberIndexes(input)
@@ -86,7 +86,7 @@ class HttpStrongNumberService(context: Context) : RemoteStrongNumberStorage {
 
     override suspend fun fetchWords(downloadProgress: SendChannel<Int>): RemoteStrongNumberWords = withContext(Dispatchers.IO) {
         return@withContext File(cacheDir, "sn_en").apply {
-            download(downloadProgress, "tools/sn_en.zip", 190102, this) // TODO #21
+            download(downloadProgress, "tools/sn_en.zip", destination = this)
         }.let { downloaded ->
             FileInputStream(downloaded).use { input ->
                 toRemoteStrongNumberWords(input)

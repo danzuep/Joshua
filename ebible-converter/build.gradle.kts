@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-package me.xizzhu.android.joshua.utils
+plugins {
+    id("org.jetbrains.kotlin.jvm")
+    application
+}
 
-var currentTimeMillis: Long = 0L
+java {
+    sourceCompatibility = Versions.java
+    targetCompatibility = Versions.java
+}
 
-fun currentTimeMillis(): Long = currentTimeMillis
+application {
+    mainClass.set("me.xizzhu.joshua.ebible.MainKt")
+}
+
+dependencies {
+    testImplementation(Dependencies.Kotlin.test)
+}

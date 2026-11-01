@@ -41,6 +41,7 @@ import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.StrongNumberManager
 import me.xizzhu.android.joshua.core.TranslationManager
+import me.xizzhu.android.joshua.core.provider.TimeProvider
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseAnnotationManager
 import me.xizzhu.android.joshua.core.VerseIndex
@@ -55,7 +56,6 @@ import me.xizzhu.android.joshua.reading.detail.VerseTextItem
 import me.xizzhu.android.joshua.reading.verse.toVerseItems
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
 import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
-import me.xizzhu.android.joshua.utils.currentTimeMillis
 import me.xizzhu.android.joshua.utils.filterIsValid
 import me.xizzhu.android.joshua.utils.filterNotEmpty
 import me.xizzhu.android.joshua.utils.firstNotEmpty
@@ -94,6 +94,7 @@ class ReadingViewModel @Inject constructor(
     private val crossReferencesManager: CrossReferencesManager,
     private val strongNumberManager: StrongNumberManager,
     private val settingsManager: SettingsManager,
+    private val timeProvider: TimeProvider,
     private val application: Application
 ) : BaseViewModel<ReadingViewModel.ViewAction, ReadingViewModel.ViewState>(
     initialViewState = ViewState(
@@ -393,7 +394,7 @@ class ReadingViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 if (toBeBookmarked) {
-                    bookmarkManager.save(Bookmark(verseIndex, currentTimeMillis()))
+                    bookmarkManager.save(Bookmark(verseIndex, timeProvider.currentTimeMillis))
                     emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.BOOKMARK_ADDED)))
                 } else {
                     bookmarkManager.remove(verseIndex)
@@ -412,7 +413,7 @@ class ReadingViewModel @Inject constructor(
                 if (color == Highlight.COLOR_NONE) {
                     highlightManager.remove(verseIndex)
                 } else {
-                    highlightManager.save(Highlight(verseIndex, color, currentTimeMillis()))
+                    highlightManager.save(Highlight(verseIndex, color, timeProvider.currentTimeMillis))
                 }
                 emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.HIGHLIGHT_UPDATED, color)))
                 emitViewAction(ViewAction.HighlightSaved(color))
@@ -429,7 +430,7 @@ class ReadingViewModel @Inject constructor(
                     noteManager.remove(verseIndex)
                     emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.NOTE_REMOVED)))
                 } else {
-                    noteManager.save(Note(verseIndex, note, currentTimeMillis()))
+                    noteManager.save(Note(verseIndex, note, timeProvider.currentTimeMillis))
                     emitViewAction(ViewAction.UpdateVerse(VerseUpdate(verseIndex, VerseUpdate.NOTE_ADDED)))
                 }
                 emitViewAction(ViewAction.NoteSaved(note))

@@ -72,15 +72,6 @@ object Versions {
         }
     }
 
-    object Firebase {
-        const val classpath = "4.4.4"
-        const val bom = "34.11.0"
-
-        object Crashlytics {
-            const val classpath = "2.9.2"
-        }
-    }
-
     const val ask = "0.5.2"
     const val hilt = "2.59.2"
     const val kermit = "2.2.0"
@@ -136,17 +127,6 @@ object Dependencies {
         object Test {
             const val core = "androidx.test:core:${Versions.AndroidX.Test.core}"
             const val junit = "androidx.test.ext:junit:${Versions.AndroidX.Test.junit}"
-        }
-    }
-
-    object Firebase {
-        const val classpath = "com.google.gms:google-services:${Versions.Firebase.classpath}"
-        const val bom = "com.google.firebase:firebase-bom:${Versions.Firebase.bom}"
-        const val analytics = "com.google.firebase:firebase-analytics"
-
-        object Crashlytics {
-            const val classpath = "com.google.firebase:firebase-crashlytics-gradle:${Versions.Firebase.Crashlytics.classpath}"
-            const val crashlytics = "com.google.firebase:firebase-crashlytics"
         }
     }
 

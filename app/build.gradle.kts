@@ -18,8 +18,6 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
-    //id("com.google.firebase.crashlytics")
-    //id("com.google.gms.google-services")
     id(Dependencies.Kotlin.Ksp.plugin)
     id(Dependencies.Hilt.plugin)
 }
