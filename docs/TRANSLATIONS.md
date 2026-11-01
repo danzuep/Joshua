@@ -1,61 +1,18 @@
 Available Translations
 ======================
-* English
-  * American King James Version (AKJV)
-  * American Standard Version (ASV)
-  * Amplified Version (Classic Edition) (AMP)
-  * Authorized King James (KJV)
-  * Bible in Basic English (BBE)
-  * Common English Bible (CEB)
-  * English Standard Version (ESV)
-  * GOD'S WORD to the Nations (GodsWord)
-  * Good News Translation (GNT)
-  * Green's Literal Translation (LITV)
-  * Holman Christian Standard Bible (HCSB)
-  * Lexham English Bible (LEB)
-  * New American Standard Bible (NASB)
-  * New Century Version (NCV)
-  * New Heart English Bible (NHEB)
-  * New International Version (NIV)
-  * New King James Version (NKJV)
-  * New Living Translation (NLT)
-  * New Revised Standard Version (NRSV)
-  * Revised Standard Version (RSV)
-  * The Message Bible (MSG)
-  * Updated King James Version (UKJV)
-  * World English Bible (WEB)
-  * Young's Literal Translation (YLT)
-* Filipino
-  * Ang Dating Biblia 1905 (ADB1905)
-* Finnish
-  * Raamattu 1938 (PR1938)
-  * Raamattu 1992 (PR1992)
-* French
-  * Darby Bible in French (FreJND)
-  * Louis Segond (LSG)
-* German
-  * Darby Unrevidierte Elberfelder (Elb1905)
-  * Luther's Biblia (Lut1545)
-* Hindi
-  * Hindi Bible: Easy-to-Read Version (ERV-HI) हिंदी बाइबिल
-* Italian
-  * Italian Diodati Bibbia (Dio)
-  * Italian Riveduta Bibbia 1927 (ItaRive)
-* Simplified Chinese
-  * 中文和合本
-  * 中文新译本
-* Spanish
-  * Biblia Reina-Valera 1909 (SpaRV1909)
-  * Reina-Valera 1569 (RV1569)
-* Traditional Chinese
-  * 華語和合本
-  * 華語新譯本
+Joshua builds its list of translations from a download site's translation table. The default site is
+[eBible.org](https://ebible.org/download.php), which offers hundreds of public domain and freely licensed translations
+in many languages. Each translation is downloaded as a USFM zip (`https://ebible.org/Scriptures/<id>_usfm.zip`) and
+parsed on the device. The default site's table ships in the app as `app/src/main/assets/ebible_downloads.tsv`; the
+"Update eBible downloads" workflow regenerates it monthly (or on demand) with `./gradlew updateEbibleDownloads`.
 
-Adding translations from eBible.org
------------------------------------
-Joshua uses its own JSON-in-ZIP format, not USFM/USX. To add a translation from [eBible.org](https://ebible.org/download.php),
-download its USFM zip and convert it with the `ebible-converter` module (66 books required, check each translation's license first):
+Adding download sites
+---------------------
+On the Translations screen, open the menu and choose **Download sites** to edit the list (one web address per line).
+A site is a page with a table of translations laid out like [eBible.org's download page](https://ebible.org/download.php):
+territory, language, English language name, vernacular title and English title, where the title links to
+`details.php?id=<id>`. Translations are fetched from `<site origin>/Scriptures/<id>_usfm.zip`, trying each site in order.
+Check each translation's license before using it.
 
-    ./gradlew :ebible-converter:run --args='eng-web_usfm.zip --short WEB --name "World English Bible" --language en_us --out dist'
-
-Upload `dist/list.json` and `dist/translations/` next to the existing translations.
+The format of the downloaded files is USFM. Strong's numbers and cross references are not supported, as USFM
+translations from these sites do not include them.

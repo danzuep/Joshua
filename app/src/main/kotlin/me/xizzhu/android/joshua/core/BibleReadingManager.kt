@@ -125,6 +125,10 @@ class BibleReadingManager(
             bibleReadingRepository.readBookShortNames(translationShortName)
 
     suspend fun readVerses(translationShortName: String, bookIndex: Int, chapterIndex: Int): List<Verse> =
+            readStructuredVerses(translationShortName, bookIndex, chapterIndex).map { it.stripStructure() }
+
+    /** The verses of the chapter with their paragraphs, headings and poetry lines, see [PARAGRAPH]. */
+    suspend fun readStructuredVerses(translationShortName: String, bookIndex: Int, chapterIndex: Int): List<Verse> =
             bibleReadingRepository.readVerses(translationShortName, bookIndex, chapterIndex)
 
     suspend fun readVerses(translationShortName: String, parallelTranslations: List<String>,

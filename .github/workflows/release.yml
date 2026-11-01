@@ -49,11 +49,9 @@ jobs:
         cp app/build/outputs/apk/release/app-release.apk "$NAME.apk"
     - name: Download the WEB Bible to prepackage
       run: |
-        base=https://xizzhu.me/bible/download
         mkdir -p bundled-assets/bundled/translations
-        curl -fsSL "$base/list.json" | jq '{translations: [.translations[] | select(.shortName == "WEB")]}' > bundled-assets/bundled/list.json
-        test "$(jq '.translations | length' bundled-assets/bundled/list.json)" = 1
-        curl -fsSL "$base/translations/WEB.zip" -o bundled-assets/bundled/translations/WEB.zip
+        curl -fsSL "https://ebible.org/Scriptures/engwebu_usfm.zip" -o bundled-assets/bundled/translations/engwebu.zip
+        printf 'engwebu\tWorld English Bible Updated\teng\n' > bundled-assets/bundled/list.tsv
     - name: Build APK with the WEB Bible prepackaged
       run: |
         ./gradlew assembleRelease -PbundledAssetsDir="$PWD/bundled-assets" ${VERSION:+-PappVersion=$VERSION}

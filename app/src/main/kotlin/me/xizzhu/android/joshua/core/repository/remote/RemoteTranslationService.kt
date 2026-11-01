@@ -37,9 +37,10 @@ data class RemoteTranslation(
 )
 
 interface RemoteTranslationService {
-    suspend fun fetchTranslations(): List<RemoteTranslationInfo>
+    /** Builds the table of available translations from the download pages at [sites]; unreachable sites are skipped. */
+    suspend fun fetchTranslations(sites: List<String>): List<RemoteTranslationInfo>
 
-    suspend fun fetchTranslation(downloadProgress: SendChannel<Int>, translationInfo: RemoteTranslationInfo): RemoteTranslation
+    suspend fun fetchTranslation(downloadProgress: SendChannel<Int>, translationInfo: RemoteTranslationInfo, sites: List<String>): RemoteTranslation
 
     /** Translations prepackaged in the APK assets; empty for regular builds. */
     suspend fun fetchBundledTranslations(): List<RemoteTranslation> = emptyList()

@@ -39,7 +39,6 @@ import me.xizzhu.android.joshua.reading.chapter.ChapterSelectionViewModel
 import me.xizzhu.android.joshua.reading.toolbar.ReadingToolbarViewModel
 import me.xizzhu.android.joshua.search.SearchActivity
 import me.xizzhu.android.joshua.settings.SettingsActivity
-import me.xizzhu.android.joshua.strongnumber.StrongNumberActivity
 import me.xizzhu.android.joshua.tests.BaseActivityTest
 import me.xizzhu.android.joshua.translations.TranslationsActivity
 import org.junit.runner.RunWith
@@ -73,7 +72,6 @@ class NavigatorTest : BaseActivityTest() {
         testNavigate<HighlightsActivity>(Navigator.SCREEN_HIGHLIGHTS)
         testNavigate<NotesActivity>(Navigator.SCREEN_NOTES)
         testNavigate<SettingsActivity>(Navigator.SCREEN_SETTINGS)
-        testNavigate<StrongNumberActivity>(Navigator.SCREEN_STRONG_NUMBER)
     }
 
     private inline fun <reified A : Activity> testNavigate(@Navigator.Companion.Screen screen: Int) {
@@ -115,7 +113,7 @@ class NavigatorTest : BaseActivityTest() {
 
             val nextStartedIntent = Shadows.shadowOf(ApplicationProvider.getApplicationContext<Application>()).nextStartedActivity
             assertEquals(Intent.ACTION_VIEW, nextStartedIntent.action)
-            assertEquals(Uri.parse("https://xizzhu.me/pages/about-joshua/"), nextStartedIntent.data)
+            assertEquals(Uri.parse("https://ebible.org/about.php"), nextStartedIntent.data)
         }
     }
 

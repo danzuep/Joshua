@@ -25,7 +25,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -42,26 +41,19 @@ import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.databinding.ActivityReadingBinding
 import me.xizzhu.android.joshua.infra.BaseActivity
-import me.xizzhu.android.joshua.preview.VersePreviewItem
 import me.xizzhu.android.joshua.reading.chapter.ChapterSelectionFragment
-import me.xizzhu.android.joshua.reading.detail.CrossReferenceItem
-import me.xizzhu.android.joshua.reading.detail.StrongNumberItem
 import me.xizzhu.android.joshua.reading.detail.VerseDetailViewLayout
 import me.xizzhu.android.joshua.reading.detail.VerseTextItem
 import me.xizzhu.android.joshua.reading.toolbar.ReadingToolbarFragment
-import me.xizzhu.android.joshua.reading.verse.SimpleVerseItem
-import me.xizzhu.android.joshua.reading.verse.VerseItem
+import me.xizzhu.android.joshua.reading.verse.ParagraphItem
 import me.xizzhu.android.joshua.reading.verse.VersePagerAdapter
 import me.xizzhu.android.joshua.reading.verse.toBookIndex
 import me.xizzhu.android.joshua.reading.verse.toChapterIndex
 import me.xizzhu.android.joshua.reading.verse.toPagePosition
 import me.xizzhu.android.joshua.reading.verse.toStringForSharing
-import me.xizzhu.android.joshua.strongnumber.StrongNumberActivity
-import me.xizzhu.android.joshua.ui.ProgressDialog
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.listDialog
 import me.xizzhu.android.joshua.ui.makeLessSensitive
-import me.xizzhu.android.joshua.ui.progressDialog
 import me.xizzhu.android.joshua.ui.toast
 import me.xizzhu.android.joshua.utils.copyToClipBoard
 import me.xizzhu.android.joshua.utils.shareToSystem
@@ -69,7 +61,7 @@ import kotlin.math.max
 
 @AndroidEntryPoint
 class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.ViewAction, ReadingViewModel.ViewState, ReadingViewModel>(),
-    SimpleVerseItem.Callback, VerseItem.Callback, VerseTextItem.Callback, CrossReferenceItem.Callback, StrongNumberItem.Callback, VersePreviewItem.Callback {
+    ParagraphItem.Callback, VerseTextItem.Callback {
     companion object {
         private const val KEY_OPEN_NOTE = "me.xizzhu.android.joshua.KEY_OPEN_NOTE"
 
@@ -79,11 +71,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     override val viewModel: ReadingViewModel by viewModels()
 
     override val viewBinding: ActivityReadingBinding by lazy(LazyThreadSafetyMode.NONE) { ActivityReadingBinding.inflate(layoutInflater) }
-
-    private var downloadCrossReferencesDialog: ProgressDialog? = null
-    private var downloadStrongNumberDialog: ProgressDialog? = null
-
-    private var crossReferencePreviewDialog: AlertDialog? = null
 
     private val selectedVerses: MutableSet<Verse> = mutableSetOf()
     private var settings: Settings? = null
@@ -220,8 +207,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             updateBookmark = ::onBookmarkClicked,
             updateHighlight = ::onHighlightClicked,
             updateNote = viewModel::saveNote,
-            requestCrossReferences = viewModel::downloadCrossReferences,
-            requestStrongNumber = viewModel::downloadStrongNumber,
             hide = !openNoteWhenCreated
         )
         if (openNoteWhenCreated) {
@@ -250,17 +235,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             is ReadingViewModel.ViewAction.BookmarkSaved -> viewBinding.verseDetailView.setBookmarked(viewAction.bookmarked)
             is ReadingViewModel.ViewAction.HighlightSaved -> viewBinding.verseDetailView.setHighlightColor(viewAction.color)
             is ReadingViewModel.ViewAction.NoteSaved -> viewBinding.verseDetailView.setNote(viewAction.note)
-            is ReadingViewModel.ViewAction.ShowCrossReferences -> viewBinding.verseDetailView.setCrossReferences(viewAction.items)
-            is ReadingViewModel.ViewAction.ShowStrongNumbers -> viewBinding.verseDetailView.setStrongNumbers(viewAction.items)
-            is ReadingViewModel.ViewAction.ShowPreview -> {
-                val preview = viewAction.preview
-                crossReferencePreviewDialog?.dismiss()
-                crossReferencePreviewDialog = listDialog(preview.title, preview.settings, preview.items, preview.currentPosition) { crossReferencePreviewDialog = null }
-            }
-            ReadingViewModel.ViewAction.DismissPreview -> {
-                crossReferencePreviewDialog?.dismiss()
-                crossReferencePreviewDialog = null
-            }
         }
     }
 
@@ -271,19 +245,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         if (viewState.currentReadingStatus != currentReadingStatus) {
             viewState.currentReadingStatus?.let { applyCurrentReadingStatus(it) }
         }
-
-        downloadCrossReferencesDialog = viewState.crossReferencesDownloadingState.handle(
-            dialog = downloadCrossReferencesDialog,
-            onCancel = viewModel::cancelDownloadingCrossReferences,
-            onSuccess = { viewBinding.verseDetailView.verseDetail?.let { viewModel.loadCrossReferences(it.verseIndex) } },
-            markAsIdle = viewModel::markCrossReferencesDownloadingStateAsIdle,
-        )
-        downloadStrongNumberDialog = viewState.strongNumberDownloadingState.handle(
-            dialog = downloadStrongNumberDialog,
-            onCancel = viewModel::cancelDownloadingStrongNumber,
-            onSuccess = { viewBinding.verseDetailView.verseDetail?.let { viewModel.loadStrongNumbers(it.verseIndex) } },
-            markAsIdle = viewModel::markStrongNumberDownloadingStateAsIdle,
-        )
 
         viewState.error?.handle()
     }
@@ -324,41 +285,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         }
     }
 
-    private fun ReadingViewModel.ViewState.DownloadingState.handle(
-        dialog: ProgressDialog?,
-        onCancel: () -> Unit,
-        onSuccess: () -> Unit,
-        markAsIdle: () -> Unit,
-    ): ProgressDialog? {
-        when (this) {
-            is ReadingViewModel.ViewState.DownloadingState.Idle -> {
-                dialog?.dismiss()
-                return null
-            }
-            is ReadingViewModel.ViewState.DownloadingState.Downloading -> {
-                val progressDialog = dialog ?: progressDialog(R.string.dialog_title_downloading, 100, onCancel)
-                progressDialog?.setProgress(progress)
-                return progressDialog
-            }
-            is ReadingViewModel.ViewState.DownloadingState.Installing -> {
-                dialog?.run {
-                    setTitle(R.string.dialog_title_installing)
-                    setIsIndeterminate(true)
-                }
-                return dialog
-            }
-            is ReadingViewModel.ViewState.DownloadingState.Completed -> {
-                dialog?.dismiss()
-                if (successful) {
-                    toast(R.string.toast_downloaded)
-                    onSuccess()
-                }
-                markAsIdle()
-                return null
-            }
-        }
-    }
-
     private fun ReadingViewModel.ViewState.Error.handle() {
         when (this) {
             is ReadingViewModel.ViewState.Error.NoTranslationDownloadedError -> dialog(
@@ -389,12 +315,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             is ReadingViewModel.ViewState.Error.NoteSavingError -> {
                 toast(R.string.toast_unknown_error)
                 viewModel.markErrorAsShown(this)
-            }
-            is ReadingViewModel.ViewState.Error.CrossReferencesDownloadingError -> showErrorDialog(R.string.dialog_message_failed_to_download) {
-                viewModel.downloadCrossReferences()
-            }
-            is ReadingViewModel.ViewState.Error.StrongNumberDownloadingError -> showErrorDialog(R.string.dialog_message_failed_to_download) {
-                viewModel.downloadStrongNumber()
             }
         }
     }
@@ -476,11 +396,11 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         onVerseClicked(verse)
     }
 
-    override fun onBookmarkClicked(verseIndex: VerseIndex, currentlyBookmarked: Boolean) {
+    fun onBookmarkClicked(verseIndex: VerseIndex, currentlyBookmarked: Boolean) {
         viewModel.saveBookmark(verseIndex = verseIndex, toBeBookmarked = !currentlyBookmarked)
     }
 
-    override fun onHighlightClicked(verseIndex: VerseIndex, @Highlight.Companion.AvailableColor currentHighlightColor: Int) {
+    fun onHighlightClicked(verseIndex: VerseIndex, @Highlight.Companion.AvailableColor currentHighlightColor: Int) {
         val defaultHighlightColor = settings?.defaultHighlightColor ?: Highlight.COLOR_NONE
         if (Highlight.COLOR_NONE == defaultHighlightColor) {
             listDialog(
@@ -494,7 +414,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         }
     }
 
-    override fun onNoteClicked(verseIndex: VerseIndex) {
+    fun onNoteClicked(verseIndex: VerseIndex) {
         showVerseDetail(verseIndex, VerseDetailViewLayout.VERSE_DETAIL_NOTE)
     }
 
@@ -516,21 +436,5 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 toast(R.string.toast_unknown_error)
             }
         }
-    }
-
-    override fun onCrossReferenceVerseClicked(verseIndex: VerseIndex) {
-        viewModel.updateCurrentVerse(verseIndex)
-    }
-
-    override fun onCrossReferenceVerseLongClicked(verseIndex: VerseIndex) {
-        viewModel.loadVersesForPreview(verseIndex)
-    }
-
-    override fun openStrongNumber(strongNumber: String) {
-        startActivity(Navigator.SCREEN_STRONG_NUMBER, StrongNumberActivity.bundle(strongNumber))
-    }
-
-    override fun openVerse(verseToOpen: VerseIndex) {
-        viewModel.selectVerse(verseToOpen)
     }
 }

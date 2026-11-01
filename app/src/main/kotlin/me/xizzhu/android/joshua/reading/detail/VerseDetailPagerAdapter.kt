@@ -21,16 +21,13 @@ import android.content.res.Resources
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.VerseIndex
-import me.xizzhu.android.joshua.databinding.PageVerseDetailCrossReferencesBinding
 import me.xizzhu.android.joshua.databinding.PageVerseDetailNoteBinding
-import me.xizzhu.android.joshua.databinding.PageVerseDetailStrongNumberBinding
 import me.xizzhu.android.joshua.databinding.PageVerseDetailVersesBinding
 import me.xizzhu.android.joshua.reading.VerseDetailViewData
 import me.xizzhu.android.joshua.ui.setPrimaryTextSize
@@ -39,17 +36,13 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
     companion object {
         const val PAGE_VERSES = 0
         const val PAGE_NOTE = 1
-        const val PAGE_CROSS_REFERENCES = 2
-        const val PAGE_STRONG_NUMBER = 3
-        private const val PAGE_COUNT = 4
+        private const val PAGE_COUNT = 2
     }
 
     private val resources: Resources = context.resources
     private val inflater: LayoutInflater = LayoutInflater.from(context)
 
     private var updateNote: ((VerseIndex, String) -> Unit)? = null
-    private var requestCrossReferences: (() -> Unit)? = null
-    private var requestStrongNumber: (() -> Unit)? = null
 
     var settings: Settings? = null
         set(value) {
@@ -62,18 +55,14 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
             notifyDataSetChanged()
         }
 
-    fun initialize(updateNote: (VerseIndex, String) -> Unit, requestCrossReferences: () -> Unit, requestStrongNumber: () -> Unit) {
+    fun initialize(updateNote: (VerseIndex, String) -> Unit) {
         this.updateNote = updateNote
-        this.requestCrossReferences = requestCrossReferences
-        this.requestStrongNumber = requestStrongNumber
     }
 
     override fun getItemCount(): Int {
         val fullyInitialized = settings != null
                 && verseDetail != null
                 && updateNote != null
-                && requestCrossReferences != null
-                && requestStrongNumber != null
         return if (fullyInitialized) PAGE_COUNT else 0
     }
 
@@ -83,8 +72,6 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
             when (viewType) {
                 PAGE_VERSES -> VersesPage(inflater, parent)
                 PAGE_NOTE -> NotePage(inflater, parent, updateNote!!)
-                PAGE_CROSS_REFERENCES -> CrossReferencesPage(inflater, parent, requestCrossReferences!!)
-                PAGE_STRONG_NUMBER -> StrongNumberPage(inflater, parent, requestStrongNumber!!)
                 else -> throw IllegalArgumentException("Unsupported view type: $viewType")
             }
 
@@ -103,8 +90,6 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
     fun pageTitle(position: Int): CharSequence = when (position) {
         PAGE_VERSES -> resources.getString(R.string.text_verse_comparison)
         PAGE_NOTE -> resources.getString(R.string.text_note)
-        PAGE_CROSS_REFERENCES -> resources.getString(R.string.text_cross_references)
-        PAGE_STRONG_NUMBER -> resources.getString(R.string.text_strong_number)
         else -> throw IllegalArgumentException("Unsupported position: $position")
     }
 }
@@ -154,80 +139,6 @@ private class NotePage(inflater: LayoutInflater, container: ViewGroup, updateNot
             addTextChangedListener(textWatcher)
 
             setPrimaryTextSize(settings)
-        }
-    }
-}
-
-private class CrossReferencesPage(inflater: LayoutInflater, container: ViewGroup, requestCrossReferences: () -> Unit)
-    : VerseDetailPage<PageVerseDetailCrossReferencesBinding>(PageVerseDetailCrossReferencesBinding.inflate(inflater, container, false)) {
-    init {
-        with(viewBinding) {
-            noCrossReferences.setOnClickListener { requestCrossReferences() }
-            crossReferences.isNestedScrollingEnabled = false
-        }
-    }
-
-    override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
-        if (verseDetail.crossReferencedItems.isEmpty()) {
-            bindNoCrossReferencesView(settings)
-        } else {
-            bindCrossReferencesView(verseDetail.crossReferencedItems, settings)
-        }
-    }
-
-    private fun bindNoCrossReferencesView(settings: Settings) {
-        with(viewBinding) {
-            noCrossReferences.visibility = View.VISIBLE
-            noCrossReferences.setPrimaryTextSize(settings)
-
-            crossReferences.visibility = View.GONE
-        }
-    }
-
-    private fun bindCrossReferencesView(crossReferencedItems: List<CrossReferenceItem>, settings: Settings) {
-        with(viewBinding) {
-            noCrossReferences.visibility = View.GONE
-
-            crossReferences.visibility = View.VISIBLE
-            crossReferences.setItems(crossReferencedItems)
-            crossReferences.setSettings(settings)
-        }
-    }
-}
-
-private class StrongNumberPage(inflater: LayoutInflater, container: ViewGroup, requestStrongNumber: () -> Unit)
-    : VerseDetailPage<PageVerseDetailStrongNumberBinding>(PageVerseDetailStrongNumberBinding.inflate(inflater, container, false)) {
-    init {
-        with(viewBinding) {
-            emptyStrongNumberList.setOnClickListener { requestStrongNumber() }
-            strongNumberList.isNestedScrollingEnabled = false
-        }
-    }
-
-    override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
-        if (verseDetail.strongNumberItems.isEmpty()) {
-            bindNoStrongNumberView(settings)
-        } else {
-            bindStrongNumberItems(verseDetail.strongNumberItems, settings)
-        }
-    }
-
-    private fun bindNoStrongNumberView(settings: Settings) {
-        with(viewBinding) {
-            emptyStrongNumberList.visibility = View.VISIBLE
-            emptyStrongNumberList.setPrimaryTextSize(settings)
-
-            strongNumberList.visibility = View.GONE
-        }
-    }
-
-    private fun bindStrongNumberItems(strongNumberItems: List<StrongNumberItem>, settings: Settings) {
-        with(viewBinding) {
-            emptyStrongNumberList.visibility = View.GONE
-
-            strongNumberList.visibility = View.VISIBLE
-            strongNumberList.setItems(strongNumberItems)
-            strongNumberList.setSettings(settings)
         }
     }
 }

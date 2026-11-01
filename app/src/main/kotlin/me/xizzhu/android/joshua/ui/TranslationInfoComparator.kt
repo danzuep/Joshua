@@ -34,8 +34,8 @@ class TranslationInfoComparator(@SortOrder private val sortOrder: Int) : Compara
 
     override fun compare(t1: TranslationInfo, t2: TranslationInfo): Int {
         val userLanguage = userLanguage()
-        val language1 = Locale.forLanguageTag(t1.language.split("_")[0]).displayLanguage
-        val language2 = Locale.forLanguageTag(t2.language.split("_")[0]).displayLanguage
+        val language1 = languageDisplayName(t1.language)
+        val language2 = languageDisplayName(t2.language)
         val score1 = if (userLanguage == language1) 1 else 0
         val score2 = if (userLanguage == language2) 1 else 0
         var r = score2 - score1

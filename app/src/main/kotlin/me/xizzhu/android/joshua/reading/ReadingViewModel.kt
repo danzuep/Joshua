@@ -22,10 +22,8 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -33,27 +31,20 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Bookmark
-import me.xizzhu.android.joshua.core.CrossReferencesManager
 import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.ReadingProgressManager
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.SettingsManager
-import me.xizzhu.android.joshua.core.StrongNumberManager
 import me.xizzhu.android.joshua.core.TranslationManager
 import me.xizzhu.android.joshua.core.provider.TimeProvider
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseAnnotationManager
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.infra.BaseViewModel
-import me.xizzhu.android.joshua.preview.PreviewViewData
-import me.xizzhu.android.joshua.preview.loadPreview
-import me.xizzhu.android.joshua.preview.toVersePreviewItems
-import me.xizzhu.android.joshua.reading.detail.CrossReferenceItem
-import me.xizzhu.android.joshua.reading.detail.StrongNumberItem
 import me.xizzhu.android.joshua.reading.detail.VerseDetailViewLayout
 import me.xizzhu.android.joshua.reading.detail.VerseTextItem
-import me.xizzhu.android.joshua.reading.verse.toVerseItems
+import me.xizzhu.android.joshua.reading.verse.toParagraphItems
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
 import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
 import me.xizzhu.android.joshua.utils.filterIsValid
@@ -62,8 +53,7 @@ import me.xizzhu.android.joshua.utils.firstNotEmpty
 
 class VerseDetailViewData(
     val verseIndex: VerseIndex, val verseTextItems: List<VerseTextItem>,
-    var bookmarked: Boolean, @Highlight.Companion.AvailableColor var highlightColor: Int, var note: String,
-    var crossReferencedItems: List<CrossReferenceItem>, var strongNumberItems: List<StrongNumberItem>
+    var bookmarked: Boolean, @Highlight.Companion.AvailableColor var highlightColor: Int, var note: String
 )
 
 class VerseUpdate(val verseIndex: VerseIndex, @Operation val operation: Int, val data: Any? = null) {
@@ -91,8 +81,6 @@ class ReadingViewModel @Inject constructor(
     private val bookmarkManager: VerseAnnotationManager<Bookmark>,
     private val highlightManager: VerseAnnotationManager<Highlight>,
     private val noteManager: VerseAnnotationManager<Note>,
-    private val crossReferencesManager: CrossReferencesManager,
-    private val strongNumberManager: StrongNumberManager,
     private val settingsManager: SettingsManager,
     private val timeProvider: TimeProvider,
     private val application: Application
@@ -100,8 +88,6 @@ class ReadingViewModel @Inject constructor(
     initialViewState = ViewState(
         settings = Settings.DEFAULT,
         currentReadingStatus = null,
-        crossReferencesDownloadingState = ViewState.DownloadingState.Idle,
-        strongNumberDownloadingState = ViewState.DownloadingState.Idle,
         error = null,
     )
 ) {
@@ -112,30 +98,17 @@ class ReadingViewModel @Inject constructor(
         data class BookmarkSaved(val bookmarked: Boolean) : ViewAction()
         data class HighlightSaved(@Highlight.Companion.AvailableColor val color: Int) : ViewAction()
         data class NoteSaved(val note: String) : ViewAction()
-        data class ShowCrossReferences(val items: List<CrossReferenceItem>) : ViewAction()
-        data class ShowStrongNumbers(val items: List<StrongNumberItem>) : ViewAction()
-        data class ShowPreview(val preview: PreviewViewData) : ViewAction()
-        object DismissPreview : ViewAction()
     }
 
     data class ViewState(
         val settings: Settings,
         val currentReadingStatus: CurrentReadingStatus?,
-        val crossReferencesDownloadingState: DownloadingState,
-        val strongNumberDownloadingState: DownloadingState,
         val error: Error?,
     ) {
         data class CurrentReadingStatus(
             val currentTranslation: String, val parallelTranslations: List<String>,
             val currentVerseIndex: VerseIndex, val bookNames: List<String>
         )
-
-        sealed class DownloadingState {
-            object Idle : DownloadingState()
-            data class Downloading(val progress: Int) : DownloadingState()
-            object Installing : DownloadingState()
-            data class Completed(val successful: Boolean) : DownloadingState()
-        }
 
         sealed class Error {
             object NoTranslationDownloadedError : Error()
@@ -147,13 +120,8 @@ class ReadingViewModel @Inject constructor(
             object BookmarkSavingError : Error()
             object HighlightSavingError : Error()
             object NoteSavingError : Error()
-            object CrossReferencesDownloadingError : Error()
-            object StrongNumberDownloadingError : Error()
         }
     }
-
-    private var downloadCrossReferencesJob: Job? = null
-    private var downloadStrongNumberJob: Job? = null
 
     init {
         settingsManager.settings()
@@ -223,7 +191,6 @@ class ReadingViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 bibleReadingManager.saveCurrentVerseIndex(verseIndex)
-                emitViewAction(ViewAction.DismissPreview)
             }.onFailure { e ->
                 showError(ViewState.Error.VerseSelectionError(verseIndex), e, "Failed to select verse index")
             }
@@ -247,19 +214,13 @@ class ReadingViewModel @Inject constructor(
                 val items = coroutineScope {
                     val highlights = async { highlightManager.read(bookIndex, chapterIndex) }
 
-                    val simpleReadingModeOn = settingsManager.settings().first().simpleReadingModeOn
                     val bookmarks = async { bookmarkManager.read(bookIndex, chapterIndex) }
                     val notes = async { noteManager.read(bookIndex, chapterIndex) }
 
                     val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
-                    val parallelTranslations = bibleReadingManager.parallelTranslations().first()
-                    val verses = if (parallelTranslations.isEmpty()) {
-                        bibleReadingManager.readVerses(currentTranslation, bookIndex, chapterIndex)
-                    } else {
-                        bibleReadingManager.readVerses(currentTranslation, parallelTranslations, bookIndex, chapterIndex)
-                    }
+                    val verses = bibleReadingManager.readStructuredVerses(currentTranslation, bookIndex, chapterIndex)
 
-                    verses.toVerseItems(application, bookmarks.await(), highlights.await(), notes.await(), simpleReadingModeOn)
+                    verses.toParagraphItems(application, bookmarks.await(), highlights.await(), notes.await())
                 }
                 emitViewAction(ViewAction.ShowVerses(bookIndex, chapterIndex, items))
             }.onFailure { e ->
@@ -284,8 +245,6 @@ class ReadingViewModel @Inject constructor(
         val bookmarked = async { bookmarkManager.read(verseIndex).isValid() }
         val highlightColor = async { highlightManager.read(verseIndex).takeIf { it.isValid() }?.color ?: Highlight.COLOR_NONE }
         val note = async { noteManager.read(verseIndex).takeIf { it.isValid() }?.note ?: "" }
-        val crossReferences = async { readCrossReferences(verseIndex) }
-        val strongNumbers = async { strongNumberManager.readStrongNumber(verseIndex).map { StrongNumberItem(it) } }
 
         // build the verse
         val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
@@ -354,36 +313,8 @@ class ReadingViewModel @Inject constructor(
             verseTextItems = verseTextItems,
             bookmarked = bookmarked.await(),
             highlightColor = highlightColor.await(),
-            note = note.await(),
-            crossReferencedItems = crossReferences.await(),
-            strongNumberItems = strongNumbers.await()
+            note = note.await()
         )
-    }
-
-    private suspend fun readCrossReferences(verseIndex: VerseIndex): List<CrossReferenceItem> =
-        bibleReadingManager.readVerses(
-            translationShortName = bibleReadingManager.currentTranslation().firstNotEmpty(),
-            verseIndexes = crossReferencesManager.readCrossReferences(verseIndex).referenced
-        ).map { (verseIndex, verse) ->
-            CrossReferenceItem(
-                verseIndex = verseIndex,
-                verseText = verse.text,
-                bookName = bibleReadingManager.readBookNames(verse.text.translationShortName)[verseIndex.bookIndex]
-            )
-        }.sortedBy { item -> item.verseIndex.bookIndex * 100000 + item.verseIndex.chapterIndex * 1000 + item.verseIndex.verseIndex }
-
-    fun loadVersesForPreview(verseIndex: VerseIndex) {
-        viewModelScope.launch {
-            runCatching {
-                loadPreview(bibleReadingManager, settingsManager, verseIndex, ::toVersePreviewItems)
-            }.onSuccess { preview ->
-                emitViewAction(ViewAction.ShowPreview(preview))
-            }.onFailure { e ->
-                Logger.withTag(tag).e(e) { "Failed to load verses for preview" }
-                // Very unlikely to fail, so just falls back to open the verse.
-                updateCurrentVerse(verseIndex)
-            }
-        }
     }
 
     fun updateVerse(update: VerseUpdate) {
@@ -437,84 +368,6 @@ class ReadingViewModel @Inject constructor(
             }.onFailure { e ->
                 showError(ViewState.Error.NoteSavingError, e, "Failed to update note")
             }
-        }
-    }
-
-    fun downloadCrossReferences() {
-        if (downloadCrossReferencesJob != null) return // just in case the user clicks too fast
-
-        updateViewState { it.copy(crossReferencesDownloadingState = ViewState.DownloadingState.Downloading(0)) }
-        downloadCrossReferencesJob = crossReferencesManager.download()
-            .onEach { progress ->
-                updateViewState { it.copy(crossReferencesDownloadingState = progress.toDownloadingState()) }
-            }
-            .catch { e ->
-                downloadCrossReferencesJob = null
-                updateViewState { it.copy(crossReferencesDownloadingState = ViewState.DownloadingState.Idle) }
-                showError(ViewState.Error.CrossReferencesDownloadingError, e, "Failed to download cross references")
-            }
-            .launchIn(viewModelScope)
-    }
-
-    fun cancelDownloadingCrossReferences() {
-        downloadCrossReferencesJob?.cancel()
-        downloadCrossReferencesJob = null
-        updateViewState { it.copy(crossReferencesDownloadingState = ViewState.DownloadingState.Idle) }
-    }
-
-    fun markCrossReferencesDownloadingStateAsIdle() {
-        downloadCrossReferencesJob = null
-        updateViewState { it.copy(crossReferencesDownloadingState = ViewState.DownloadingState.Idle) }
-    }
-
-    fun loadCrossReferences(verseIndex: VerseIndex) {
-        viewModelScope.launch {
-            runCatching { readCrossReferences(verseIndex) }
-                .onSuccess { emitViewAction(ViewAction.ShowCrossReferences(it)) }
-                .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to load cross references" } }
-        }
-    }
-
-    fun downloadStrongNumber() {
-        if (downloadStrongNumberJob != null) return // just in case the user clicks too fast
-
-        updateViewState { it.copy(strongNumberDownloadingState = ViewState.DownloadingState.Downloading(0)) }
-        downloadStrongNumberJob = strongNumberManager.download()
-            .onEach { progress ->
-                updateViewState { it.copy(strongNumberDownloadingState = progress.toDownloadingState()) }
-            }
-            .catch { e ->
-                downloadStrongNumberJob = null
-                updateViewState { it.copy(strongNumberDownloadingState = ViewState.DownloadingState.Idle) }
-                showError(ViewState.Error.StrongNumberDownloadingError, e, "Failed to download Strong Number")
-            }
-            .launchIn(viewModelScope)
-    }
-
-    fun cancelDownloadingStrongNumber() {
-        downloadStrongNumberJob?.cancel()
-        downloadStrongNumberJob = null
-        updateViewState { it.copy(strongNumberDownloadingState = ViewState.DownloadingState.Idle) }
-    }
-
-    fun markStrongNumberDownloadingStateAsIdle() {
-        downloadStrongNumberJob = null
-        updateViewState { it.copy(strongNumberDownloadingState = ViewState.DownloadingState.Idle) }
-    }
-
-    // -1 means cancelled; 99 means the data is downloaded and is being installed.
-    private fun Int.toDownloadingState(): ViewState.DownloadingState = when (this) {
-        -1 -> ViewState.DownloadingState.Idle
-        in 0 until 99 -> ViewState.DownloadingState.Downloading(this)
-        99 -> ViewState.DownloadingState.Installing
-        else -> ViewState.DownloadingState.Completed(successful = true)
-    }
-
-    fun loadStrongNumbers(verseIndex: VerseIndex) {
-        viewModelScope.launch {
-            runCatching { strongNumberManager.readStrongNumber(verseIndex).map { StrongNumberItem(it) } }
-                .onSuccess { emitViewAction(ViewAction.ShowStrongNumbers(it)) }
-                .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to load Strong Number" } }
         }
     }
 

@@ -19,7 +19,6 @@ package me.xizzhu.android.joshua.translations
 import android.app.Application
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.Locale
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.R
@@ -28,6 +27,8 @@ import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.TranslationInfo
 import me.xizzhu.android.joshua.core.TranslationManager
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
+import me.xizzhu.android.joshua.ui.languageDisplayName
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -129,7 +130,7 @@ class TranslationsViewModel @Inject constructor(
         forEach { translationInfo ->
             val language = translationInfo.language.split("_")[0]
             if (currentLanguage != language) {
-                items.add(TranslationsItem.Header(settings, Locale.forLanguageTag(language).displayLanguage, hideDivider = true))
+                items.add(TranslationsItem.Header(settings, languageDisplayName(language), hideDivider = true))
                 currentLanguage = language
             }
             items.add(TranslationsItem.Translation(
@@ -139,6 +140,24 @@ class TranslationsViewModel @Inject constructor(
             ))
         }
         return items
+    }
+
+    /** Reads the download sites and passes them to [onLoaded] on the main thread. */
+    fun readDownloadSites(onLoaded: (List<String>) -> Unit) {
+        viewModelScope.launch {
+            val sites = runCatching { withContext(coroutineDispatcherProvider.default) { translationManager.readDownloadSites() } }
+                .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to read download sites" } }
+                .getOrDefault(emptyList())
+            onLoaded(sites)
+        }
+    }
+
+    fun saveDownloadSites(sites: List<String>) {
+        viewModelScope.launch {
+            runCatching { withContext(coroutineDispatcherProvider.default) { translationManager.saveDownloadSites(sites) } }
+                .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to save download sites" } }
+            loadTranslations(forceRefresh = true)
+        }
     }
 
     fun selectTranslation(translationToSelect: TranslationInfo) {

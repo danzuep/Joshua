@@ -16,6 +16,8 @@
 
 package me.xizzhu.android.joshua.translations
 
+import android.text.InputType
+import android.widget.EditText
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
@@ -74,9 +76,41 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
         }
         viewBinding.translationList.adapter = adapter
 
+        with(viewBinding.toolbar) {
+            inflateMenu(R.menu.menu_translations)
+            setOnMenuItemClickListener { item ->
+                if (item.itemId == R.id.action_download_sites) {
+                    showDownloadSitesDialog()
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+
         with(viewBinding.swipeRefresher) {
             setColorSchemeResources(R.color.primary, R.color.secondary, R.color.dark_cyan, R.color.dark_lime)
             setOnRefreshListener { viewModel.loadTranslations(forceRefresh = true) }
+        }
+    }
+
+    private fun showDownloadSitesDialog() {
+        viewModel.readDownloadSites { sites ->
+            val input = EditText(this).apply {
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                setHorizontallyScrolling(false)
+                minLines = 3
+                setText(sites.joinToString("\n"))
+            }
+            AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_title_download_sites)
+                .setMessage(R.string.dialog_message_download_sites)
+                .setView(input)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    viewModel.saveDownloadSites(input.text.lines().map { it.trim() }.filter { it.isNotEmpty() }.distinct())
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         }
     }
 

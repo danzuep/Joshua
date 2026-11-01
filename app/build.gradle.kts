@@ -62,7 +62,7 @@ android {
     sourceSets {
         getByName("main") {
             java.setSrcDirs(setOf("src/main/kotlin"))
-            // Optional: directory with bundled/list.json and bundled/translations/<name>.zip to prepackage translations.
+            // Optional: directory with bundled/list.tsv (id<TAB>name<TAB>language) and bundled/translations/<id>.zip (USFM) to prepackage translations.
             (findProperty("bundledAssetsDir") as String?)?.let { assets.srcDir(it) }
         }
         getByName("debug") { java.setSrcDirs(setOf("src/debug/kotlin")) }

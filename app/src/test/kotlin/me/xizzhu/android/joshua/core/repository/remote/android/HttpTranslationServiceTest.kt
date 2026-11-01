@@ -20,10 +20,12 @@ import androidx.test.core.app.ApplicationProvider
 import me.xizzhu.android.joshua.core.Bible
 import me.xizzhu.android.joshua.core.repository.remote.RemoteTranslationInfo
 import me.xizzhu.android.joshua.tests.BaseUnitTest
-import me.xizzhu.android.joshua.tests.MockContents
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,39 +41,32 @@ class HttpTranslationServiceTest : BaseUnitTest() {
         httpTranslationService = HttpTranslationService(ApplicationProvider.getApplicationContext())
     }
 
-    @Test
-    fun `test toRemoteTranslations()`() {
-        val inputStream = ByteArrayInputStream("""
-        {
-        	"translations": [{
-        		"name": "King James Version",
-        		"shortName": "KJV",
-        		"language": "en_gb",
-        		"size": 1861133
-        	}, {
-        		"name": "中文和合本（简体）",
-        		"shortName": "中文和合本",
-        		"language": "zh_cn",
-        		"size": 1781720
-        	}]
+    private fun usfmZip(vararg entries: Pair<String, String>): ByteArrayInputStream {
+        val bytes = ByteArrayOutputStream()
+        ZipOutputStream(bytes).use { zip ->
+            entries.forEach { (name, content) ->
+                zip.putNextEntry(ZipEntry(name))
+                zip.write(content.toByteArray())
+                zip.closeEntry()
+            }
         }
-        """.trimIndent().toByteArray())
-        assertEquals(
-                listOf(
-                        RemoteTranslationInfo("KJV", "King James Version", "en_gb", 1861133L),
-                        RemoteTranslationInfo("中文和合本", "中文和合本（简体）", "zh_cn", 1781720L)
-                ),
-                httpTranslationService.toRemoteTranslations(inputStream)
-        )
+        return ByteArrayInputStream(bytes.toByteArray())
     }
 
     @Test
     fun `test toRemoteTranslation()`() {
+        val info = RemoteTranslationInfo("eng_web", "World English Bible", "eng", 0L)
         val actual = httpTranslationService.toRemoteTranslation(
-                MockContents.kjvRemoteTranslationInfo, javaClass.classLoader!!.getResourceAsStream("KJV.zip")
+            info,
+            usfmZip(
+                "02-GENeng-web.usfm" to "\\id GEN\n\\h Genesis\n\\c 1\n\\p\n\\v 1 In the beginning\n\\v 2 Earth was formless",
+                "readme.txt" to "ignored",
+            )
         )
-        assertEquals(MockContents.kjvRemoteTranslationInfo, actual.translationInfo)
+        assertEquals(info, actual.translationInfo)
         assertEquals(Bible.BOOK_COUNT, actual.bookNames.size)
-        assertEquals(Bible.TOTAL_CHAPTER_COUNT, actual.verses.size)
+        assertEquals("Genesis", actual.bookNames[0])
+        assertEquals("EXO", actual.bookNames[1])
+        assertEquals(mapOf(Pair(0, 0) to listOf("\u2029In the beginning", "Earth was formless")), actual.verses)
     }
 }

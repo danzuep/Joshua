@@ -2,6 +2,12 @@ CHANGELOG
 ---------
 
 #### Next release
+- Changes:
+  - Translations are now built from the table on https://ebible.org/download.php and downloaded as USFM; users can add their own download sites
+  - The default translation list ships as `ebible_downloads.tsv`, refreshed by a workflow; the about page is https://ebible.org/about.php
+  - The reader now shows USFM text as flowing paragraphs with section headings, poetry lines and superscript verse numbers; tap a verse to select it, long press for more actions. Bookmarks, notes and highlights show inline
+  - Remove the simple reading mode setting, the per-verse buttons and parallel translations in the chapter list (parallels are still in the verse detail), which don't fit flowing text
+  - Remove Strong's Numbers and cross references, and the xizzhu.me translation service they depended on
 - Update dependencies:
   - Gradle to 7.6
   - Android Gradle plugin to 7.3.1

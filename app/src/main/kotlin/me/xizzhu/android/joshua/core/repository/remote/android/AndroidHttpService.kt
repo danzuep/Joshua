@@ -17,22 +17,18 @@
 package me.xizzhu.android.joshua.core.repository.remote.android
 
 import android.os.Build
-import android.util.JsonReader
 import kotlinx.coroutines.channels.SendChannel
 import co.touchlab.kermit.Logger
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.io.StringReader
 import java.net.HttpURLConnection
 import java.net.InetAddress
 import java.net.Socket
 import java.net.URL
 import java.net.URLConnection
 import java.security.KeyStore
-import java.util.zip.ZipInputStream
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
@@ -42,16 +38,15 @@ import javax.net.ssl.X509TrustManager
 
 private const val TAG = "AndroidHttpService"
 private const val TIMEOUT_IN_MILLISECONDS = 30000 // 30 seconds
-private const val BASE_URL = "https://xizzhu.me/bible/download"
 
-/** If [expectedLength] is not positive, the size is read from the server with a HEAD request. */
-internal fun download(downloadProgress: SendChannel<Int>, relativeUrl: String, expectedLength: Long = -1L, destination: File) {
-    val contentLength = if (expectedLength > 0L) expectedLength else fetchContentLength(relativeUrl)
+/** [url] must be absolute. If [expectedLength] is not positive, the size is read from the server with a HEAD request. */
+internal fun download(downloadProgress: SendChannel<Int>, url: String, expectedLength: Long = -1L, destination: File) {
+    val contentLength = if (expectedLength > 0L) expectedLength else fetchContentLength(url)
     if (destination.length() == contentLength) return
 
     var deleteDestinationOnError = true
     try {
-        val connection = getHttpConnection(relativeUrl)
+        val connection = getHttpConnection(url)
         var downloaded = destination.length()
         connection.addRequestProperty("range", "bytes=$downloaded-$contentLength")
 
@@ -85,8 +80,8 @@ internal fun download(downloadProgress: SendChannel<Int>, relativeUrl: String, e
     }
 }
 
-private fun getHttpConnection(relativeUrl: String): HttpURLConnection =
-        (URL("$BASE_URL/$relativeUrl").openConnection() as HttpURLConnection)
+private fun getHttpConnection(url: String): HttpURLConnection =
+        (URL(url).openConnection() as HttpURLConnection)
                 .apply {
                     configureTLSIfNecessary()
                     instanceFollowRedirects = true
@@ -94,10 +89,10 @@ private fun getHttpConnection(relativeUrl: String): HttpURLConnection =
                     readTimeout = TIMEOUT_IN_MILLISECONDS
                 }
 
-private fun fetchContentLength(relativeUrl: String): Long {
-    val connection = getHttpConnection(relativeUrl).apply { requestMethod = "HEAD" }
+private fun fetchContentLength(url: String): Long {
+    val connection = getHttpConnection(url).apply { requestMethod = "HEAD" }
     try {
-        return connection.contentLengthLong.also { if (it <= 0L) throw IOException("Unknown content length for $relativeUrl") }
+        return connection.contentLengthLong.also { if (it <= 0L) throw IOException("Unknown content length for $url") }
     } finally {
         connection.disconnect()
     }
@@ -106,7 +101,9 @@ private fun fetchContentLength(relativeUrl: String): Long {
 private fun HttpURLConnection.supportsRangeRequests(): Boolean =
         getHeaderField("accept-ranges") == "bytes" && contentLength > 0L
 
-internal fun getInputStream(relativeUrl: String): InputStream = getHttpConnection(relativeUrl).inputStream
+internal fun getInputStream(url: String): InputStream = getHttpConnection(url).inputStream
+
+internal fun fetchText(url: String): String = getInputStream(url).use { it.readBytes().toString(Charsets.UTF_8) }
 
 // For more details, see https://github.com/square/okhttp/issues/2372#issuecomment-244807676
 private fun HttpURLConnection.configureTLSIfNecessary(): URLConnection {
@@ -155,23 +152,4 @@ private class TLS12SocketFactory(private val delegate: SSLSocketFactory) : SSLSo
     override fun getDefaultCipherSuites(): Array<String> = delegate.defaultCipherSuites
 
     override fun getSupportedCipherSuites(): Array<String> = delegate.supportedCipherSuites
-}
-
-internal inline fun ZipInputStream.forEach(action: (entryName: String, contentReader: JsonReader) -> Unit) = use {
-    val buffer = ByteArray(4096)
-    val os = ByteArrayOutputStream()
-    while (true) {
-        val entryName = nextEntry?.name ?: break
-
-        os.reset()
-        while (true) {
-            val byteCount = read(buffer)
-            if (byteCount < 0) break
-            os.write(buffer, 0, byteCount)
-        }
-
-        val contentReader = JsonReader(StringReader(os.toString("UTF-8")))
-        action(entryName, contentReader)
-        contentReader.close()
-    }
 }

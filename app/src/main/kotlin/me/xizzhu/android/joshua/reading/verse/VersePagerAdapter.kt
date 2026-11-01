@@ -154,11 +154,16 @@ private class Page(
                     updateCurrentVerse(VerseIndex(
                             bookIndex = bookIndex,
                             chapterIndex = chapterIndex,
-                            verseIndex = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                            verseIndex = firstVisibleVerseIndex(recyclerView)
                     ))
                 }
             }
         })
+    }
+
+    private fun firstVisibleVerseIndex(recyclerView: RecyclerView): Int {
+        val position = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+        return (verses?.getOrNull(position) as? ParagraphItem)?.firstVerseIndex ?: 0
     }
 
     private var bookIndex = -1
@@ -208,13 +213,10 @@ private class Page(
         }
     }
 
-    // now we skip empty verses, so need to find the correct position
+    // verses are grouped into paragraphs, so need to find the paragraph that has the verse
     private fun VerseIndex.toItemPosition(): Int {
         verses?.forEachIndexed { index, item ->
-            when (item) {
-                is SimpleVerseItem -> if (item.verse.verseIndex == this) return index
-                is VerseItem -> if (item.verse.verseIndex == this) return index
-            }
+            if (item is ParagraphItem && item.containsVerse(verseIndex)) return index
         }
         return RecyclerView.NO_POSITION
     }
