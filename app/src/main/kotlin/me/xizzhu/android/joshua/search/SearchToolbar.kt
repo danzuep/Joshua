@@ -16,8 +16,10 @@
 
 package me.xizzhu.android.joshua.search
 
+import android.app.SearchManager
 import android.app.SearchableInfo
 import android.content.Context
+import android.database.Cursor
 import android.util.AttributeSet
 import androidx.appcompat.widget.SearchView
 import com.google.android.material.appbar.MaterialToolbar
@@ -42,6 +44,7 @@ class SearchToolbar : MaterialToolbar {
     private fun searchView(): SearchView = menu.findItem(R.id.action_search).actionView as SearchView
 
     fun initialize(
+        onSearchByReferenceChanged: (Boolean) -> Unit,
         onIncludeOldTestamentChanged: (Boolean) -> Unit,
         onIncludeNewTestamentChanged: (Boolean) -> Unit,
         onIncludeBookmarksChanged: (Boolean) -> Unit,
@@ -52,9 +55,29 @@ class SearchToolbar : MaterialToolbar {
         clearHistory: () -> Unit
     ) {
         searchView().setOnQueryTextListener(onQueryTextListener)
+        // Tapping a history suggestion re-runs that search in place instead of launching SearchActivity again.
+        searchView().setOnSuggestionListener(object : SearchView.OnSuggestionListener {
+            override fun onSuggestionSelect(position: Int): Boolean = false
+
+            override fun onSuggestionClick(position: Int): Boolean {
+                val cursor = searchView().suggestionsAdapter?.getItem(position) as? Cursor ?: return false
+                val columnIndex = cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_QUERY)
+                        .takeIf { it >= 0 } ?: cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)
+                if (columnIndex < 0) return false
+                val query = cursor.getString(columnIndex)?.takeIf { it.isNotBlank() } ?: return false
+                searchView().setQuery(query, false)
+                onQueryTextListener.onQueryTextSubmit(query)
+                searchView().clearFocus()
+                return true
+            }
+        })
 
         setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.action_search_by_reference -> {
+                    onSearchByReferenceChanged(!menuItem.isChecked)
+                    true
+                }
                 R.id.action_search_include_old_testament -> {
                     onIncludeOldTestamentChanged(!menuItem.isChecked)
                     true
@@ -89,6 +112,7 @@ class SearchToolbar : MaterialToolbar {
     }
 
     fun setSearchConfiguration(
+        searchByReference: Boolean,
         includeOldTestament: Boolean,
         includeNewTestament: Boolean,
         includeBookmarks: Boolean,
@@ -96,6 +120,7 @@ class SearchToolbar : MaterialToolbar {
         includeNotes: Boolean,
         wholeWords: Boolean
     ) {
+        menu.findItem(R.id.action_search_by_reference).isChecked = searchByReference
         menu.findItem(R.id.action_search_include_old_testament).isChecked = includeOldTestament
         menu.findItem(R.id.action_search_include_new_testament).isChecked = includeNewTestament
         menu.findItem(R.id.action_search_include_bookmarks).isChecked = includeBookmarks

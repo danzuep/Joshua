@@ -50,6 +50,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
 
     override fun initializeView() {
         viewBinding.toolbar.initialize(
+            onSearchByReferenceChanged = viewModel::searchByReference,
             onIncludeOldTestamentChanged = viewModel::includeOldTestament,
             onIncludeNewTestamentChanged = viewModel::includeNewTestament,
             onIncludeBookmarksChanged = viewModel::includeBookmarks,
@@ -109,6 +110,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
 
         viewState.searchConfig?.let { searchConfig ->
             toolbar.setSearchConfiguration(
+                searchByReference = searchConfig.searchByReference,
                 includeOldTestament = searchConfig.includeOldTestament,
                 includeNewTestament = searchConfig.includeNewTestament,
                 includeBookmarks = searchConfig.includeBookmarks,

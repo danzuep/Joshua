@@ -29,7 +29,7 @@ import java.util.*
 data class SearchConfiguration(
         val includeOldTestament: Boolean, val includeNewTestament: Boolean,
         val includeBookmarks: Boolean, val includeHighlights: Boolean, val includeNotes: Boolean,
-        val wholeWords: Boolean = false
+        val wholeWords: Boolean = false, val searchByReference: Boolean = false
 )
 
 data class VerseSearchQuery(
@@ -41,8 +41,12 @@ data class SearchResult(
         val verses: List<Verse>,
         val bookmarks: List<Pair<Bookmark, Verse>>,
         val highlights: List<Pair<Highlight, Verse>>,
-        val notes: List<Pair<Note, Verse>>
+        val notes: List<Pair<Note, Verse>>,
+        val byReference: Boolean = false
 )
+
+/** A parsed reference, with 0-based indexes. A null [verseIndexes] means the whole chapter. */
+data class BibleReference(val bookIndex: Int, val chapterIndex: Int, val verseIndexes: IntRange? = null)
 
 class SearchManager(
         private val bibleReadingRepository: BibleReadingRepository,
@@ -62,6 +66,17 @@ class SearchManager(
     suspend fun search(keyword: String): SearchResult = withContext(Dispatchers.Default) {
         val config = searchConfiguration.value
         val currentTranslation = bibleReadingRepository.currentTranslation.firstNotEmpty()
+        if (config.searchByReference) {
+            parseReference(
+                keyword,
+                bibleReadingRepository.readBookNames(currentTranslation),
+                bibleReadingRepository.readBookShortNames(currentTranslation)
+            )?.let { reference ->
+                val referencedVerses = bibleReadingRepository.readVerses(currentTranslation, reference.bookIndex, reference.chapterIndex)
+                        .filter { verse -> reference.verseIndexes?.contains(verse.verseIndex.verseIndex) ?: true }
+                return@withContext SearchResult(referencedVerses, emptyList(), emptyList(), emptyList(), byReference = true)
+            }
+        }
         val verses = async {
             bibleReadingRepository.search(
                     VerseSearchQuery(currentTranslation, keyword, config.includeOldTestament, config.includeNewTestament, config.wholeWords)
@@ -149,6 +164,33 @@ private fun String.isWordCharacterBefore(index: Int): Boolean =
 
 private fun String.isWordCharacterAt(index: Int): Boolean =
         Character.isLetterOrDigit(Character.codePointAt(this, index)) || Character.codePointAt(this, index) == '_'.code
+
+private val REFERENCE_REGEX = Regex("""(.*?\S)\s+(\d+)(?::(\d+)(?:\s*-\s*(\d+))?)?""")
+
+/**
+ * Parses references such as "John 1", "John 1:4", "1 John 3:2-5" or "Gen. 1:1" against the book names
+ * (or short names) of a translation. Returns null if the query is not a reference, so it can be searched as text.
+ */
+internal fun parseReference(query: String, bookNames: List<String>, bookShortNames: List<String>): BibleReference? {
+    val match = REFERENCE_REGEX.matchEntire(query.trim()) ?: return null
+    val (name, chapter, verseStart, verseEnd) = match.destructured
+
+    val bookName = name.normalizeBookName()
+    val bookIndex = bookNames.indexOfFirst { it.normalizeBookName() == bookName }
+            .takeIf { it >= 0 }
+            ?: bookShortNames.indexOfFirst { it.normalizeBookName() == bookName }
+    if (bookIndex < 0) return null
+
+    val chapterIndex = chapter.toIntOrNull()?.takeIf { it >= 1 }?.minus(1) ?: return null
+    if (verseStart.isEmpty()) return BibleReference(bookIndex, chapterIndex)
+
+    val start = verseStart.toIntOrNull()?.takeIf { it >= 1 } ?: return null
+    val end = if (verseEnd.isEmpty()) start else verseEnd.toIntOrNull()?.takeIf { it >= start } ?: return null
+    return BibleReference(bookIndex, chapterIndex, (start - 1)..(end - 1))
+}
+
+private fun String.normalizeBookName(): String =
+        lowercase(Locale.getDefault()).replace(".", "").trim().split(Regex("\\s+")).joinToString(" ")
 
 fun String.toKeywords(): List<String> {
     if (isEmpty()) return emptyList()

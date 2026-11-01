@@ -9,6 +9,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_search_by_reference"
+        android:checkable="true"
+        android:title="@string/action_search_by_reference"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_search_include_old_testament"
         android:checkable="true"
         android:title="@string/action_search_include_old_testament"

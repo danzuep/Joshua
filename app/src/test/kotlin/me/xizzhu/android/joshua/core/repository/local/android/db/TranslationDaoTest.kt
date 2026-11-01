@@ -16,6 +16,7 @@
 
 package me.xizzhu.android.joshua.core.repository.local.android.db
 
+import me.xizzhu.android.joshua.core.HEADING
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.VerseSearchQuery
@@ -234,6 +235,20 @@ class TranslationDaoTest : BaseSqliteTest() {
             androidDatabase.translationDao.search(
                 VerseSearchQuery("whole_words", "God", true, true, wholeWords = true)
             ).map { it.text.text }
+        )
+    }
+
+    @Test
+    fun testSearchExcludesHeadings() {
+        androidDatabase.translationDao.save(
+            "headings",
+            mapOf(Pair(Pair(0, 0), listOf("${HEADING}Creation${HEADING}In the beginning God created")))
+        )
+
+        assertTrue(androidDatabase.translationDao.search(VerseSearchQuery("headings", "Creation", true, true)).isEmpty())
+        assertEquals(
+            listOf("In the beginning God created"),
+            androidDatabase.translationDao.search(VerseSearchQuery("headings", "God", true, true)).map { it.text.text }
         )
     }
 

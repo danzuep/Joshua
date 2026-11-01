@@ -46,6 +46,7 @@ class SearchToolbarTest : BaseUnitTest() {
 
     @Test
     fun `test initialize()`() {
+        var onSearchByReferenceChangedCalled = 0
         var onIncludeOldTestamentChangedCalled = 0
         var onIncludeNewTestamentChangedCalled = 0
         var onIncludeBookmarksChangedCalled = 0
@@ -64,6 +65,10 @@ class SearchToolbarTest : BaseUnitTest() {
             }
         }
         searchToolbar.initialize(
+            onSearchByReferenceChanged = {
+                assertTrue(it)
+                onSearchByReferenceChangedCalled++
+            },
             onIncludeOldTestamentChanged = {
                 assertTrue(it)
                 onIncludeOldTestamentChangedCalled++
@@ -98,7 +103,12 @@ class SearchToolbarTest : BaseUnitTest() {
         )
 
         val onMenuItemClickListener: Toolbar.OnMenuItemClickListener = (searchToolbar as Toolbar).getProperty("mOnMenuItemClickListener")
+        assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_search_by_reference)))
+        assertEquals(1, onSearchByReferenceChangedCalled)
+        assertEquals(0, onIncludeOldTestamentChangedCalled)
+
         assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_search_include_old_testament)))
+        assertEquals(1, onSearchByReferenceChangedCalled)
         assertEquals(1, onIncludeOldTestamentChangedCalled)
         assertEquals(0, onIncludeNewTestamentChangedCalled)
         assertEquals(0, onIncludeBookmarksChangedCalled)
@@ -154,6 +164,7 @@ class SearchToolbarTest : BaseUnitTest() {
     @Test
     fun `test setSearchConfiguration()`() {
         searchToolbar.setSearchConfiguration(
+            searchByReference = true,
             includeOldTestament = true,
             includeNewTestament = true,
             includeBookmarks = true,
@@ -161,6 +172,7 @@ class SearchToolbarTest : BaseUnitTest() {
             includeNotes = true,
             wholeWords = true,
         )
+        assertTrue(searchToolbar.menu.findItem(R.id.action_search_by_reference).isChecked)
         assertTrue(searchToolbar.menu.findItem(R.id.action_search_include_old_testament).isChecked)
         assertTrue(searchToolbar.menu.findItem(R.id.action_search_include_new_testament).isChecked)
         assertTrue(searchToolbar.menu.findItem(R.id.action_search_include_bookmarks).isChecked)
@@ -169,6 +181,7 @@ class SearchToolbarTest : BaseUnitTest() {
         assertTrue(searchToolbar.menu.findItem(R.id.action_search_whole_words).isChecked)
 
         searchToolbar.setSearchConfiguration(
+            searchByReference = false,
             includeOldTestament = false,
             includeNewTestament = false,
             includeBookmarks = false,
@@ -176,6 +189,7 @@ class SearchToolbarTest : BaseUnitTest() {
             includeNotes = false,
             wholeWords = false,
         )
+        assertFalse(searchToolbar.menu.findItem(R.id.action_search_by_reference).isChecked)
         assertFalse(searchToolbar.menu.findItem(R.id.action_search_include_old_testament).isChecked)
         assertFalse(searchToolbar.menu.findItem(R.id.action_search_include_new_testament).isChecked)
         assertFalse(searchToolbar.menu.findItem(R.id.action_search_include_bookmarks).isChecked)

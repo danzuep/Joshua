@@ -33,6 +33,7 @@
     <string name="action_highlights">Highlights</string>
     <string name="action_notes">Notes</string>
     <string name="action_search">Search</string>
+    <string name="action_search_by_reference">Search by reference</string>
     <string name="action_search_include_old_testament">@string/text_old_testament</string>
     <string name="action_search_include_new_testament">@string/text_new_testament</string>
     <string name="action_search_include_bookmarks">Bookmarks</string>

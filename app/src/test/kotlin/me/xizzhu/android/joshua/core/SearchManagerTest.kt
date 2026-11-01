@@ -233,6 +233,64 @@ class SearchManagerTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test search() by reference`() = runTest {
+        coEvery { bibleReadingRepository.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
+        coEvery { bibleReadingRepository.readBookShortNames(MockContents.kjvShortName) } returns MockContents.kjvBookShortNames
+        coEvery { bibleReadingRepository.readVerses(MockContents.kjvShortName, 0, 0) } returns MockContents.kjvVerses
+        searchManager.saveConfiguration(SearchConfiguration(true, true, true, true, true, searchByReference = true))
+
+        val chapter = searchManager.search("Genesis 1")
+        assertEquals(MockContents.kjvVerses, chapter.verses)
+        assertTrue(chapter.byReference)
+        assertTrue(chapter.bookmarks.isEmpty())
+
+        val verse = searchManager.search("gen. 1:2")
+        assertEquals(listOf(MockContents.kjvVerses[1]), verse.verses)
+        assertTrue(verse.byReference)
+    }
+
+    @Test
+    fun `test search() by reference falls back to text search`() = runTest {
+        coEvery { bibleReadingRepository.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
+        coEvery { bibleReadingRepository.readBookShortNames(MockContents.kjvShortName) } returns MockContents.kjvBookShortNames
+        coEvery {
+            bibleReadingRepository.search(VerseSearchQuery(MockContents.kjvShortName, "God created", true, true))
+        } returns listOf(MockContents.kjvVerses[0])
+        searchManager.saveConfiguration(SearchConfiguration(true, true, true, true, true, searchByReference = true))
+
+        val actual = searchManager.search("God created")
+        assertEquals(listOf(MockContents.kjvVerses[0]), actual.verses)
+        assertFalse(actual.byReference)
+    }
+
+    @Test
+    fun `test parseReference()`() {
+        val bookNames = MockContents.kjvBookNames
+        val bookShortNames = MockContents.kjvBookShortNames
+        fun parse(query: String) = parseReference(query, bookNames, bookShortNames)
+
+        assertEquals(BibleReference(0, 0), parse("Genesis 1"))
+        assertEquals(BibleReference(0, 0, 0..0), parse("Gen. 1:1"))
+        assertEquals(BibleReference(0, 0, 0..0), parse("  Genesis 1:1  "))
+        assertEquals(BibleReference(42, 0, 3..3), parse("John 1:4"))
+        assertEquals(BibleReference(42, 0, 3..3), parse("St. John 1:4"))
+        assertEquals(BibleReference(8, 1, 2..4), parse("1 Samuel 2:3-5"))
+        assertEquals(BibleReference(8, 1, 2..4), parse("1 Sam 2:3 - 5"))
+        assertEquals(BibleReference(bookNames.indexOf("1 John"), 2), parse("1 John 3"))
+        assertEquals(BibleReference(bookNames.indexOf("Song of Solomon"), 1), parse("Song of Solomon 2"))
+
+        assertNull(parse(""))
+        assertNull(parse("John"))
+        assertNull(parse("God created"))
+        assertNull(parse("John 0"))
+        assertNull(parse("John 1:0"))
+        assertNull(parse("John 1:5-3"))
+        assertNull(parse("Unknown 1"))
+        assertNull(parse("Joh 1"))
+        assertNull(parse("John 1 2"))
+    }
+
+    @Test
     fun `test toKeywords()`() {
         assertTrue("".toKeywords().isEmpty())
         assertTrue("    ".toKeywords().isEmpty())
