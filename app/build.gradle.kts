@@ -115,13 +115,21 @@ android {
 
         unitTests.all { test ->
             test.maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
-            test.jvmArgs("--enable-native-access=ALL-UNNAMED")
+            test.jvmArgs("--enable-native-access=ALL-UNNAMED", "-Xshare:off")
         }
     }
 
     packaging {
         resources.excludes.add("**/NOTNOTICE")
         jniLibs.excludes.add("**/libshared.so")
+    }
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "net.bytebuddy") {
+            useVersion("1.18.16")
+        }
     }
 }
 
