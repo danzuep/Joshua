@@ -78,7 +78,6 @@ class SettingsActivityTest : BaseActivityTest() {
         withActivity<SettingsActivity> { activity ->
             val viewBinding: ActivitySettingsBinding = activity.getProperty("viewBinding")
             viewBinding.keepScreenOn.performClickPressed()
-            viewBinding.simpleReadingMode.performClickPressed()
             viewBinding.hideSearchButton.performClickPressed()
             viewBinding.consolidatedSharing.performClickPressed()
             viewBinding.fontSize.performClick()
@@ -91,7 +90,6 @@ class SettingsActivityTest : BaseActivityTest() {
 
             verify(ordering = Ordering.ORDERED) {
                 viewModel.saveKeepScreenOn(true)
-                viewModel.saveSimpleReadingModeOn(true)
                 viewModel.saveHideSearchButton(true)
                 viewModel.saveConsolidateVersesForSharing(true)
                 viewModel.selectFontSizeScale()
@@ -179,7 +177,6 @@ class SettingsActivityTest : BaseActivityTest() {
             val viewBinding: ActivitySettingsBinding = activity.getProperty("viewBinding")
             assertEquals("1.0x", viewBinding.fontSize.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertTrue(viewBinding.keepScreenOn.isChecked)
-            assertTrue(viewBinding.simpleReadingMode.isChecked)
             assertTrue(viewBinding.hideSearchButton.isChecked)
             assertTrue(viewBinding.consolidatedSharing.isChecked)
             assertEquals("Off", viewBinding.nightMode.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
@@ -214,7 +211,6 @@ class SettingsActivityTest : BaseActivityTest() {
             val viewBinding: ActivitySettingsBinding = activity.getProperty("viewBinding")
             assertEquals("1.0x", viewBinding.fontSize.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertTrue(viewBinding.keepScreenOn.isChecked)
-            assertTrue(viewBinding.simpleReadingMode.isChecked)
             assertTrue(viewBinding.hideSearchButton.isChecked)
             assertTrue(viewBinding.consolidatedSharing.isChecked)
             assertEquals("Off", viewBinding.nightMode.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
