@@ -16,9 +16,18 @@ Don't spend time trying to work around this (no installing the SDK, mirrors or o
 | Emulator smoke test of the release APK (about 4-8 min) | `gh workflow run smoke-test.yml --ref <branch>` |
 | Release APKs (plain and with WEB) | `gh workflow run release.yml --ref <branch>`. This is a dry run unless the ref is a `v*` tag. See [docs/RELEASING.md](docs/RELEASING.md). |
 
-Check results with `gh run list --repo danzuep/Joshua --branch <branch>`, `gh pr checks <n>`, and `gh run view <id> --log-failed`. Smoke-test artifacts (`logcat.txt`, `screen.png`, `ui.xml`) can be fetched with `gh run download <id> -n smoke-results`.
+A failed Android CI run uploads the `test-reports` artifact (`gh run download <id> -n test-reports`) alongside the log (`gh run view <id> --log-failed`). Check results with `gh run list --repo danzuep/Joshua --branch <branch>`, `gh pr checks <n>`, and `gh run view <id> --log-failed`. Smoke-test artifacts (`logcat.txt`, `screen.png`, `ui.xml`) can be fetched with `gh run download <id> -n smoke-results`.
 
 Before pushing, review Kotlin changes carefully (unresolved references, imports, scope), because each CI round trip costs minutes. Static checks that work locally: `git diff`, `grep`, and `bash -n` on shell scripts.
+
+## Project map
+
+- `app/` is the single Android module (Kotlin, Hilt, Room-less SQLite, coroutines). Source is under `app/src/main/kotlin/me/xizzhu/android/joshua/`:
+  - `core/` holds managers and repositories (`repository/local` for SQLite, `repository/remote` for downloads and USFM parsing).
+  - Feature packages (`reading`, `search`, `translations`, `settings`, `annotated`, `progress`, `preview`) each have an Activity plus a `ViewModel` with a single `ViewState`, one-shot `ViewAction`s and a typed `Error`, on `infra/BaseViewModel` and `infra/BaseActivity`.
+  - Strong's Numbers, cross references and the old JSON download flow were removed; translations now come from eBible.org USFM zips (`app/src/main/assets/ebible_downloads.tsv`, refreshed monthly by `update-ebible-downloads.yml`).
+- `buildSrc/src/main/kotlin/Configurations.kt` pins plugin and library versions. The app version comes from the release tag (`-PappVersion`), not from this file.
+- `docs/RELEASING.md` covers releases and signing; `.github/scripts/` holds the smoke-test helpers.
 
 ## Repository facts
 
@@ -27,4 +36,7 @@ Before pushing, review Kotlin changes carefully (unresolved references, imports,
 - Known-bad dependency versions that broke CI on JDK 25: Robolectric 4.17, Hilt 2.60.1, KSP 2.3.13. Keep Robolectric 4.16.1, Hilt 2.59.2, KSP 2.3.6 (`buildSrc/src/main/kotlin/Configurations.kt`).
 - Some unit tests can be flaky because of leftover coroutines. `BaseUnitTest.tearDown` cancels the shared test scope; cancel any view-model scope you create in a test too.
 - The reading screen accepts the launch extra `me.xizzhu.android.joshua.KEY_OPEN_BOOK` (0-based book index) to open a book directly, which the smoke test uses.
+- Branches opened by other tools can be based on an old `master`, which shows up as unresolved references for code that merged later. Rebase onto `origin/master` before debugging a CI failure.
+- After a rebase, `git push --force-with-lease` is often rejected as "stale info". Use `git push --force-with-lease=<branch>:$(git ls-remote origin refs/heads/<branch> | cut -f1) origin <branch>`.
+- A PR whose base is another PR's branch merges into that branch, not `master`. Check `gh pr view <n> --json baseRefName` before assuming something reached `master`.
 - Commits carry the trailer `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`.
