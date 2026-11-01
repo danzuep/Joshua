@@ -26,6 +26,9 @@ import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.TranslationInfo
 import me.xizzhu.android.joshua.core.TranslationManager
+import me.xizzhu.android.joshua.core.containsAnyKeyword
+import me.xizzhu.android.joshua.core.repository.remote.parseTranslationTsv
+import me.xizzhu.android.joshua.core.toKeywords
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
 import me.xizzhu.android.joshua.ui.languageDisplayName
 import kotlinx.coroutines.withContext
@@ -94,6 +97,14 @@ class TranslationsViewModel @Inject constructor(
     private val translationComparator = TranslationInfoComparator(TranslationInfoComparator.SORT_ORDER_LANGUAGE_THEN_NAME)
     private var downloadTranslationJob: Job? = null
 
+    private var loadedDownloadedTranslations: List<TranslationInfo> = emptyList()
+    private var loadedAvailableTranslations: List<TranslationInfo> = emptyList()
+    var languageFilter: String? = null
+        private set
+    var keywordFilter: String = ""
+        private set
+    private var pendingDownloadShortName: String? = null
+
     init {
         loadTranslations(forceRefresh = false)
     }
@@ -112,16 +123,87 @@ class TranslationsViewModel @Inject constructor(
                 return@launch
             }
 
-            val items: ArrayList<TranslationsItem> = ArrayList()
+            loadedDownloadedTranslations = downloadedTranslations
+            loadedAvailableTranslations = availableTranslations
             val settings = settingsManager.settings().first()
             val currentTranslation = bibleReadingManager.currentTranslation().first()
-            items.addAll(downloadedTranslations.toItems(settings, currentTranslation))
-            if (availableTranslations.isNotEmpty()) {
-                items.add(TranslationsItem.Header(settings, application.getString(R.string.header_available_translations), hideDivider = false))
-                items.addAll(availableTranslations.toItems(settings, currentTranslation))
-            }
-            updateViewState { it.copy(loading = false, items = items) }
+            updateViewState { it.copy(loading = false, items = buildItems(settings, currentTranslation)) }
+            tryPendingDownload()
         }
+    }
+
+    private fun buildItems(settings: Settings, currentTranslation: String): List<TranslationsItem> {
+        val items: ArrayList<TranslationsItem> = ArrayList()
+        val downloaded = loadedDownloadedTranslations.filter { it.matchesFilter() }
+        val available = loadedAvailableTranslations.filter { it.matchesFilter() }
+        items.addAll(downloaded.toItems(settings, currentTranslation))
+        if (available.isNotEmpty()) {
+            items.add(TranslationsItem.Header(settings, application.getString(R.string.header_available_translations), hideDivider = false))
+            items.addAll(available.toItems(settings, currentTranslation))
+        }
+        return items
+    }
+
+    private fun TranslationInfo.matchesFilter(): Boolean {
+        val languageCode = language.split("_")[0]
+        if (languageFilter != null && languageCode != languageFilter) return false
+        val keywords = keywordFilter.toKeywords()
+        if (keywords.isEmpty()) return true
+        return "$shortName $name $language ${languageDisplayName(languageCode)}".containsAnyKeyword(keywords, wholeWords = false)
+    }
+
+    /** Languages of all known translations, sorted by display name, for the language filter. */
+    fun availableLanguages(): List<String> = (loadedDownloadedTranslations + loadedAvailableTranslations)
+        .map { it.language.split("_")[0] }
+        .distinct()
+        .sortedBy { languageDisplayName(it) }
+
+    fun applyFilter(language: String?, keyword: String) {
+        languageFilter = language
+        keywordFilter = keyword.trim()
+        viewModelScope.launch(coroutineDispatcherProvider.default) {
+            val settings = settingsManager.settings().first()
+            val currentTranslation = bibleReadingManager.currentTranslation().first()
+            updateViewState { it.copy(items = buildItems(settings, currentTranslation)) }
+        }
+    }
+
+    /** Reads every row of the bundled translation table for [translation], as (label, value) pairs. */
+    fun readTranslationDetails(translation: TranslationInfo, onLoaded: (List<Pair<String, String>>) -> Unit) {
+        viewModelScope.launch {
+            val details = runCatching {
+                withContext(coroutineDispatcherProvider.default) {
+                    val tsv = application.assets.open("ebible_downloads.tsv").use { it.readBytes().toString(Charsets.UTF_8) }
+                    parseTranslationTsv(tsv, "https://ebible.org/")
+                        .firstOrNull { it.id == translation.shortName }
+                        ?.let { row ->
+                            listOf(
+                                application.getString(R.string.translation_detail_id) to row.id,
+                                application.getString(R.string.translation_detail_territory) to row.territory,
+                                application.getString(R.string.translation_detail_language) to row.language,
+                                application.getString(R.string.translation_detail_language_english) to row.languageEnglish,
+                                application.getString(R.string.translation_detail_vernacular_title) to row.vernacularTitle,
+                                application.getString(R.string.translation_detail_english_title) to row.englishTitle,
+                            )
+                        }
+                }
+            }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to read translation details" } }
+                .getOrNull()
+            onLoaded(details ?: listOf(application.getString(R.string.translation_detail_id) to translation.shortName))
+        }
+    }
+
+    /** Downloads the translation with [shortName] once the translation list is known. Used by one-click downloads. */
+    fun downloadTranslation(shortName: String) {
+        pendingDownloadShortName = shortName
+        tryPendingDownload()
+    }
+
+    private fun tryPendingDownload() {
+        val shortName = pendingDownloadShortName ?: return
+        val translation = (loadedDownloadedTranslations + loadedAvailableTranslations).firstOrNull { it.shortName == shortName } ?: return
+        pendingDownloadShortName = null
+        if (!translation.downloaded && downloadTranslationJob == null) downloadTranslation(translation)
     }
 
     private fun List<TranslationInfo>.toItems(settings: Settings, currentTranslation: String): List<TranslationsItem> {

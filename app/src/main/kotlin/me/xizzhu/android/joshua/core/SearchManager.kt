@@ -118,12 +118,7 @@ class SearchManager(
                             // Annotations on verses that are empty or missing in this translation are intentionally left out of the results.
                             verses[annotation.verseIndex]
                                     ?.takeIf { it.text.text.isNotEmpty() }
-                                    ?.takeIf { verse ->
-                                        keywords.any { term ->
-                                            if (wholeWords) verse.text.text.containsWholeWord(term)
-                                            else verse.text.text.lowercase(Locale.getDefault()).contains(term, false)
-                                        }
-                                    }
+                                    ?.takeIf { verse -> verse.text.text.containsAnyKeyword(keywords, wholeWords) }
                                     ?.let { Pair(annotation, it) }
                         }
                     }
@@ -142,6 +137,13 @@ class SearchManager(
                     }
                     ?: emptyList()
 }
+
+/** Shared matching rule for search and for filtering lists, e.g. the translation list. */
+internal fun String.containsAnyKeyword(keywords: List<String>, wholeWords: Boolean): Boolean =
+    keywords.any { term ->
+        if (wholeWords) containsWholeWord(term)
+        else lowercase(Locale.getDefault()).contains(term, false)
+    }
 
 internal fun String.containsWholeWord(keyword: String): Boolean {
     val text = lowercase(Locale.getDefault())

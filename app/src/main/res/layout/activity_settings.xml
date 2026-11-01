@@ -34,7 +34,9 @@
                 android:minHeight="@dimen/item_height"
                 android:paddingStart="@dimen/padding"
                 android:paddingEnd="@dimen/padding"
-                android:text="@string/settings_title_keep_screen_on" />
+                android:text="@string/settings_title_keep_screen_on"
+                app:thumbTint="@color/switch_thumb_tint"
+                app:trackTint="@color/switch_track_tint" />
 
             <me.xizzhu.android.joshua.settings.widgets.SettingButton
                 android:id="@+id/night_mode"

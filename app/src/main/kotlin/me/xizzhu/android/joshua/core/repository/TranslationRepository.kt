@@ -198,6 +198,7 @@ class TranslationRepository(
 
             val downloaded = mutableListOf<TranslationInfo>().apply {
                 _downloadedTranslations.value?.let { addAll(it) }
+                removeAll { it.shortName == translationToDownload.shortName }
                 add(translationToDownload.copy(downloaded = true))
             }
 

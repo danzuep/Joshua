@@ -21,6 +21,18 @@ Get the latest APK from **[GitHub Releases](https://github.com/danzuep/Joshua/re
 
 Open the APK on your device and allow installs from your browser or file manager when asked.
 
+### Where to start
+
+Not sure which translation to pick? These are good starting points, and you can download any of them from the translation menu:
+
+* Berean Standard Bible (engbsb): Highly respected modern English translation balancing literal accuracy and smooth readability.
+* World English Bible (engwebp / engwebu / engwebpb): Clear public-domain update of the ASV using standard contemporary English.
+* Easy-to-Read Version (engerv): Designed specifically for ultra-clear comprehension using plain, simple English vocabulary.
+* GOD'S WORD (enggw / eng-glw): Modern dynamic-equivalence translation engineered for highly natural, readable English prose.
+* Free Bible Version (engfbv): Open-access translation using natural everyday English phrasing and idioms.
+* NET Bible (engnet): Academically transparent Protestant translation praised for modern readability and exhaustive notes.
+* Open English Bible (engoebus / engoebcw): Open-source, modern English update of the Twentieth Century New Testament and critical source texts, tailored for contemporary readers.
+
 ### Stay up to date with Obtainium
 
 [Obtainium](https://github.com/ImranR98/Obtainium) installs and updates apps straight from GitHub Releases, so you don't need an app store.

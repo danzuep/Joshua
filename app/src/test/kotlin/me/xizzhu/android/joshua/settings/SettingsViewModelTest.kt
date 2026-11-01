@@ -117,8 +117,8 @@ class SettingsViewModelTest : BaseUnitTest() {
         bodyTextSizePx = Settings.DEFAULT.getPrimaryTextSize(app.resources).roundToInt(),
         captionTextSizePx = Settings.DEFAULT.getSecondaryTextSize(app.resources).roundToInt(),
         keepScreenOn = Settings.DEFAULT.keepScreenOn,
-        nightModeStringRes = R.string.settings_text_night_mode_off,
         simpleReadingModeOn = Settings.DEFAULT.simpleReadingModeOn,
+        nightModeStringRes = R.string.settings_text_night_mode_system,
         hideSearchButton = Settings.DEFAULT.hideSearchButton,
         consolidateVersesForSharing = Settings.DEFAULT.consolidateVersesForSharing,
         copyAsMarkdown = Settings.DEFAULT.copyAsMarkdown,
@@ -178,6 +178,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     fun `test saveNightMode()`() = runTest {
         mockkStatic(AppCompatDelegate::class)
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
+        coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(nightMode = Settings.NIGHT_MODE_OFF)) } returns Unit
         coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(nightMode = Settings.NIGHT_MODE_ON)) } returns Unit
 
         settingsViewModel.saveNightMode(nightMode = Settings.NIGHT_MODE_OFF)
@@ -190,7 +191,7 @@ class SettingsViewModelTest : BaseUnitTest() {
         coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(nightMode = Settings.NIGHT_MODE_FOLLOW_SYSTEM)) } returns Unit
         settingsViewModel.saveNightMode(nightMode = Settings.NIGHT_MODE_FOLLOW_SYSTEM)
 
-        coVerify(exactly = 1) { settingsManager.saveSettings(Settings.DEFAULT.copy(nightMode = Settings.NIGHT_MODE_FOLLOW_SYSTEM)) }
+        coVerify(exactly = 0) { settingsManager.saveSettings(Settings.DEFAULT.copy(nightMode = Settings.NIGHT_MODE_FOLLOW_SYSTEM)) }
         verify(exactly = 1) { AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) }
         assertEquals(createDefaultViewState(), settingsViewModel.viewState().first())
 
@@ -327,7 +328,7 @@ class SettingsViewModelTest : BaseUnitTest() {
         assertEquals(
             createDefaultViewState().copy(
                 nightModeSelection = SettingsViewModel.ViewState.NightModeSelection(
-                    currentPosition = 1,
+                    currentPosition = 2,
                     availableModes = listOf(
                         SettingsViewModel.ViewState.NightModeSelection.NightMode(Settings.NIGHT_MODE_ON, R.string.settings_text_night_mode_on),
                         SettingsViewModel.ViewState.NightModeSelection.NightMode(Settings.NIGHT_MODE_OFF, R.string.settings_text_night_mode_off),

@@ -3,6 +3,7 @@
 
     <color name="primary">#0038b8</color>
     <color name="secondary">#7851a9</color>
+    <color name="primary_night">#8fa8ff</color>
 
     <color name="verse_pressed">@color/light_gray</color>
     <color name="verse_selected">@color/light_gray</color>
@@ -11,7 +12,4 @@
     <color name="dark_gray">#888888</color>
     <color name="dark_cyan">#33b5e5</color>
     <color name="dark_lime">#99cc00</color>
-
-    <color name="settings_heading_text">@color/primary</color>
-    <color name="reading_chapter_heading_text">@color/primary</color>
 </resources>

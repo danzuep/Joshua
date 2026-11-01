@@ -31,6 +31,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import co.touchlab.kermit.Logger
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import me.xizzhu.android.joshua.Navigator
@@ -53,6 +54,7 @@ import me.xizzhu.android.joshua.reading.verse.toChapterIndex
 import me.xizzhu.android.joshua.reading.verse.toPagePosition
 import me.xizzhu.android.joshua.reading.verse.toStringForCopy
 import me.xizzhu.android.joshua.reading.verse.toStringForSharing
+import me.xizzhu.android.joshua.translations.TranslationsActivity
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.listDialog
 import me.xizzhu.android.joshua.ui.makeLessSensitive
@@ -328,16 +330,35 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         }
     }
 
+    private fun showNoTranslationDownloadedDialog(error: ReadingViewModel.ViewState.Error) {
+        if (isDestroyed) return
+
+        val content = layoutInflater.inflate(R.layout.dialog_quick_download_translations, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setCancelable(false)
+            .setTitle(R.string.dialog_title_no_translation_downloaded)
+            .setMessage(R.string.dialog_message_download_translation_confirmation)
+            .setView(content)
+            .setPositiveButton(android.R.string.ok) { _, _ -> startActivity(Navigator.SCREEN_TRANSLATIONS) }
+            .setNegativeButton(android.R.string.cancel) { _, _ -> finish() }
+            .setOnDismissListener { viewModel.markErrorAsShown(error) }
+            .create()
+        listOf(
+            R.id.button_download_engbsb to "engbsb",
+            R.id.button_download_engwebp to "engwebp",
+            R.id.button_download_engerv to "engerv",
+        ).forEach { (buttonId, shortName) ->
+            content.findViewById<View>(buttonId).setOnClickListener {
+                dialog.dismiss()
+                startActivity(Navigator.SCREEN_TRANSLATIONS, Bundle().apply { putString(TranslationsActivity.KEY_DOWNLOAD_TRANSLATION, shortName) })
+            }
+        }
+        dialog.show()
+    }
+
     private fun ReadingViewModel.ViewState.Error.handle() {
         when (this) {
-            is ReadingViewModel.ViewState.Error.NoTranslationDownloadedError -> dialog(
-                cancelable = false,
-                title = R.string.dialog_title_no_translation_downloaded,
-                message = R.string.dialog_message_download_translation_confirmation,
-                onPositive = { _, _ -> startActivity(Navigator.SCREEN_TRANSLATIONS) },
-                onNegative = { _, _ -> finish() },
-                onDismiss = { viewModel.markErrorAsShown(this) },
-            )
+            is ReadingViewModel.ViewState.Error.NoTranslationDownloadedError -> showNoTranslationDownloadedDialog(this)
             is ReadingViewModel.ViewState.Error.TranslationSelectionError -> showErrorDialog(R.string.dialog_message_failed_to_select_translation) {
                 viewModel.selectTranslation(translationToSelect)
             }
