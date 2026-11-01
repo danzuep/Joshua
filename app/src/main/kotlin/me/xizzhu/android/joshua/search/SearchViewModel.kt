@@ -164,6 +164,10 @@ class SearchViewModel @Inject constructor(
         updateSearchConfig { it.copy(wholeWords = include) }
     }
 
+    fun searchByReference(include: Boolean) {
+        updateSearchConfig { it.copy(searchByReference = include) }
+    }
+
     fun search(query: String, instanceSearch: Boolean) {
         searchRequest.value = SearchRequest(query.trim(), instanceSearch)
     }
@@ -195,7 +199,8 @@ class SearchViewModel @Inject constructor(
             val searchResult = searchManager.search(query)
             val items = buildSearchResultItems(
                 settings = settings,
-                query = query,
+                // Verses listed by reference are not keyword matches, so there is nothing to highlight.
+                query = if (searchResult.byReference) "" else query,
                 verses = searchResult.verses,
                 bookmarks = searchResult.bookmarks,
                 highlights = searchResult.highlights,
