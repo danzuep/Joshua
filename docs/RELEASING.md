@@ -1,11 +1,13 @@
 Releasing
 =========
 
- 1. Bump the app version code in `Configurations.kt`.
- 2. Update the `docs/CHANGELOG.md`.
- 3. `git commit -am "Prepare for release X.Y.Z."` (where X.Y.Z is the new version)
- 4. `git tag -a X.Y.Z -m "vX.Y.Z"` (where X.Y.Z is the new version)
- 5. `git push && git push --tags` (use a `vX.Y.Z` tag; the `Release APK` workflow builds and publishes the APK to GitHub Releases)
+Releases are automated, see [Automated releases](#automated-releases) below. In short: merge a PR whose title starts with `major:`, `minor:` or `patch:`, and the next `vX.Y.Z` tag and GitHub Release are created for you. The app version is taken from the tag, so there is nothing to bump in `Configurations.kt`.
+
+To release by hand instead:
+
+ 1. Update `docs/CHANGELOG.md` and merge it.
+ 2. `git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z`. The `Release APK` workflow builds and publishes the APKs to GitHub Releases.
+ 3. To re-run a release for an existing tag: `gh workflow run release.yml --ref vX.Y.Z`.
 
 To build locally: `./gradlew clean assembleRelease`.
 
