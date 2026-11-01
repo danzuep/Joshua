@@ -61,18 +61,22 @@ class ReadingProgressViewModel @Inject constructor(
         }
     }
 
-    private val expanded: Array<Boolean> = Array(Bible.BOOK_COUNT) { it == 0 }
+    private val expanded: Array<Boolean> = Array(Bible.BOOK_COUNT) { false }
 
     fun loadReadingProgress() {
         viewModelScope.launch(coroutineDispatcherProvider.default) {
             runCatching {
                 updateViewState { it.copy(loading = true, items = emptyList()) }
 
+                val currentBookIndex = bibleReadingManager.currentVerseIndex().first { it.isValid() }.bookIndex
+                expanded.fill(false)
+                expanded[currentBookIndex] = true
+
                 val items = buildReadingProgressItems(
                     settings = settingsManager.settings().first(),
                     readingProgress = readingProgressManager.read(),
                     bookNames = bibleReadingManager.readBookNames(bibleReadingManager.currentTranslation().firstNotEmpty()),
-                    currentBookIndex = bibleReadingManager.currentVerseIndex().first { it.isValid() }.bookIndex,
+                    currentBookIndex = currentBookIndex,
                 )
                 updateViewState { it.copy(loading = false, items = items) }
             }.onFailure { e ->
