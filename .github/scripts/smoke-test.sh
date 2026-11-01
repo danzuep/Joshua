@@ -33,9 +33,9 @@ if grep -qP '\x{2028}|\x{2029}' ui.xml 2> /dev/null; then
   echo "FAIL: USFM structure markers leaked into the UI"
   status=1
 fi
-# The chapter flows in paragraphs rather than one row per verse, so later verses share the same view.
-if ! grep -q "The Word became flesh" ui.xml 2> /dev/null; then
-  echo "FAIL: expected flowing paragraph text (John 1:14 missing)"
+# The chapter flows in paragraphs rather than one row per verse, so verse 5 shares a view with verse 1.
+if ! grep -q "5 The light shines in the darkness" ui.xml 2> /dev/null; then
+  echo "FAIL: expected flowing paragraph text (John 1:1-5 not in one paragraph)"
   status=1
 fi
 if grep -q "FATAL EXCEPTION" logcat.txt; then
