@@ -155,6 +155,9 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val openBook = intent.getIntExtra(KEY_OPEN_BOOK, -1)
+        if (savedInstanceState == null && openBook in 0 until Bible.BOOK_COUNT) viewModel.openBook(openBook)
+
         // Handle back navigation using OnBackPressedDispatcher
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -204,9 +207,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         })
 
         search.setOnClickListener { startActivity(Navigator.SCREEN_SEARCH) }
-
-        val openBook = intent.getIntExtra(KEY_OPEN_BOOK, -1)
-        if (savedInstanceState == null && openBook in 0 until Bible.BOOK_COUNT) viewModel.openBook(openBook)
 
         val openNoteWhenCreated = intent.getBooleanExtra(KEY_OPEN_NOTE, false)
         verseDetailView.initialize(
