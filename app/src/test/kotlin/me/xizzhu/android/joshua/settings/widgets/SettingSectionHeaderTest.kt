@@ -26,12 +26,16 @@ import kotlin.test.assertTrue
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.tests.BaseUnitTest
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.AttributeSetBuilderImpl
 
 @RunWith(RobolectricTestRunner::class)
 class SettingSectionHeaderTest : BaseUnitTest() {
     private lateinit var context: Context
+
+    // Same builder that Robolectric.buildAttributeSet() wraps, which is deprecated.
+    private fun attributeSetBuilder(): AttributeSetBuilderImpl =
+        object : AttributeSetBuilderImpl(AttributeSetBuilderImpl.ArscResourceResolver(context)) {}
 
     @BeforeTest
     override fun setup() {
@@ -48,7 +52,7 @@ class SettingSectionHeaderTest : BaseUnitTest() {
 
     @Test
     fun `test constructor, with title`() {
-        val attrs = Robolectric.buildAttributeSet().addAttribute(R.attr.settingSectionHeaderTitle, "title").build()
+        val attrs = attributeSetBuilder().addAttribute(R.attr.settingSectionHeaderTitle, "title").build()
         val header = SettingSectionHeader(context, attrs)
         assertEquals("title", header.findViewById<TextView>(R.id.title).text.toString())
     }
