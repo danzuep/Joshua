@@ -41,8 +41,14 @@ class ChapterListViewTest : BaseUnitTest() {
 
     @Test
     fun `test expand and collapse group`() {
+        val selectedBooks = mutableListOf<Int>()
         val chapterListView = ChapterListView(ApplicationProvider.getApplicationContext())
-        chapterListView.initialize { fail() }
+        chapterListView.initialize { viewEvent ->
+            when (viewEvent) {
+                is ChapterSelectionView.ViewEvent.SelectBook -> selectedBooks.add(viewEvent.bookIndex)
+                else -> fail()
+            }
+        }
         chapterListView.setCurrentChapter(currentBookIndex = 0, currentChapterIndex = 0)
         chapterListView.setChapterSelectionItems(
             chapterSelectionItems = MockContents.kjvBookNames.mapIndexed { index, bookName ->
@@ -60,6 +66,7 @@ class ChapterListViewTest : BaseUnitTest() {
         }
 
         chapterListView.performItemClick(mockk<android.view.View>(relaxed = true), 1, 0L)
+        assertEquals(listOf(1), selectedBooks)
         repeat(Bible.BOOK_COUNT) { index ->
             assertEquals(index == 1, chapterListView.isGroupExpanded(index))
         }

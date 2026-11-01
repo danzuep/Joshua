@@ -104,6 +104,10 @@ class VersePagerAdapter(
         return page.containsChapter(position)
     }
 
+    fun scrollToChapterStart(position: Int) {
+        forEachAttachedPage { it.scrollToChapterStart(position) }
+    }
+
     private fun forEachAttachedPage(action: (Page) -> Unit) {
         attachedRecyclerView?.let { recyclerView ->
             for (index in 0 until recyclerView.childCount) {
@@ -286,6 +290,13 @@ private class Page(
 
     private fun scrollToPosition(position: Int, offset: Int) {
         (viewBinding.verseList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, offset)
+    }
+
+    fun scrollToChapterStart(chapterPosition: Int) {
+        if (chapterPosition != pagePosition || !hasRendered) return
+        val verseOne = VerseIndex(chapterPosition.toBookIndex(), chapterPosition.toChapterIndex(), 0)
+        val target = renderedItems.positionOfVerse(verseOne).takeIf { it >= 0 } ?: renderedItems.positionOfChapter(chapterPosition)
+        if (target >= 0) scrollToPosition(target, 0)
     }
 
 

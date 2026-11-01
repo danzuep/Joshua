@@ -37,6 +37,8 @@ class ChapterListView : ExpandableListView {
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
 
+    private var onViewEvent: ((ChapterSelectionView.ViewEvent) -> Unit)? = null
+
     init {
         divider = ColorDrawable(ContextCompat.getColor(context, android.R.color.darker_gray))
         dividerHeight = 1
@@ -47,6 +49,10 @@ class ChapterListView : ExpandableListView {
                 collapseGroup(groupPosition)
             } else {
                 expandBook(bookIndex = groupPosition)
+                // Load the book straight away; the chapter list stays open until a chapter is picked.
+                if (groupPosition != currentBookIndex) {
+                    onViewEvent?.invoke(ChapterSelectionView.ViewEvent.SelectBook(bookIndex = groupPosition))
+                }
             }
 
             return@setOnGroupClickListener true
@@ -71,6 +77,7 @@ class ChapterListView : ExpandableListView {
     }
 
     fun initialize(onViewEvent: (ChapterSelectionView.ViewEvent) -> Unit) {
+        this.onViewEvent = onViewEvent
         adapter = ChapterListAdapter(context, onViewEvent)
         setAdapter(adapter)
     }
