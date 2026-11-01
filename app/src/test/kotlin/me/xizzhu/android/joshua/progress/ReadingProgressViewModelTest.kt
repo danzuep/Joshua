@@ -130,7 +130,7 @@ class ReadingProgressViewModelTest : BaseUnitTest() {
             assertEquals(Settings.DEFAULT, item.settings)
             assertEquals(book, item.bookIndex)
             assertEquals(book == 12, item.isCurrentBook)
-            assertEquals(book == 0, item.expanded)
+            assertEquals(book == 12, item.expanded)
             when (book) {
                 0 -> {
                     item.chaptersRead.forEachIndexed { chapter, read -> assertEquals(chapter == 0 || chapter == 1, read) }
@@ -160,7 +160,7 @@ class ReadingProgressViewModelTest : BaseUnitTest() {
         with(readingProgressViewModel.viewState().first().items.subList(1, actual.items.size)) {
             forEachIndexed { book, item ->
                 assertTrue(item is ReadingProgressItem.Book)
-                assertEquals(book == 0 || book == 1, item.expanded)
+                assertEquals(book == 12 || book == 1, item.expanded)
             }
         }
 
@@ -168,7 +168,7 @@ class ReadingProgressViewModelTest : BaseUnitTest() {
         with(readingProgressViewModel.viewState().first().items.subList(1, actual.items.size)) {
             forEachIndexed { book, item ->
                 assertTrue(item is ReadingProgressItem.Book)
-                assertEquals(book == 0, item.expanded)
+                assertEquals(book == 12, item.expanded)
             }
         }
     }

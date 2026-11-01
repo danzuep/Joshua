@@ -172,6 +172,12 @@ class VersePagerAdapter(
     }
 }
 
+private fun sameBookNeighbour(position: Int, offset: Int): Int? {
+    val neighbour = position + offset
+    if (neighbour !in 0 until Bible.TOTAL_CHAPTER_COUNT) return null
+    return neighbour.takeIf { it.toBookIndex() == position.toBookIndex() }
+}
+
 private class Page(
     inflater: LayoutInflater,
     container: ViewGroup,
@@ -198,10 +204,10 @@ private class Page(
                 if (dy == 0 || chapters.isEmpty()) return
                 val layoutManager = recyclerView.layoutManager as LinearLayoutManager
                 if (layoutManager.findFirstVisibleItemPosition() <= 1) {
-                    (chapters.firstKey() - 1).takeIf { it >= 0 }?.let(::ensureChapter)
+                    sameBookNeighbour(chapters.firstKey(), -1)?.let(::ensureChapter)
                 }
                 if (layoutManager.findLastVisibleItemPosition() >= (recyclerView.adapter?.itemCount ?: 0) - 2) {
-                    (chapters.lastKey() + 1).takeIf { it < Bible.TOTAL_CHAPTER_COUNT }?.let(::ensureChapter)
+                    sameBookNeighbour(chapters.lastKey(), 1)?.let(::ensureChapter)
                 }
             }
         })
@@ -218,8 +224,7 @@ private class Page(
         viewBinding.loadingSpinner.visibility = View.VISIBLE
         viewBinding.verseList.setSettings(settings)
 
-        listOfNotNull((position - 1).takeIf { it >= 0 }, position,
-            (position + 1).takeIf { it < Bible.TOTAL_CHAPTER_COUNT }).forEach(::ensureChapter)
+        listOfNotNull(sameBookNeighbour(position, -1), position, sameBookNeighbour(position, 1)).forEach(::ensureChapter)
     }
 
     fun bind(payloads: MutableList<Any>) {
@@ -240,12 +245,7 @@ private class Page(
             return
         }
 
-        val anchorVerse = if (hasRendered) firstVisibleVerse(viewBinding.verseList) else null
-        val anchorOffset = if (anchorVerse != null) {
-            val layoutManager = viewBinding.verseList.layoutManager as LinearLayoutManager
-            layoutManager.findViewByPosition(layoutManager.findFirstVisibleItemPosition())
-                ?.let { layoutManager.getDecoratedTop(it) } ?: 0
-        } else 0
+        val anchor = if (hasRendered) captureScrollAnchor() else null
 
         chapters[position] = items
         if (!chapters.containsKey(pagePosition)) return
@@ -259,22 +259,35 @@ private class Page(
         if (!hasRendered) {
             hasRendered = true
             val targetVerse = currentVerseIndex.takeIf { it.toPagePosition() == pagePosition }
-            viewBinding.verseList.post {
-                val target = targetVerse?.let { renderedItems.positionOfVerse(it) }
-                    ?: renderedItems.positionOfChapter(pagePosition)
-                if (target >= 0) {
-                    (viewBinding.verseList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(target, 0)
-                }
-            }
-        } else if (anchorVerse != null) {
-            viewBinding.verseList.post {
-                val target = renderedItems.positionOfVerse(anchorVerse)
-                if (target >= 0) {
-                    (viewBinding.verseList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(target, anchorOffset)
-                }
-            }
+            val target = targetVerse?.let { renderedItems.positionOfVerse(it) }
+                ?: renderedItems.positionOfChapter(pagePosition)
+            if (target >= 0) scrollToPosition(target, 0)
+        } else if (anchor != null) {
+            val target = renderedItems.positionOfVerse(anchor.verseIndex)
+            if (target >= 0) scrollToPosition(target, anchor.offset)
         }
     }
+
+    private data class ScrollAnchor(val verseIndex: VerseIndex, val offset: Int)
+
+    /** Remembers the first visible paragraph and its on-screen top, so content inserted above it does not shift the view. */
+    private fun captureScrollAnchor(): ScrollAnchor? {
+        val layoutManager = viewBinding.verseList.layoutManager as LinearLayoutManager
+        val firstPosition = layoutManager.findFirstVisibleItemPosition()
+        val lastPosition = layoutManager.findLastVisibleItemPosition()
+        if (firstPosition == RecyclerView.NO_POSITION) return null
+        for (position in firstPosition..lastPosition) {
+            val paragraph = renderedItems.getOrNull(position) as? ParagraphItem ?: continue
+            val view = layoutManager.findViewByPosition(position) ?: return null
+            return ScrollAnchor(paragraph.firstVerse, layoutManager.getDecoratedTop(view))
+        }
+        return null
+    }
+
+    private fun scrollToPosition(position: Int, offset: Int) {
+        (viewBinding.verseList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, offset)
+    }
+
 
     fun containsChapter(position: Int): Boolean = chapters.containsKey(position)
 
