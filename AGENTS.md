@@ -23,7 +23,7 @@ Before pushing, review Kotlin changes carefully (unresolved references, imports,
 ## Repository facts
 
 - `master` is protected. Open PRs; the maintainer merges them.
-- Merging a PR auto-tags the next version from the first word of the PR title (`major`, `minor`, anything else is a patch) and starts the release. See `.github/workflows/auto-tag.yml`.
+- Merging a PR auto-tags the next version from the PR title prefix (`major:`, `minor:`, `patch:`; any other title creates no tag) and starts the release. See `.github/workflows/auto-tag.yml`.
 - Known-bad dependency versions that broke CI on JDK 25: Robolectric 4.17, Hilt 2.60.1, KSP 2.3.13. Keep Robolectric 4.16.1, Hilt 2.59.2, KSP 2.3.6 (`buildSrc/src/main/kotlin/Configurations.kt`).
 - Some unit tests can be flaky because of leftover coroutines. `BaseUnitTest.tearDown` cancels the shared test scope; cancel any view-model scope you create in a test too.
 - The reading screen accepts the launch extra `me.xizzhu.android.joshua.KEY_OPEN_BOOK` (0-based book index) to open a book directly, which the smoke test uses.
