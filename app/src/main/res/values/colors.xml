@@ -13,5 +13,5 @@
     <color name="dark_lime">#99cc00</color>
 
     <color name="settings_heading_text">@color/primary</color>
-    <color name="chapter_heading_text">@android:color/white</color>
+    <color name="reading_chapter_heading_text">@color/primary</color>
 </resources>

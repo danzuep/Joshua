@@ -19,6 +19,7 @@ package me.xizzhu.android.joshua.ui.recyclerview
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.databinding.ItemTitleBinding
@@ -33,6 +34,7 @@ private class TitleItemViewHolder(inflater: LayoutInflater, parent: ViewGroup)
         with(viewBinding.title) {
             setSecondaryTextSize(settings)
             text = item.title
+            setTextColor(ContextCompat.getColor(context, R.color.reading_chapter_heading_text))
         }
         viewBinding.divider.visibility = if (item.hideDivider) View.GONE else View.VISIBLE
     }
