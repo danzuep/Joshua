@@ -41,7 +41,7 @@ suspend fun loadPreview(
     val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
     return PreviewViewData(
         settings = settingsManager.settings().first(),
-        title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseIndex.bookIndex]}, ${verseIndex.chapterIndex + 1}",
+        title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseIndex.bookIndex]} ${verseIndex.chapterIndex + 1}",
         items = converter(bibleReadingManager.readVerses(currentTranslation, verseIndex.bookIndex, verseIndex.chapterIndex)),
         currentPosition = verseIndex.verseIndex
     )

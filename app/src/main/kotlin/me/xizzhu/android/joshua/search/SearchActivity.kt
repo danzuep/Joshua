@@ -55,6 +55,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
             onIncludeBookmarksChanged = viewModel::includeBookmarks,
             onIncludeHighlightsChanged = viewModel::includeHighlights,
             onIncludeNotesChanged = viewModel::includeNotes,
+            onWholeWordsChanged = viewModel::includeWholeWords,
             onQueryTextListener = object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     viewModel.search(query, false)
@@ -113,6 +114,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
                 includeBookmarks = searchConfig.includeBookmarks,
                 includeHighlights = searchConfig.includeHighlights,
                 includeNotes = searchConfig.includeNotes,
+                wholeWords = searchConfig.wholeWords,
             )
         }
 

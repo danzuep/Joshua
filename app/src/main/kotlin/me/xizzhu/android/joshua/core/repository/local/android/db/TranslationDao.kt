@@ -25,6 +25,8 @@ import me.xizzhu.android.joshua.core.Bible
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.VerseSearchQuery
+import me.xizzhu.android.joshua.core.containsWholeWord
+import me.xizzhu.android.joshua.core.toKeywords
 import co.touchlab.kermit.Logger
 import kotlin.math.max
 
@@ -145,6 +147,8 @@ class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
                     VerseIndex(row.getInt(COLUMN_BOOK_INDEX), row.getInt(COLUMN_CHAPTER_INDEX), row.getInt(COLUMN_VERSE_INDEX)),
                     Verse.Text(query.translation, row.getString(COLUMN_TEXT).stripStructure()), emptyList()
             )
+        }.filter { verse ->
+            !query.wholeWords || query.keyword.toKeywords().all { verse.text.text.containsWholeWord(it) }
         }
     }
 

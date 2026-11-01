@@ -54,7 +54,7 @@ jobs:
         printf 'engwebu\tWorld English Bible Updated\teng\n' > bundled-assets/bundled/list.tsv
     - name: Build APK with the WEB Bible prepackaged
       run: |
-        ./gradlew assembleRelease -PbundledAssetsDir="$PWD/bundled-assets" ${VERSION:+-PappVersion=$VERSION}
+        ./gradlew assembleRelease -PbundledAssetsDir="$PWD/bundled-assets" -PappName=WEB -PdefaultBookIndex=42 ${VERSION:+-PappVersion=$VERSION}
         cp app/build/outputs/apk/release/app-release.apk "$NAME-with-WEB.apk"
     - uses: actions/upload-artifact@v7
       with:

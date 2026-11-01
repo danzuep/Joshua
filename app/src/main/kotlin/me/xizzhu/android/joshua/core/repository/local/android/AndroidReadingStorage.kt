@@ -18,6 +18,7 @@ package me.xizzhu.android.joshua.core.repository.local.android
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.xizzhu.android.joshua.BuildConfig
 import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.VerseSearchQuery
@@ -29,7 +30,7 @@ class AndroidReadingStorage(private val androidDatabase: AndroidDatabase) : Loca
     override suspend fun readCurrentVerseIndex(): VerseIndex = withContext(Dispatchers.IO) {
         val values = androidDatabase.metadataDao.read(
                 listOf(
-                        Pair(MetadataDao.KEY_CURRENT_BOOK_INDEX, "0"),
+                        Pair(MetadataDao.KEY_CURRENT_BOOK_INDEX, BuildConfig.DEFAULT_BOOK_INDEX.toString()),
                         Pair(MetadataDao.KEY_CURRENT_CHAPTER_INDEX, "0"),
                         Pair(MetadataDao.KEY_CURRENT_VERSE_INDEX, "0")
                 )

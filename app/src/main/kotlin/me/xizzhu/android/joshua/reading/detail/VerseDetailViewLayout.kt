@@ -112,7 +112,7 @@ class VerseDetailViewLayout : FrameLayout {
     }
 
     fun setNote(note: String) {
-        adapter.verseDetail?.note = note
+        adapter.markNoteSaved(note)
     }
 
     fun show(@VerseDetail verseDetail: Int) {

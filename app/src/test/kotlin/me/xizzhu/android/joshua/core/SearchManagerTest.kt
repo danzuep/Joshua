@@ -253,4 +253,11 @@ class SearchManagerTest : BaseUnitTest() {
         assertEquals(listOf("before", "with double quotes", "after"), "before     \"with double quotes\"   \tafter\t\t   ".toKeywords())
         assertEquals(listOf("before", "with double quotes", "after"), "before\"with double quotes\"   \tafter\t\t   ".toKeywords())
     }
+
+    @Test
+    fun `test containsWholeWord()`() {
+        assertTrue("God created God's world".containsWholeWord("God"))
+        assertFalse("godly creation".containsWholeWord("God"))
+        assertFalse("my_God".containsWholeWord("God"))
+    }
 }

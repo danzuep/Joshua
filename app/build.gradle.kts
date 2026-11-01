@@ -22,6 +22,10 @@ plugins {
     id(Dependencies.Hilt.plugin)
 }
 
+val appName = findProperty("appName") as String? ?: "@string/app_name"
+val defaultBookIndex = (findProperty("defaultBookIndex") as String?)?.toIntOrNull() ?: 0
+require(defaultBookIndex in 0 until 66) { "defaultBookIndex must be a valid 0-based Bible book index" }
+
 android {
     namespace = Configurations.applicationId
 
@@ -52,6 +56,8 @@ android {
         versionName = appVersion ?: Versions.App.name
 
         androidResources.localeFilters.addAll(Configurations.supportedLocales)
+        manifestPlaceholders["appName"] = appName
+        buildConfigField("int", "DEFAULT_BOOK_INDEX", defaultBookIndex.toString())
     }
 
     buildFeatures {
