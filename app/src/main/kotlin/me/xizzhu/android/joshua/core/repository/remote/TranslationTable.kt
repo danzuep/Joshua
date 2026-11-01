@@ -143,7 +143,7 @@ fun TranslationTableRow.toShortName(): String = id.replace(Regex("[^A-Za-z0-9]")
 /** eBible.org ids start with the ISO 639-3 language code; falls back to the English language name if it is unknown. */
 fun TranslationTableRow.toLanguage(): String {
     val code = id.take(3).lowercase()
-    val known = code.length == 3 && code.all { it in 'a'..'z' } && Locale(code).displayLanguage.let { it.isNotEmpty() && !it.equals(code, ignoreCase = true) }
+    val known = code.length == 3 && code.all { it in 'a'..'z' } && Locale.forLanguageTag(code).displayLanguage.let { it.isNotEmpty() && !it.equals(code, ignoreCase = true) }
     return if (known) code else languageEnglish.ifEmpty { language }.ifEmpty { code }
 }
 

@@ -26,12 +26,16 @@ import kotlin.test.assertTrue
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.tests.BaseUnitTest
 import org.junit.runner.RunWith
-import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.AttributeSetBuilderImpl
 
 @RunWith(RobolectricTestRunner::class)
 class SettingButtonTest : BaseUnitTest() {
     private lateinit var context: Context
+
+    // Same builder that Robolectric.buildAttributeSet() wraps, which is deprecated.
+    private fun attributeSetBuilder(): AttributeSetBuilderImpl =
+        object : AttributeSetBuilderImpl(AttributeSetBuilderImpl.ArscResourceResolver(context)) {}
 
     @BeforeTest
     override fun setup() {
@@ -49,7 +53,7 @@ class SettingButtonTest : BaseUnitTest() {
 
     @Test
     fun `test constructor, with only title`() {
-        val attrs = Robolectric.buildAttributeSet().addAttribute(R.attr.settingButtonTitle, "title").build()
+        val attrs = attributeSetBuilder().addAttribute(R.attr.settingButtonTitle, "title").build()
         val button = SettingButton(context, attrs)
         assertEquals("title", button.findViewById<TextView>(R.id.title).text.toString())
         assertTrue(button.findViewById<TextView>(R.id.description).text.isEmpty())
@@ -57,7 +61,7 @@ class SettingButtonTest : BaseUnitTest() {
 
     @Test
     fun `test constructor, with only description`() {
-        val attrs = Robolectric.buildAttributeSet().addAttribute(R.attr.settingButtonDescription, "description").build()
+        val attrs = attributeSetBuilder().addAttribute(R.attr.settingButtonDescription, "description").build()
         val button = SettingButton(context, attrs)
         assertTrue(button.findViewById<TextView>(R.id.title).text.isEmpty())
         assertEquals("description", button.findViewById<TextView>(R.id.description).text.toString())
@@ -65,7 +69,7 @@ class SettingButtonTest : BaseUnitTest() {
 
     @Test
     fun `test constructor, with title and description, then override`() {
-        val attrs = Robolectric.buildAttributeSet()
+        val attrs = attributeSetBuilder()
             .addAttribute(R.attr.settingButtonTitle, "title")
             .addAttribute(R.attr.settingButtonDescription, "description")
             .build()

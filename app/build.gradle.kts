@@ -115,6 +115,7 @@ android {
 
         unitTests.all { test ->
             test.maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
+            test.jvmArgs("--enable-native-access=ALL-UNNAMED")
         }
     }
 
