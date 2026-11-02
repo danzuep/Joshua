@@ -80,7 +80,7 @@ class TranslationsViewModelTest : BaseUnitTest() {
     private fun createDefaultViewState(): TranslationsViewModel.ViewState = TranslationsViewModel.ViewState(
         loading = false,
         items = listOf(
-            TranslationsItem.Header(Settings.DEFAULT, "Chinese", hideDivider = true),
+            TranslationsItem.Header(Settings.DEFAULT, "Chinese (中文)", hideDivider = true),
             TranslationsItem.Translation(Settings.DEFAULT, MockContents.cuvDownloadedTranslationInfo, isCurrentTranslation = true),
             TranslationsItem.Header(Settings.DEFAULT, "AVAILABLE TRANSLATIONS", hideDivider = false),
             TranslationsItem.Header(Settings.DEFAULT, "English", hideDivider = true),
@@ -149,7 +149,7 @@ class TranslationsViewModelTest : BaseUnitTest() {
                     TranslationsItem.Header(Settings.DEFAULT, "English", hideDivider = true),
                     TranslationsItem.Translation(Settings.DEFAULT, MockContents.bbeDownloadedTranslationInfo, isCurrentTranslation = false),
                     TranslationsItem.Translation(Settings.DEFAULT, MockContents.msgDownloadedTranslationInfo, isCurrentTranslation = false),
-                    TranslationsItem.Header(Settings.DEFAULT, "Chinese", hideDivider = true),
+                    TranslationsItem.Header(Settings.DEFAULT, "Chinese (中文)", hideDivider = true),
                     TranslationsItem.Translation(Settings.DEFAULT, MockContents.cuvDownloadedTranslationInfo, isCurrentTranslation = true),
                 ),
                 translationDownloadingState = TranslationsViewModel.ViewState.TranslationDownloadingState.Idle,
@@ -177,7 +177,7 @@ class TranslationsViewModelTest : BaseUnitTest() {
                     TranslationsItem.Header(Settings.DEFAULT, "English", hideDivider = true),
                     TranslationsItem.Translation(Settings.DEFAULT, MockContents.bbeTranslationInfo, isCurrentTranslation = false),
                     TranslationsItem.Translation(Settings.DEFAULT, MockContents.msgTranslationInfo, isCurrentTranslation = false),
-                    TranslationsItem.Header(Settings.DEFAULT, "Chinese", hideDivider = true),
+                    TranslationsItem.Header(Settings.DEFAULT, "Chinese (中文)", hideDivider = true),
                     TranslationsItem.Translation(Settings.DEFAULT, MockContents.cuvTranslationInfo, isCurrentTranslation = false),
                 ),
                 translationDownloadingState = TranslationsViewModel.ViewState.TranslationDownloadingState.Idle,
