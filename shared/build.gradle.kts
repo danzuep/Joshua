@@ -30,10 +30,21 @@ kotlin {
         }
     }
 
+    // JVM-only target: runs commonTest without an Android SDK (see AGENTS.md "Testing shared code").
+    jvm {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(Versions.Kotlin.jvmTarget))
+        }
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(Dependencies.Kotlin.coroutinesCore)
             implementation(Dependencies.kermit)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(Dependencies.Kotlin.coroutinesTest)
         }
     }
 }
