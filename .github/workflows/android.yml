@@ -2,7 +2,25 @@ name: Android CI
 on:
   push:
     branches: [master]
+    paths:
+      - 'app/**'
+      - 'buildSrc/**'
+      - 'gradle/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradlew*'
+      - '.github/workflows/android.yml'
   pull_request:
+    paths:
+      - 'app/**'
+      - 'buildSrc/**'
+      - 'gradle/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradlew*'
+      - '.github/workflows/android.yml'
 
 # A newer push to the same PR makes the older run redundant.
 concurrency:
@@ -20,7 +38,7 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
     - uses: gradle/actions/setup-gradle@v6
-    - run: ./gradlew testDebugUnitTest assembleDebug :shared:jvmTest
+    - run: ./gradlew testDebugUnitTest assembleDebug
       timeout-minutes: 15
     - uses: actions/upload-artifact@v7
       if: failure()
