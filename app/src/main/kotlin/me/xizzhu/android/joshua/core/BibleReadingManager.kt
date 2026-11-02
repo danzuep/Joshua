@@ -71,23 +71,42 @@ class BibleReadingManager(
         appScope.launch { translationRepository.downloadedTranslations.collect(::updateDownloadedTranslations) }
     }
 
+    private var knownDownloadedTranslations: Set<String>? = null
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     suspend fun updateDownloadedTranslations(translations: List<TranslationInfo>) {
         try {
             val downloadedTranslations = translations.map { it.shortName }.toSet()
+            // The first emission is the already downloaded set at startup, so only later emissions count as new downloads.
+            val newlyDownloaded = knownDownloadedTranslations?.let { downloadedTranslations - it }.orEmpty()
+            knownDownloadedTranslations = downloadedTranslations
 
             if (downloadedTranslations.isEmpty()) {
                 bibleReadingRepository.saveCurrentTranslation("")
                 bibleReadingRepository.clearParallelTranslation()
             } else {
-                var currentTranslation = currentTranslation().first()
+                val previousCurrentTranslation = currentTranslation().first()
+                var currentTranslation = previousCurrentTranslation
                 if (currentTranslation.isEmpty() || !downloadedTranslations.contains(currentTranslation)) {
                     currentTranslation = translations.first().shortName
+                }
+                val newTranslation = translations.firstOrNull { newlyDownloaded.contains(it.shortName) }?.shortName
+                if (newTranslation != null) {
+                    currentTranslation = newTranslation
+                }
+                if (currentTranslation != previousCurrentTranslation) {
                     bibleReadingRepository.saveCurrentTranslation(currentTranslation)
                 }
 
                 parallelTranslations().first().let { current ->
-                    val updated = current.filter { currentTranslation != it && downloadedTranslations.contains(it) }
+                    // The previous current translation stays selected, at the top of the parallel translations.
+                    val previous = if (newTranslation != null && previousCurrentTranslation.isNotEmpty()
+                            && downloadedTranslations.contains(previousCurrentTranslation)) {
+                        listOf(previousCurrentTranslation) + current
+                    } else {
+                        current
+                    }
+                    val updated = previous.distinct().filter { currentTranslation != it && downloadedTranslations.contains(it) }
                     if (current != updated) bibleReadingRepository.saveParallelTranslations(updated)
                 }
             }
@@ -116,6 +135,13 @@ class BibleReadingManager(
 
     suspend fun removeParallelTranslation(translationShortName: String) {
         bibleReadingRepository.removeParallelTranslation(translationShortName)
+    }
+
+    suspend fun reorderTranslations(translationShortNames: List<String>) {
+        val distinctShortNames = translationShortNames.distinct()
+        if (distinctShortNames.isEmpty()) return
+        bibleReadingRepository.saveCurrentTranslation(distinctShortNames.first())
+        bibleReadingRepository.saveParallelTranslations(distinctShortNames.drop(1))
     }
 
     suspend fun readBookNames(translationShortName: String): List<String> =

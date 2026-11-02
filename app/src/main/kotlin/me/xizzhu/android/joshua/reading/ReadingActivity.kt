@@ -252,6 +252,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         verseDetailView.initialize(
             onClicked = ::hideVerseDetail,
             updateNote = viewModel::saveNote,
+            reorderTranslations = viewModel::reorderTranslations,
             hide = !openNoteWhenCreated
         )
         if (openNoteWhenCreated) {

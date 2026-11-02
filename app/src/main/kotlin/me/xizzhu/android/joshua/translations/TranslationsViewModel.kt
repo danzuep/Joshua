@@ -274,11 +274,7 @@ class TranslationsViewModel @Inject constructor(
                     in 0..99 -> updateViewState { it.copy(translationDownloadingState = ViewState.TranslationDownloadingState.Downloading(progress = progress)) }
                     100 -> updateViewState { it.copy(translationDownloadingState = ViewState.TranslationDownloadingState.Installing) }
                     101 -> {
-                        viewModelScope.launch {
-                            runCatching { bibleReadingManager.saveCurrentTranslation(translationToDownload.shortName) }
-                                .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to select downloaded translation" } }
-                            loadTranslations(forceRefresh = false)
-                        }
+                        viewModelScope.launch { loadTranslations(forceRefresh = false) }
                         updateViewState { it.copy(translationDownloadingState = ViewState.TranslationDownloadingState.Completed(successful = true)) }
                     }
                     else -> throw IllegalArgumentException("Unsupported downloading progress: $progress")

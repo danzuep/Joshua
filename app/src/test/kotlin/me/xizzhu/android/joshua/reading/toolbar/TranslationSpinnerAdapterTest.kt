@@ -122,7 +122,7 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
         val firstDropDownView = adapter.getDropDownView(0, null, FrameLayout(ApplicationProvider.getApplicationContext()))
         assertEquals("KJV", firstDropDownView.findViewById<TextView>(R.id.title).text.toString())
         assertTrue(firstDropDownView.findViewById<CheckBox>(R.id.checkbox).isVisible)
-        assertFalse(firstDropDownView.findViewById<CheckBox>(R.id.checkbox).isEnabled)
+        assertTrue(firstDropDownView.findViewById<CheckBox>(R.id.checkbox).isEnabled)
         assertTrue(firstDropDownView.findViewById<CheckBox>(R.id.checkbox).isChecked)
 
         with(adapter.getDropDownView(1, firstDropDownView, FrameLayout(ApplicationProvider.getApplicationContext()))) {
@@ -192,7 +192,7 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
         val firstDropDownView = adapter.getDropDownView(0, null, FrameLayout(ApplicationProvider.getApplicationContext()))
         assertEquals("KJV", firstDropDownView.findViewById<TextView>(R.id.title).text.toString())
         assertTrue(firstDropDownView.findViewById<CheckBox>(R.id.checkbox).isVisible)
-        assertFalse(firstDropDownView.findViewById<CheckBox>(R.id.checkbox).isEnabled)
+        assertTrue(firstDropDownView.findViewById<CheckBox>(R.id.checkbox).isEnabled)
         assertTrue(firstDropDownView.findViewById<CheckBox>(R.id.checkbox).isChecked)
 
         with(adapter.getDropDownView(1, firstDropDownView, FrameLayout(ApplicationProvider.getApplicationContext()))) {

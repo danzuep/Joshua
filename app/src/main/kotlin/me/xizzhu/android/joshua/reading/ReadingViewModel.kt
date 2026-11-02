@@ -262,6 +262,14 @@ class ReadingViewModel @Inject constructor(
         }
     }
 
+    fun reorderTranslations(translationShortNames: List<String>) {
+        viewModelScope.launch {
+            runCatching {
+                bibleReadingManager.reorderTranslations(translationShortNames)
+            }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to reorder translations" } }
+        }
+    }
+
     private suspend fun readVerseDetail(verseIndex: VerseIndex): VerseDetailViewData = coroutineScope {
         val bookmarked = async { bookmarkManager.read(verseIndex).isValid() }
         val highlightColor = async { highlightManager.read(verseIndex).takeIf { it.isValid() }?.color ?: Highlight.COLOR_NONE }
@@ -270,10 +278,16 @@ class ReadingViewModel @Inject constructor(
         // build the verse
         val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
         val downloadedTranslations = translationManager.downloadedTranslations().first()
-        val parallelTranslations = downloadedTranslations
-            .filter { it.shortName != currentTranslation }
+        val downloadedShortNames = downloadedTranslations.map { it.shortName }.toSet()
+        // selected parallel translations come first, in their saved order; the rest follow sorted by language
+        val selectedParallelTranslations = bibleReadingManager.parallelTranslations().first()
+            .filter { it != currentTranslation && it in downloadedShortNames }
+            .distinct()
+        val parallelTranslations = selectedParallelTranslations + downloadedTranslations
+            .filter { it.shortName != currentTranslation && it.shortName !in selectedParallelTranslations }
             .sortedWith(TranslationInfoComparator(TranslationInfoComparator.SORT_ORDER_LANGUAGE_THEN_SHORT_NAME))
             .map { it.shortName }
+        val isReorderable = selectedParallelTranslations.isNotEmpty()
         val verses = bibleReadingManager.readVerses(currentTranslation, parallelTranslations,
             verseIndex.bookIndex, verseIndex.chapterIndex)
 
@@ -325,14 +339,16 @@ class ReadingViewModel @Inject constructor(
             verseIndex = verseIndex,
             followingEmptyVerseCount = followingEmptyVerseCount,
             verseText = verse.text,
-            bookName = bibleReadingManager.readBookNames(verse.text.translationShortName)[verse.verseIndex.bookIndex]
+            bookName = bibleReadingManager.readBookNames(verse.text.translationShortName)[verse.verseIndex.bookIndex],
+            isReorderable = isReorderable
         ))
         parallelTranslations.forEachIndexed { index, translation ->
             verseTextItems.add(VerseTextItem(
                 verseIndex = verseIndex,
                 followingEmptyVerseCount = followingEmptyVerseCount,
                 verseText = Verse.Text(translation, parallel[index].toString()),
-                bookName = bibleReadingManager.readBookNames(translation)[verse.verseIndex.bookIndex]
+                bookName = bibleReadingManager.readBookNames(translation)[verse.verseIndex.bookIndex],
+                isReorderable = index < selectedParallelTranslations.size && isReorderable
             ))
         }
 
