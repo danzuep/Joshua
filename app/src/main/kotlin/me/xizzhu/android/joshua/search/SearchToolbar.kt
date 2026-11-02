@@ -133,7 +133,11 @@ class SearchToolbar : MaterialToolbar {
         searchView().setSearchableInfo(searchable)
     }
 
+    /**
+     * Only fills in the text. Submitting here would make SearchView launch another ACTION_SEARCH intent to SearchActivity
+     * (it is searchable and singleTop), whose onNewIntent would set the query again, looping forever.
+     */
     fun setQuery(query: String) {
-        searchView().setQuery(query, true)
+        searchView().setQuery(query, false)
     }
 }
