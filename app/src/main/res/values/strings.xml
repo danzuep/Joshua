@@ -112,6 +112,7 @@
     <string name="text_parallel">Parallel</string>
     <string name="text_notes">Notes</string>
     <string name="text_notes_typing">Notes ...</string>
+    <string name="text_notes_saved">Notes ✓</string>
     <string name="text_paratext">Paratext</string>
     <string name="text_footnotes">Footnotes</string>
     <string name="text_cross_references">Cross-references</string>

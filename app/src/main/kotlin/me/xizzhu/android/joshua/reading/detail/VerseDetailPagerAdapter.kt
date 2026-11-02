@@ -191,8 +191,7 @@ private class NotePage(inflater: LayoutInflater, container: ViewGroup, scheduleN
     : VerseDetailPage<PageVerseDetailNoteBinding>(PageVerseDetailNoteBinding.inflate(inflater, container, false)) {
     private val handler = Handler(Looper.getMainLooper())
     private val showSavedIndicator = Runnable {
-        viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes)
-        viewBinding.noteInputLayout.isEndIconVisible = true
+        viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes_saved)
     }
     private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -201,7 +200,6 @@ private class NotePage(inflater: LayoutInflater, container: ViewGroup, scheduleN
 
         override fun afterTextChanged(s: Editable) {
             viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes_typing)
-            viewBinding.noteInputLayout.isEndIconVisible = false
             handler.removeCallbacks(showSavedIndicator)
             handler.postDelayed(showSavedIndicator, NOTE_SAVED_INDICATOR_DELAY_MILLIS)
             verseDetail?.let { scheduleNoteSave(it.verseIndex, s.toString()) }
@@ -212,14 +210,12 @@ private class NotePage(inflater: LayoutInflater, container: ViewGroup, scheduleN
 
     init {
         viewBinding.note.addTextChangedListener(textWatcher)
-        viewBinding.noteInputLayout.isEndIconVisible = false
     }
 
     override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
         this.verseDetail = verseDetail
         handler.removeCallbacks(showSavedIndicator)
         viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes)
-        viewBinding.noteInputLayout.isEndIconVisible = false
         with(viewBinding.note) {
             removeTextChangedListener(textWatcher)
             setText(verseDetail.note)
