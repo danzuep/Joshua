@@ -272,7 +272,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     override fun onViewActionEmitted(viewAction: ReadingViewModel.ViewAction) {
         when (viewAction) {
             is ReadingViewModel.ViewAction.ShowVerses ->
-                versePagerAdapter.setVerses(viewAction.bookIndex, viewAction.chapterIndex, viewAction.items)
+                versePagerAdapter.setVerses(viewAction.translation, viewAction.bookIndex, viewAction.chapterIndex, viewAction.items)
             is ReadingViewModel.ViewAction.ShowVerseDetail -> with(viewBinding.verseDetailView) {
                 verseDetail = viewAction.verseDetail
                 show(viewAction.content)

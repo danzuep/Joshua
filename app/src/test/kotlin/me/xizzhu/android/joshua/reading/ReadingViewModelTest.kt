@@ -17,10 +17,13 @@
 package me.xizzhu.android.joshua.reading
 
 import android.app.Application
+import androidx.lifecycle.viewModelScope
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -114,6 +117,25 @@ class ReadingViewModelTest : BaseUnitTest() {
             ),
             actual
         )
+    }
+
+    @Test
+    fun `test currentReadingStatus keeps updating after book names failed to load`() = runTest {
+        val currentTranslation = MutableStateFlow(MockContents.kjvShortName)
+        every { bibleReadingManager.currentTranslation() } returns currentTranslation
+        every { bibleReadingManager.currentVerseIndex() } returns flowOf(VerseIndex(1, 2, 3))
+        coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } throws RuntimeException("random exception")
+        coEvery { bibleReadingManager.readBookNames(MockContents.cuvShortName) } returns MockContents.cuvBookNames
+
+        readingViewModel = createViewModel()
+        assertEquals(emptyList(), readingViewModel.viewState().first().currentReadingStatus?.bookNames)
+
+        currentTranslation.value = MockContents.cuvShortName
+        assertEquals(
+            MockContents.cuvShortName to MockContents.cuvBookNames,
+            readingViewModel.viewState().first().currentReadingStatus?.let { it.currentTranslation to it.bookNames }
+        )
+        readingViewModel.viewModelScope.cancel()
     }
 
     @Test
@@ -241,6 +263,7 @@ class ReadingViewModelTest : BaseUnitTest() {
 
         assertEquals(1, actions.size)
         with(actions[0] as ReadingViewModel.ViewAction.ShowVerses) {
+            assertEquals(MockContents.kjvShortName, translation)
             assertEquals(0, bookIndex)
             assertEquals(0, chapterIndex)
             assertEquals(1, items.size)
