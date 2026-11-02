@@ -66,9 +66,9 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
             )
         ))
 
-        assertEquals("WEBu", (adapter.getView(0, null, FrameLayout(ApplicationProvider.getApplicationContext())) as TextView).text.toString())
+        assertEquals("WEBU", (adapter.getView(0, null, FrameLayout(ApplicationProvider.getApplicationContext())) as TextView).text.toString())
         assertEquals(
-            "WEBu",
+            "WEBU",
             adapter.getDropDownView(0, null, FrameLayout(ApplicationProvider.getApplicationContext()))
                 .findViewById<TextView>(R.id.title).text.toString()
         )

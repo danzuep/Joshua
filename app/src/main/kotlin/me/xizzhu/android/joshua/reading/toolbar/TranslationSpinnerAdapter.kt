@@ -27,6 +27,7 @@ import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.databinding.SpinnerDropDownBinding
 import me.xizzhu.android.joshua.databinding.SpinnerSelectedBinding
 import me.xizzhu.android.joshua.ui.setOnCheckedChangeByUserListener
+import me.xizzhu.android.joshua.utils.toTranslationDisplayName
 
 class TranslationSpinnerAdapter(
     context: Context,
@@ -108,7 +109,7 @@ class TranslationSpinnerAdapter(
 sealed class TranslationItem {
     data class Translation(val translationShortName: String, val isCurrentTranslation: Boolean, val isParallelTranslation: Boolean) : TranslationItem() {
         val displayName: String
-            get() = if (translationShortName == "engwebu") "WEBu" else translationShortName
+            get() = translationShortName.toTranslationDisplayName()
     }
     object More : TranslationItem()
 }
