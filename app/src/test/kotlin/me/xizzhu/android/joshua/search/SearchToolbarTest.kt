@@ -99,7 +99,7 @@ class SearchToolbarTest : BaseUnitTest() {
 
         assertEquals(
             queryTextListener,
-            (searchToolbar.menu.findItem(R.id.action_search).actionView as SearchView).getProperty<SearchView, SearchView.OnQueryTextListener>("mOnQueryChangeListener")
+            searchToolbar.searchView.getProperty<SearchView, SearchView.OnQueryTextListener>("mOnQueryChangeListener")
         )
 
         val onMenuItemClickListener: Toolbar.OnMenuItemClickListener = (searchToolbar as Toolbar).getProperty("mOnMenuItemClickListener")

@@ -19,7 +19,6 @@ package me.xizzhu.android.joshua.search
 import android.app.SearchManager
 import android.content.ComponentName
 import android.content.Intent
-import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -114,7 +113,7 @@ class SearchActivityTest : BaseActivityTest() {
 
                 verify(exactly = 1) { viewModel.search("jhn1", false) }
                 val searchView = activity.getProperty<SearchActivity, ActivitySearchBinding>("viewBinding")
-                    .toolbar.menu.findItem(R.id.action_search).actionView as SearchView
+                    .toolbar.searchView
                 assertEquals("jhn1", searchView.query.toString())
             }
         }

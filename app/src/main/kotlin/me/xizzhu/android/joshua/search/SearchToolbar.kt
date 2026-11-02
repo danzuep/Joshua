@@ -21,6 +21,7 @@ import android.app.SearchableInfo
 import android.content.Context
 import android.database.Cursor
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import androidx.appcompat.widget.SearchView
 import com.google.android.material.appbar.MaterialToolbar
 import me.xizzhu.android.joshua.R
@@ -34,14 +35,14 @@ class SearchToolbar : MaterialToolbar {
 
     init {
         inflateMenu(R.menu.menu_search)
-        menu.findItem(R.id.action_search).expandActionView()
-        with(searchView()) {
+        LayoutInflater.from(context).inflate(R.layout.view_search_toolbar_search, this, true)
+        with(searchView) {
             isQueryRefinementEnabled = true
             isIconified = false
         }
     }
 
-    private fun searchView(): SearchView = menu.findItem(R.id.action_search).actionView as SearchView
+    val searchView: SearchView get() = findViewById(R.id.search_view)
 
     fun initialize(
         onSearchByReferenceChanged: (Boolean) -> Unit,
@@ -54,20 +55,20 @@ class SearchToolbar : MaterialToolbar {
         onQueryTextListener: SearchView.OnQueryTextListener,
         clearHistory: () -> Unit
     ) {
-        searchView().setOnQueryTextListener(onQueryTextListener)
+        searchView.setOnQueryTextListener(onQueryTextListener)
         // Tapping a history suggestion re-runs that search in place instead of launching SearchActivity again.
-        searchView().setOnSuggestionListener(object : SearchView.OnSuggestionListener {
+        searchView.setOnSuggestionListener(object : SearchView.OnSuggestionListener {
             override fun onSuggestionSelect(position: Int): Boolean = false
 
             override fun onSuggestionClick(position: Int): Boolean {
-                val cursor = searchView().suggestionsAdapter?.getItem(position) as? Cursor ?: return false
+                val cursor = searchView.suggestionsAdapter?.getItem(position) as? Cursor ?: return false
                 val columnIndex = cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_QUERY)
                         .takeIf { it >= 0 } ?: cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1)
                 if (columnIndex < 0) return false
                 val query = cursor.getString(columnIndex)?.takeIf { it.isNotBlank() } ?: return false
-                searchView().setQuery(query, false)
+                searchView.setQuery(query, false)
                 onQueryTextListener.onQueryTextSubmit(query)
-                searchView().clearFocus()
+                searchView.clearFocus()
                 return true
             }
         })
@@ -130,7 +131,7 @@ class SearchToolbar : MaterialToolbar {
     }
 
     fun setSearchableInfo(searchable: SearchableInfo) {
-        searchView().setSearchableInfo(searchable)
+        searchView.setSearchableInfo(searchable)
     }
 
     /**
@@ -138,6 +139,6 @@ class SearchToolbar : MaterialToolbar {
      * (it is searchable and singleTop), whose onNewIntent would set the query again, looping forever.
      */
     fun setQuery(query: String) {
-        searchView().setQuery(query, false)
+        searchView.setQuery(query, false)
     }
 }
