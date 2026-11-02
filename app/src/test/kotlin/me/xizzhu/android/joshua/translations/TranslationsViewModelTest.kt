@@ -24,6 +24,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runTest
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.BibleReadingManager
@@ -34,6 +36,7 @@ import me.xizzhu.android.joshua.tests.MockContents
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -224,6 +227,30 @@ class TranslationsViewModelTest : BaseUnitTest() {
         translationsViewModel.selectTranslation(MockContents.kjvDownloadedTranslationInfo)
 
         assertEquals(TranslationsViewModel.ViewAction.GoBack, viewAction.await())
+    }
+
+    @Test
+    fun `test downloadTranslation(), goes back when completed`() = runTest {
+        every { translationManager.downloadTranslation(MockContents.kjvTranslationInfo) } returns flowOf(100, 101)
+
+        val viewAction = async(Dispatchers.Unconfined) { translationsViewModel.viewAction().first() }
+
+        translationsViewModel.downloadTranslation(MockContents.kjvTranslationInfo)
+
+        assertEquals(TranslationsViewModel.ViewAction.GoBack, viewAction.await())
+    }
+
+    @Test
+    fun `test downloadTranslation(), stays when failed`() = runTest {
+        every { translationManager.downloadTranslation(MockContents.kjvTranslationInfo) } returns flowOf(-1)
+
+        val actions = mutableListOf<TranslationsViewModel.ViewAction>()
+        val job = translationsViewModel.viewAction().onEach { actions.add(it) }.launchIn(testScope)
+
+        translationsViewModel.downloadTranslation(MockContents.kjvTranslationInfo)
+
+        assertTrue(actions.isEmpty())
+        job.cancel()
     }
 
     @Test

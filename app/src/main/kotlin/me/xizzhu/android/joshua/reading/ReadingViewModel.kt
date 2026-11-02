@@ -22,6 +22,7 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.combine
@@ -98,7 +99,7 @@ class ReadingViewModel @Inject constructor(
     )
 ) {
     sealed class ViewAction {
-        data class ShowVerses(val bookIndex: Int, val chapterIndex: Int, val items: List<BaseItem>) : ViewAction()
+        data class ShowVerses(val translation: String, val bookIndex: Int, val chapterIndex: Int, val items: List<BaseItem>) : ViewAction()
         data class ShowVerseDetail(val verseDetail: VerseDetailViewData, @VerseDetailViewLayout.Companion.VerseDetail val content: Int) : ViewAction()
         data class UpdateVerse(val update: VerseUpdate) : ViewAction()
         data class BookmarkSaved(val bookmarked: Boolean) : ViewAction()
@@ -146,11 +147,20 @@ class ReadingViewModel @Inject constructor(
             bibleReadingManager.parallelTranslations(),
             bibleReadingManager.currentVerseIndex().filterIsValid(),
         ) { currentTranslation, parallelTranslations, currentVerseIndex ->
+            // A failure here must not end the collection, or the reader would never see another translation change.
+            val bookNames = try {
+                bibleReadingManager.readBookNames(currentTranslation)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Logger.withTag(tag).e(e) { "Failed to read book names of $currentTranslation" }
+                emptyList()
+            }
             val currentReadingStatus = ViewState.CurrentReadingStatus(
                 currentTranslation = currentTranslation,
                 parallelTranslations = parallelTranslations,
                 currentVerseIndex = currentVerseIndex,
-                bookNames = bibleReadingManager.readBookNames(currentTranslation),
+                bookNames = bookNames,
             )
             updateViewState { it.copy(currentReadingStatus = currentReadingStatus) }
         }.launchIn(viewModelScope)
@@ -232,6 +242,7 @@ class ReadingViewModel @Inject constructor(
     fun loadVerses(bookIndex: Int, chapterIndex: Int) {
         viewModelScope.launch {
             runCatching {
+                var translation = ""
                 val items = coroutineScope {
                     val highlights = async { highlightManager.read(bookIndex, chapterIndex) }
 
@@ -239,11 +250,12 @@ class ReadingViewModel @Inject constructor(
                     val notes = async { noteManager.read(bookIndex, chapterIndex) }
 
                     val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
+                    translation = currentTranslation
                     val verses = bibleReadingManager.readStructuredVerses(currentTranslation, bookIndex, chapterIndex)
 
                     verses.toParagraphItems(application, bookmarks.await(), highlights.await(), notes.await())
                 }
-                emitViewAction(ViewAction.ShowVerses(bookIndex, chapterIndex, items))
+                emitViewAction(ViewAction.ShowVerses(translation, bookIndex, chapterIndex, items))
             }.onFailure { e ->
                 showError(ViewState.Error.VersesLoadingError(bookIndex, chapterIndex), e, "Failed to load verses")
             }

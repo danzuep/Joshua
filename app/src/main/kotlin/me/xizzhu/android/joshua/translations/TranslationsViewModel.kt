@@ -276,6 +276,7 @@ class TranslationsViewModel @Inject constructor(
                     101 -> {
                         viewModelScope.launch { loadTranslations(forceRefresh = false) }
                         updateViewState { it.copy(translationDownloadingState = ViewState.TranslationDownloadingState.Completed(successful = true)) }
+                        emitViewAction(ViewAction.GoBack)
                     }
                     else -> throw IllegalArgumentException("Unsupported downloading progress: $progress")
                 }

@@ -76,7 +76,8 @@ class VersePagerAdapter(
     }
 
     fun setCurrent(verseIndex: VerseIndex, translation: String, parallel: List<String>) {
-        val shouldNotifyDataSetChanged = currentTranslation != translation || parallelTranslations != parallel
+        // The chapter items only depend on the translation, so a parallel change must not drop them or restart the loads.
+        val shouldNotifyDataSetChanged = currentTranslation != translation
         if (shouldNotifyDataSetChanged) {
             chapterItems.clear()
             loadingPositions.clear()
@@ -87,7 +88,9 @@ class VersePagerAdapter(
         if (shouldNotifyDataSetChanged) notifyDataSetChangedSafely()
     }
 
-    fun setVerses(bookIndex: Int, chapterIndex: Int, verses: List<BaseItem>) {
+    fun setVerses(translation: String, bookIndex: Int, chapterIndex: Int, verses: List<BaseItem>) {
+        // A load started before a translation change must not be cached as the new translation's chapter.
+        if (translation != currentTranslation) return
         val position = indexToPagePosition(bookIndex, chapterIndex)
         loadingPositions.remove(position)
         chapterItems[position] = verses
@@ -230,6 +233,11 @@ private class Page(
         renderedItems = emptyList()
         chapters.clear()
         requestedPositions.clear()
+        // Unfinished fades of the previous binding would otherwise hide the spinner or the list again.
+        viewBinding.verseList.animate().cancel()
+        viewBinding.loadingSpinner.animate().setListener(null).cancel()
+        viewBinding.verseList.alpha = 1.0F
+        viewBinding.loadingSpinner.alpha = 1.0F
         viewBinding.verseList.visibility = View.GONE
         viewBinding.loadingSpinner.visibility = View.VISIBLE
         viewBinding.verseList.setSettings(settings)
