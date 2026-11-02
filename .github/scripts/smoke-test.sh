@@ -79,6 +79,30 @@ else
   fi
 fi
 
+# Screenshot of the search toolbar's overflow menu, to check it is not squeezed against the screen edge.
+dump_ui
+cp ui.xml ui-search-menu-before.xml 2> /dev/null
+overflow_xy=$(python3 - << 'PY'
+import re
+xml = open("ui-search-menu-before.xml", encoding="utf-8").read()
+node = re.search(r'<node[^>]*content-desc="More options"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
+if node:
+    x1, y1, x2, y2 = map(int, node.groups())
+    print((x1 + x2) // 2, (y1 + y2) // 2)
+PY
+)
+if [ -n "$overflow_xy" ]; then
+  adb shell input tap $overflow_xy
+  sleep 2
+  adb exec-out screencap -p > screen-search-menu.png
+  dump_ui
+  cp ui.xml ui-search-menu.xml 2> /dev/null
+  adb shell input keyevent KEYCODE_BACK
+  sleep 1
+else
+  echo "NOTE: no overflow button found to screenshot"
+fi
+
 adb shell input keyevent KEYCODE_BACK
 sleep 2
 adb shell input keyevent KEYCODE_BACK
