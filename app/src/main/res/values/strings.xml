@@ -49,12 +49,10 @@
 
     <string name="dialog_title_no_translation_downloaded">No translation</string>
     <string name="action_download_sites">Download sites</string>
-    <string name="action_filter_translations">Filter</string>
     <string name="action_download">Download</string>
     <string name="action_download_engbsb">Berean Standard Bible</string>
     <string name="action_download_engwebp">World English Bible</string>
     <string name="action_download_engerv">Easy-to-Read Version</string>
-    <string name="dialog_title_filter_translations">Filter translations</string>
     <string name="hint_filter_translations">Name, abbreviation or language</string>
     <string name="text_all_languages">All languages</string>
     <string name="translation_detail_id">ID</string>

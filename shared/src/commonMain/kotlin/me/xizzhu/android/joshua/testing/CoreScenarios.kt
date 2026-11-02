@@ -153,15 +153,18 @@ class CoreTranslations(private val storage: LocalTranslationStorage) {
         return this
     }
 
-    /** Matches name, short name or language, like the filter dialog. */
+    /** Every whitespace-separated word must match the name, short name or language, like the filter dialog. */
     fun filter(query: String): CoreTranslations {
         this.query = query.trim()
         return this
     }
 
-    suspend fun visible(): List<TranslationInfo> = storage.readTranslations().filter {
-        query.isEmpty() || it.name.contains(query, ignoreCase = true) || it.shortName.contains(query, ignoreCase = true)
-                || it.language.contains(query, ignoreCase = true)
+    suspend fun visible(): List<TranslationInfo> {
+        val words = query.split(Regex("\\s+")).filter { it.isNotEmpty() }
+        return storage.readTranslations().filter { info ->
+            val haystack = "${info.shortName} ${info.name} ${info.language}"
+            words.all { haystack.contains(it, ignoreCase = true) }
+        }
     }
 
     /** Installs the translation with the given short name, with the given verses keyed by (book, chapter). */

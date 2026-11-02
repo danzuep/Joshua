@@ -113,10 +113,18 @@ class CoreScenariosTest {
         val web = TranslationInfo("WEBU", "World English Bible", "English", 100L, false)
         val bsb = TranslationInfo("BSB", "Berean Standard Bible", "English", 100L, false)
         val rvr = TranslationInfo("RVR", "Reina Valera", "Spanish", 100L, false)
+        val greekNt = TranslationInfo("SBLGNT", "Greek NT", "Greek", 100L, false)
+        val greekOt = TranslationInfo("LXX", "Greek OT", "Greek", 100L, false)
 
         val translations = CoreTranslations(storage).available(web, bsb, rvr)
         assertEquals(listOf("RVR"), translations.filter("span").visible().map { it.shortName })
         assertEquals(listOf("WEBU", "BSB"), translations.filter("english").visible().map { it.shortName }.sortedDescending())
+
+        translations.available(web, bsb, rvr, greekNt, greekOt)
+        assertEquals(listOf("SBLGNT"), translations.filter("Greek NT").visible().map { it.shortName })
+        assertEquals(listOf("SBLGNT"), translations.filter("  nt   greek ").visible().map { it.shortName })
+        assertEquals(emptyList(), translations.filter("Greek Spanish").visible().map { it.shortName })
+        translations.available(web, bsb, rvr)
 
         translations.download("WEBU").download("RVR").expectDownloaded("WEBU", "RVR").remove("RVR").expectDownloaded("WEBU")
     }

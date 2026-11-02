@@ -77,6 +77,16 @@ class TranslationTableTest {
     }
 
     @Test
+    fun `test toRemoteTranslationInfo() keeps the native name for languages unknown to the JVM`() {
+        val rows = parseTranslationTsv(
+            "Territory\tLanguage\tLanguage (English)\tVernacular Title\tEnglish Title\tHome\n" +
+                "Greece\t\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\tGreek, Ancient\tx\tSBL Greek NT\tgrcsbl\n",
+            "https://ebible.org/download.php"
+        )
+        assertEquals("Greek, Ancient (\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac)", rows[0].toRemoteTranslationInfo().language)
+    }
+
+    @Test
     fun `test siteOrigin() and usfmZipUrl()`() {
         assertEquals("https://ebible.org", siteOrigin("https://ebible.org/download.php"))
         assertNull(siteOrigin("not a url"))
