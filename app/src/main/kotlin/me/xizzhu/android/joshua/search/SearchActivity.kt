@@ -150,9 +150,23 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
             viewModel.markSearchResultSummaryAsShown()
         }
 
-        viewState.preview?.handle()
-        viewState.error?.handle()
+        viewState.preview?.let { preview ->
+            if (preview !== presentedPreview) {
+                presentedPreview = preview
+                preview.handle()
+            }
+        } ?: run { presentedPreview = null }
+        viewState.error?.let { error ->
+            if (error !== presentedError) {
+                presentedError = error
+                error.handle()
+            }
+        } ?: run { presentedError = null }
     }
+
+    /** The preview dialog and error dialog are shown once per state, otherwise every state update stacks another one. */
+    private var presentedPreview: Preview? = null
+    private var presentedError: SearchViewModel.ViewState.Error? = null
 
     private fun Preview.handle() {
         val previewAdapter = PreviewAdapter(

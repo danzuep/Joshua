@@ -27,12 +27,11 @@ class VerseDetailPagerAdapterTest {
         downloadedTranslationCount: Int = 1,
         note: String = "",
         footnotes: List<String> = emptyList(),
-        crossReferences: List<String> = emptyList(),
-        headings: List<String> = emptyList()
+        crossReferences: List<String> = emptyList()
     ) = VerseDetailViewData(
         verseIndex = VerseIndex(0, 0, 0), verseTextItems = emptyList(),
         bookmarked = false, highlightColor = Highlight.COLOR_NONE, note = note,
-        footnotes = footnotes, crossReferences = crossReferences, headings = headings,
+        footnotes = footnotes, crossReferences = crossReferences,
         downloadedTranslationCount = downloadedTranslationCount
     )
 
@@ -49,14 +48,6 @@ class VerseDetailPagerAdapterTest {
         assertEquals(
             listOf(VerseDetailPagerAdapter.PAGE_NOTE, VerseDetailPagerAdapter.PAGE_VERSES, VerseDetailPagerAdapter.PAGE_PARATEXT),
             visibleVersePages(verseDetail(downloadedTranslationCount = 2, footnotes = listOf("a note")))
-        )
-    }
-
-    @Test
-    fun `test visibleVersePages shows paratext for headings only`() {
-        assertEquals(
-            listOf(VerseDetailPagerAdapter.PAGE_NOTE, VerseDetailPagerAdapter.PAGE_PARATEXT),
-            visibleVersePages(verseDetail(downloadedTranslationCount = 1, headings = listOf("Creation")))
         )
     }
 
