@@ -23,6 +23,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.platform.app.InstrumentationRegistry
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -106,10 +107,11 @@ class SearchActivityTest : BaseActivityTest() {
     fun `test ACTION_SEARCH intent searches once without submitting again`() {
         val launchIntent = Intent.makeMainActivity(ComponentName(ApplicationProvider.getApplicationContext(), SearchActivity::class.java))
         ActivityScenario.launch<SearchActivity>(launchIntent).use { scenario ->
-            scenario.onActivity { clearMocks(viewModel, answers = false) }
-            scenario.newIntent(Intent(Intent.ACTION_SEARCH).putExtra(SearchManager.QUERY, " jhn1 "))
-
             scenario.onActivity { activity ->
+                clearMocks(viewModel, answers = false)
+                InstrumentationRegistry.getInstrumentation()
+                    .callActivityOnNewIntent(activity, Intent(Intent.ACTION_SEARCH).putExtra(SearchManager.QUERY, " jhn1 "))
+
                 verify(exactly = 1) { viewModel.search("jhn1", false) }
                 val searchView = activity.getProperty<SearchActivity, ActivitySearchBinding>("viewBinding")
                     .toolbar.menu.findItem(R.id.action_search).actionView as SearchView
