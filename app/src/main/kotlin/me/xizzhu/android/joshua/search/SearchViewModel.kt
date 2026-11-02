@@ -19,9 +19,11 @@ package me.xizzhu.android.joshua.search
 import android.app.Application
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
@@ -111,21 +113,26 @@ class SearchViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
 
-        combine(
-            settingsManager.settings(),
-            searchRequest.filterNotNull()
-                .distinctUntilChangedBy { it.query to it.instantSearch }
-                .mapLatest { request ->
-                    if (request.instantSearch) delay(SEARCH_TYPING_TIMEOUT_MS)
-                    request
-                }
-        ) { settings, searchRequest ->
-            doSearch(settings, searchRequest.query, searchRequest.instantSearch)
+        // collectLatest cancels a search that is still running when a newer request arrives, so stale results never overwrite newer ones.
+        viewModelScope.launch {
+            combine(
+                settingsManager.settings(),
+                searchRequest.filterNotNull()
+                    .distinctUntilChangedBy { it.query to it.instantSearch }
+                    .mapLatest { request ->
+                        if (request.instantSearch) delay(SEARCH_TYPING_TIMEOUT_MS)
+                        request
+                    }
+            ) { settings, searchRequest -> settings to searchRequest }
+                .flowOn(coroutineDispatcherProvider.default)
+                .collectLatest { (settings, searchRequest) ->
+                    doSearch(settings, searchRequest.query, searchRequest.instantSearch)
 
-            if (!searchRequest.instantSearch) {
-                searchSuggestions.saveRecentQuery(searchRequest.query)
-            }
-        }.flowOn(coroutineDispatcherProvider.default).launchIn(viewModelScope)
+                    if (!searchRequest.instantSearch) {
+                        searchSuggestions.saveRecentQuery(searchRequest.query)
+                    }
+                }
+        }
     }
 
     fun includeOldTestament(include: Boolean) {
@@ -224,6 +231,8 @@ class SearchViewModel @Inject constructor(
                 )
             }
         }.onFailure { e ->
+            // A superseded search is cancelled on purpose, so it must not surface as an error.
+            if (e is CancellationException) throw e
             Logger.withTag(tag).e(e) { "Error occurred which searching, query=$query instantSearch=$instantSearch" }
             updateViewState { it.copy(loading = false, error = ViewState.Error.VerseSearchingError) }
         }
