@@ -7,6 +7,9 @@ adb logcat -c
 # Launch once so the bundled translation is imported, then open search.
 adb shell am start -W -n me.xizzhu.android.joshua/.LauncherActivity
 sleep 25
+adb exec-out screencap -p > screen-reading.png
+adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
+adb pull /sdcard/ui.xml ui-reading.xml > /dev/null 2>&1
 adb shell am start -W -n me.xizzhu.android.joshua/.search.SearchActivity
 sleep 3
 adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
@@ -24,5 +27,8 @@ PY
 [ -n "$overflow_xy" ] && adb shell input tap $overflow_xy
 sleep 2
 adb exec-out screencap -p > screen-search-menu.png
+adb shell input keyevent KEYCODE_MENU
+sleep 2
+adb exec-out screencap -p > screen-search-keymenu.png
 adb logcat -d > logcat.txt
 [ -n "$overflow_xy" ] || { echo "FAIL: no overflow button found"; exit 1; }

@@ -37,3 +37,6 @@ jobs:
           logcat.txt
           ui.xml
           screen-search-menu.png
+          screen-reading.png
+          ui-reading.xml
+          screen-search-keymenu.png
