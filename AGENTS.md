@@ -28,7 +28,7 @@ Before pushing, review Kotlin changes carefully (unresolved references, imports,
   - Feature packages (`reading`, `search`, `translations`, `settings`, `annotated`, `progress`, `preview`) each have an Activity plus a `ViewModel` with a single `ViewState`, one-shot `ViewAction`s and a typed `Error`, on `infra/BaseViewModel` and `infra/BaseActivity`.
   - Strong's Numbers, cross references and the old JSON download flow were removed; translations now come from eBible.org USFM zips (`app/src/main/assets/ebible_downloads.tsv`, refreshed monthly by `update-ebible-downloads.yml`).
 - `buildSrc/src/main/kotlin/Configurations.kt` pins plugin and library versions. The app version comes from the release tag (`-PappVersion`), not from this file.
-- `docs/RELEASING.md` covers releases and signing; `.github/scripts/` holds the smoke-test helpers.
+- `docs/RELEASING.md` covers releases and signing; `.github/scripts/` holds the smoke-test helpers; the UI steps are fluent Kotlin builders in `shared/src/commonMain/.../testing` (`Joshua`, driven over adb by `AdbUiDriver`, scenario in `SmokeScenario.kt`).
 
 ## Repository facts
 
