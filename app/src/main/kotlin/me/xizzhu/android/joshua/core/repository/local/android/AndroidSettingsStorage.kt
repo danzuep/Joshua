@@ -33,7 +33,6 @@ class AndroidSettingsStorage(private val androidDatabase: AndroidDatabase) : Loc
                 Pair(MetadataDao.KEY_HIDE_SEARCH_BUTTON, Settings.DEFAULT.hideSearchButton.toString()),
                 Pair(MetadataDao.KEY_CONSOLIDATE_VERSES_FOR_SHARING, Settings.DEFAULT.consolidateVersesForSharing.toString()),
                 Pair(MetadataDao.KEY_DEFAULT_HIGHLIGHT_COLOR, Settings.DEFAULT.defaultHighlightColor.toString()),
-                Pair(MetadataDao.KEY_COPY_AS_MARKDOWN, Settings.DEFAULT.copyAsMarkdown.toString())
         ))
         return@withContext Settings(values.getValue(MetadataDao.KEY_SCREEN_ON).toBoolean(),
                 values.getValue(MetadataDao.KEY_NIGHT_MODE).toInt(),
@@ -41,8 +40,7 @@ class AndroidSettingsStorage(private val androidDatabase: AndroidDatabase) : Loc
                 values.getValue(MetadataDao.KEY_SIMPLE_READING_MODE_ON).toBoolean(),
                 values.getValue(MetadataDao.KEY_HIDE_SEARCH_BUTTON).toBoolean(),
                 values.getValue(MetadataDao.KEY_CONSOLIDATE_VERSES_FOR_SHARING).toBoolean(),
-                values.getValue(MetadataDao.KEY_DEFAULT_HIGHLIGHT_COLOR).toInt(),
-                values.getValue(MetadataDao.KEY_COPY_AS_MARKDOWN).toBoolean()
+                values.getValue(MetadataDao.KEY_DEFAULT_HIGHLIGHT_COLOR).toInt()
         )
     }
 
@@ -56,7 +54,6 @@ class AndroidSettingsStorage(private val androidDatabase: AndroidDatabase) : Loc
                     Pair(MetadataDao.KEY_HIDE_SEARCH_BUTTON, settings.hideSearchButton.toString()),
                     Pair(MetadataDao.KEY_CONSOLIDATE_VERSES_FOR_SHARING, settings.consolidateVersesForSharing.toString()),
                     Pair(MetadataDao.KEY_DEFAULT_HIGHLIGHT_COLOR, settings.defaultHighlightColor.toString()),
-                    Pair(MetadataDao.KEY_COPY_AS_MARKDOWN, settings.copyAsMarkdown.toString())
             ))
         }
     }

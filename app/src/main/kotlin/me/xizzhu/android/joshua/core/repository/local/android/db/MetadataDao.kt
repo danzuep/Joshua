@@ -41,7 +41,6 @@ class MetadataDao(sqliteHelper: SQLiteOpenHelper) {
         const val KEY_HIDE_SEARCH_BUTTON = "hideSearchButton"
         const val KEY_CONSOLIDATE_VERSES_FOR_SHARING = "consolidateVersesForSharing"
         const val KEY_DEFAULT_HIGHLIGHT_COLOR = "defaultHighlightColor"
-        const val KEY_COPY_AS_MARKDOWN = "copyAsMarkdown"
         const val KEY_TRANSLATION_LIST_REFRESH_TIMESTAMP = "translationListRefreshTimestamp"
         const val KEY_DOWNLOAD_SITES = "downloadSites"
         const val KEY_BOOKMARKS_SORT_ORDER = "bookmarksSortOrder"

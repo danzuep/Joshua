@@ -28,7 +28,6 @@ data class Settings(
     val hideSearchButton: Boolean,
     val consolidateVersesForSharing: Boolean,
     @Highlight.Companion.AvailableColor val defaultHighlightColor: Int,
-    val copyAsMarkdown: Boolean = false,
 ) {
     companion object {
         const val MIN_FONT_SIZE_SCALE = 0.5F
@@ -50,7 +49,6 @@ data class Settings(
             hideSearchButton = false,
             consolidateVersesForSharing = false,
             defaultHighlightColor = Highlight.COLOR_NONE,
-            copyAsMarkdown = false,
         )
     }
 }

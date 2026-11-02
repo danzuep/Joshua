@@ -58,7 +58,6 @@ class SettingsViewModel @Inject constructor(
         simpleReadingModeOn = Settings.DEFAULT.simpleReadingModeOn,
         hideSearchButton = Settings.DEFAULT.hideSearchButton,
         consolidateVersesForSharing = Settings.DEFAULT.consolidateVersesForSharing,
-        copyAsMarkdown = Settings.DEFAULT.copyAsMarkdown,
         defaultHighlightColorStringRes = highlightColorStringResource(Settings.DEFAULT.defaultHighlightColor),
         backupState = ViewState.BackupRestoreState.Idle,
         restoreState = ViewState.BackupRestoreState.Idle,
@@ -85,7 +84,6 @@ class SettingsViewModel @Inject constructor(
         val simpleReadingModeOn: Boolean,
         val hideSearchButton: Boolean,
         val consolidateVersesForSharing: Boolean,
-        val copyAsMarkdown: Boolean,
         @StringRes val defaultHighlightColorStringRes: Int,
         val backupState: BackupRestoreState,
         val restoreState: BackupRestoreState,
@@ -138,7 +136,6 @@ class SettingsViewModel @Inject constructor(
                     simpleReadingModeOn = settings.simpleReadingModeOn,
                     hideSearchButton = settings.hideSearchButton,
                     consolidateVersesForSharing = settings.consolidateVersesForSharing,
-                    copyAsMarkdown = settings.copyAsMarkdown,
                     defaultHighlightColorStringRes = highlightColorStringResource(settings.defaultHighlightColor),
                 )
             }
@@ -211,10 +208,6 @@ class SettingsViewModel @Inject constructor(
 
     fun saveConsolidateVersesForSharing(consolidateVersesForSharing: Boolean) {
         updateSettings { it.copy(consolidateVersesForSharing = consolidateVersesForSharing) }
-    }
-
-    fun saveCopyAsMarkdown(copyAsMarkdown: Boolean) {
-        updateSettings { it.copy(copyAsMarkdown = copyAsMarkdown) }
     }
 
     fun saveDefaultHighlightColor(@Highlight.Companion.AvailableColor defaultHighlightColor: Int) {

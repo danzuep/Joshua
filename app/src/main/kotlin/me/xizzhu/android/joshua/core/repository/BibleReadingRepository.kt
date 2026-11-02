@@ -100,12 +100,16 @@ class BibleReadingRepository(private val localReadingStorage: LocalReadingStorag
 
     suspend fun readBookNames(translationShortName: String): List<String> {
         return cache.getBookNames(translationShortName)
-                ?: localReadingStorage.readBookNames(translationShortName).also { cache.putBookNames(translationShortName, it) }
+                ?: localReadingStorage.readBookNames(translationShortName).also {
+                    if (it.isNotEmpty()) cache.putBookNames(translationShortName, it)
+                }
     }
 
     suspend fun readBookShortNames(translationShortName: String): List<String> {
         return cache.getBookShortNames(translationShortName)
-                ?: localReadingStorage.readBookShortNames(translationShortName).also { cache.putBookShortNames(translationShortName, it) }
+                ?: localReadingStorage.readBookShortNames(translationShortName).also {
+                    if (it.isNotEmpty()) cache.putBookShortNames(translationShortName, it)
+                }
     }
 
     suspend fun readBookIndicesWithVerses(translationShortName: String): Set<Int> =
@@ -114,7 +118,10 @@ class BibleReadingRepository(private val localReadingStorage: LocalReadingStorag
     suspend fun readVerses(translationShortName: String, bookIndex: Int, chapterIndex: Int): List<Verse> {
         val key = "$translationShortName-$bookIndex-$chapterIndex"
         return cache.getVerses(key)
-                ?: localReadingStorage.readVerses(translationShortName, bookIndex, chapterIndex).also { cache.putVerses(key, it) }
+                ?: localReadingStorage.readVerses(translationShortName, bookIndex, chapterIndex).also {
+                    // don't cache empty results, the translation may not have been saved yet
+                    if (it.isNotEmpty()) cache.putVerses(key, it)
+                }
     }
 
     suspend fun readVerses(translationShortName: String, parallelTranslations: List<String>,

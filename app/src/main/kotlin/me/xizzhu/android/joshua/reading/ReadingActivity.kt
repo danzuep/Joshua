@@ -81,6 +81,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     private val selectedVerses: MutableSet<Verse> = mutableSetOf()
     private var settings: Settings? = null
     private var currentReadingStatus: ReadingViewModel.ViewState.CurrentReadingStatus? = null
+    private var translationNames: Map<String, String> = emptyMap()
 
     private var actionMode: ActionMode? = null
     private val actionModeCallback = object : ActionMode.Callback {
@@ -121,7 +122,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
 
     private fun consolidateVersesForSharing(): Boolean = settings?.consolidateVersesForSharing ?: false
 
-    private fun copyAsMarkdown(): Boolean = settings?.copyAsMarkdown ?: false
+    private fun translationName(translationShortName: String): String = translationNames[translationShortName] ?: translationShortName
 
     private fun currentBookName(): String {
         val status = currentReadingStatus ?: return ""
@@ -133,9 +134,10 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             if (selectedVerses.isEmpty()) return
 
             val bookName = currentBookName()
+            val translationName = translationName(currentReadingStatus?.currentTranslation.orEmpty())
             copyToClipBoard(
                 label = "${currentReadingStatus?.currentTranslation.orEmpty()} $bookName",
-                text = selectedVerses.toStringForCopy(bookName, consolidateVersesForSharing(), copyAsMarkdown())
+                text = selectedVerses.toStringForCopy(bookName, translationName, consolidateVersesForSharing())
             )
             toast(R.string.toast_verses_copied)
         } catch (e: Exception) {
@@ -281,6 +283,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     }
 
     override fun onViewStateUpdated(viewState: ReadingViewModel.ViewState) {
+        translationNames = viewState.translationNames
         if (viewState.settings != settings) {
             applySettings(viewState.settings)
         }
@@ -496,7 +499,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 val bookName = viewModel.bookName(verse.text.translationShortName, verse.verseIndex.bookIndex)
                 copyToClipBoard(
                     label = "${verse.text.translationShortName} $bookName",
-                    text = verse.toStringForCopy(bookName, copyAsMarkdown())
+                    text = verse.toStringForCopy(bookName, translationName(verse.text.translationShortName))
                 )
                 toast(R.string.toast_verses_copied)
             } catch (e: Exception) {
