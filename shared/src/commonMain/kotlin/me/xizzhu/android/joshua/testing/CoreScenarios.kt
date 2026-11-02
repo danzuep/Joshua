@@ -20,9 +20,13 @@ import me.xizzhu.android.joshua.core.Bookmark
 import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.Settings
+import me.xizzhu.android.joshua.core.TranslationInfo
+import me.xizzhu.android.joshua.core.Verse
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.repository.SettingsRepository
 import me.xizzhu.android.joshua.core.repository.VerseAnnotationRepository
+import me.xizzhu.android.joshua.core.repository.local.LocalReadingStorage
+import me.xizzhu.android.joshua.core.repository.local.LocalTranslationStorage
 
 /**
  * Fluent steps over the core repositories, mirroring the UI builders in [Joshua] so a scenario can run on the JVM
@@ -86,4 +90,100 @@ class CoreSettings(private val repository: SettingsRepository, private var curre
     suspend fun consolidateVersesForSharing(on: Boolean = true) = update { copy(consolidateVersesForSharing = on) }
 
     suspend fun defaultHighlightColor(color: Int) = update { copy(defaultHighlightColor = color) }
+}
+
+/**
+ * Fluent reader navigation over [LocalReadingStorage]: every step saves the position, so the next step (or a test)
+ * reads it back exactly as the app would.
+ *
+ * ```
+ * CoreReader(storage).toTranslation("WEBU").toBook(42).toChapter(0).toVerse(4).expectVerseIndex(VerseIndex(42, 0, 4))
+ * ```
+ */
+class CoreReader(private val storage: LocalReadingStorage, private var position: VerseIndex = VerseIndex(0, 0, 0)) {
+    private suspend fun moveTo(verseIndex: VerseIndex): CoreReader {
+        position = verseIndex
+        storage.saveCurrentVerseIndex(verseIndex)
+        return this
+    }
+
+    suspend fun toTranslation(shortName: String): CoreReader {
+        storage.saveCurrentTranslation(shortName)
+        return this
+    }
+
+    suspend fun withParallel(vararg shortNames: String): CoreReader {
+        storage.saveParallelTranslations(shortNames.toList())
+        return this
+    }
+
+    suspend fun toBook(bookIndex: Int): CoreReader = moveTo(VerseIndex(bookIndex, 0, 0))
+
+    suspend fun toChapter(chapterIndex: Int): CoreReader = moveTo(position.copy(chapterIndex = chapterIndex, verseIndex = 0))
+
+    suspend fun toVerse(verseIndex: Int): CoreReader = moveTo(position.copy(verseIndex = verseIndex))
+
+    suspend fun expectVerseIndex(expected: VerseIndex): CoreReader {
+        check(storage.readCurrentVerseIndex() == expected) { "expected $expected but was ${storage.readCurrentVerseIndex()}" }
+        return this
+    }
+
+    suspend fun expectTranslation(shortName: String): CoreReader {
+        check(storage.readCurrentTranslation() == shortName) { "expected $shortName but was ${storage.readCurrentTranslation()}" }
+        return this
+    }
+
+    /** Verses of the current chapter in the current translation. */
+    suspend fun verses(): List<Verse> =
+        storage.readVerses(storage.readCurrentTranslation(), storage.readParallelTranslations(), position.bookIndex, position.chapterIndex)
+
+    suspend fun expectVerseText(verseIndex: Int, text: String): CoreReader {
+        val actual = verses().firstOrNull { it.verseIndex.verseIndex == verseIndex }?.text?.text
+        check(actual == text) { "expected verse $verseIndex to be '$text' but was '$actual'" }
+        return this
+    }
+}
+
+/** Fluent translation list steps over [LocalTranslationStorage]: filter, download (install) and remove. */
+class CoreTranslations(private val storage: LocalTranslationStorage) {
+    private var query = ""
+
+    suspend fun available(vararg translations: TranslationInfo): CoreTranslations {
+        storage.replaceTranslations(translations.toList())
+        return this
+    }
+
+    /** Matches name, short name or language, like the filter dialog. */
+    fun filter(query: String): CoreTranslations {
+        this.query = query.trim()
+        return this
+    }
+
+    suspend fun visible(): List<TranslationInfo> = storage.readTranslations().filter {
+        query.isEmpty() || it.name.contains(query, ignoreCase = true) || it.shortName.contains(query, ignoreCase = true)
+                || it.language.contains(query, ignoreCase = true)
+    }
+
+    /** Installs the translation with the given short name, with the given verses keyed by (book, chapter). */
+    suspend fun download(
+        shortName: String,
+        bookNames: List<String> = emptyList(),
+        bookShortNames: List<String> = bookNames,
+        verses: Map<Pair<Int, Int>, List<String>> = emptyMap(),
+    ): CoreTranslations {
+        val info = storage.readTranslations().first { it.shortName == shortName }
+        storage.saveTranslation(info.copy(downloaded = true), bookNames, bookShortNames, verses)
+        return this
+    }
+
+    suspend fun remove(shortName: String): CoreTranslations {
+        storage.removeTranslation(storage.readTranslations().first { it.shortName == shortName })
+        return this
+    }
+
+    suspend fun expectDownloaded(vararg shortNames: String): CoreTranslations {
+        val actual = storage.readTranslations().filter { it.downloaded }.map { it.shortName }.toSet()
+        check(actual == shortNames.toSet()) { "expected downloaded ${shortNames.toSet()} but was $actual" }
+        return this
+    }
 }

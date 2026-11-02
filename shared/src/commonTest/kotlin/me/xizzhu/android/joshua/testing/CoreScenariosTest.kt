@@ -25,11 +25,16 @@ import me.xizzhu.android.joshua.core.Constants
 import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.Settings
+import me.xizzhu.android.joshua.core.TranslationInfo
+import me.xizzhu.android.joshua.core.Verse
+import me.xizzhu.android.joshua.core.VerseSearchQuery
 import me.xizzhu.android.joshua.core.VerseAnnotation
 import me.xizzhu.android.joshua.core.VerseIndex
 import me.xizzhu.android.joshua.core.repository.SettingsRepository
 import me.xizzhu.android.joshua.core.repository.VerseAnnotationRepository
+import me.xizzhu.android.joshua.core.repository.local.LocalReadingStorage
 import me.xizzhu.android.joshua.core.repository.local.LocalSettingsStorage
+import me.xizzhu.android.joshua.core.repository.local.LocalTranslationStorage
 import me.xizzhu.android.joshua.core.repository.local.LocalVerseAnnotationStorage
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -53,6 +58,67 @@ class CoreScenariosTest {
         var saved = Settings.DEFAULT
         override suspend fun readSettings(): Settings = saved
         override suspend fun saveSettings(settings: Settings) { saved = settings }
+    }
+
+    private class InMemoryReading : LocalReadingStorage {
+        var verseIndex = VerseIndex(0, 0, 0)
+        var translation = ""
+        var parallel = emptyList<String>()
+        override suspend fun readCurrentVerseIndex() = verseIndex
+        override suspend fun saveCurrentVerseIndex(verseIndex: VerseIndex) { this.verseIndex = verseIndex }
+        override suspend fun readCurrentTranslation() = translation
+        override suspend fun saveCurrentTranslation(translationShortName: String) { translation = translationShortName }
+        override suspend fun readParallelTranslations() = parallel
+        override suspend fun saveParallelTranslations(parallelTranslations: List<String>) { parallel = parallelTranslations }
+        override suspend fun readBookNames(translationShortName: String) = emptyList<String>()
+        override suspend fun readBookShortNames(translationShortName: String) = emptyList<String>()
+        override suspend fun readBookIndicesWithVerses(translationShortName: String) = emptySet<Int>()
+        override suspend fun readVerses(translationShortName: String, bookIndex: Int, chapterIndex: Int) =
+            readVerses(translationShortName, emptyList(), bookIndex, chapterIndex)
+        override suspend fun readVerses(translationShortName: String, parallelTranslations: List<String>, bookIndex: Int, chapterIndex: Int) =
+            listOf(0, 1, 2).map { Verse(VerseIndex(bookIndex, chapterIndex, it), Verse.Text(translationShortName, "$translationShortName $bookIndex:$chapterIndex:$it"), emptyList()) }
+        override suspend fun readVerses(translationShortName: String, verseIndexes: List<VerseIndex>) = emptyMap<VerseIndex, Verse>()
+        override suspend fun search(query: VerseSearchQuery) = emptyList<Verse>()
+    }
+
+    private class InMemoryTranslations : LocalTranslationStorage {
+        var translations = emptyList<TranslationInfo>()
+        override suspend fun readTranslationListRefreshTimestamp() = 0L
+        override suspend fun saveTranslationListRefreshTimestamp(timestamp: Long) {}
+        override suspend fun readDownloadSites() = emptyList<String>()
+        override suspend fun saveDownloadSites(sites: List<String>) {}
+        override suspend fun readTranslations() = translations
+        override suspend fun replaceTranslations(translations: List<TranslationInfo>) { this.translations = translations }
+        override suspend fun saveTranslation(translationInfo: TranslationInfo, bookNames: List<String>, bookShortNames: List<String>, verses: Map<Pair<Int, Int>, List<String>>) {
+            translations = translations.filter { it.shortName != translationInfo.shortName } + translationInfo
+        }
+        override suspend fun removeTranslation(translationInfo: TranslationInfo) {
+            translations = translations.map { if (it.shortName == translationInfo.shortName) it.copy(downloaded = false) else it }
+        }
+    }
+
+    @Test
+    fun readerNavigationChains() = runTest {
+        val storage = InMemoryReading()
+
+        CoreReader(storage).toTranslation("WEBU").toBook(42).toChapter(2).toVerse(1)
+            .expectTranslation("WEBU").expectVerseIndex(VerseIndex(42, 2, 1)).expectVerseText(1, "WEBU 42:2:1")
+            .toChapter(3).expectVerseIndex(VerseIndex(42, 3, 0))
+            .toBook(0).expectVerseIndex(VerseIndex(0, 0, 0))
+    }
+
+    @Test
+    fun translationFilterDownloadAndRemoveChain() = runTest {
+        val storage = InMemoryTranslations()
+        val web = TranslationInfo("WEBU", "World English Bible", "English", 100L, false)
+        val bsb = TranslationInfo("BSB", "Berean Standard Bible", "English", 100L, false)
+        val rvr = TranslationInfo("RVR", "Reina Valera", "Spanish", 100L, false)
+
+        val translations = CoreTranslations(storage).available(web, bsb, rvr)
+        assertEquals(listOf("RVR"), translations.filter("span").visible().map { it.shortName })
+        assertEquals(listOf("WEBU", "BSB"), translations.filter("english").visible().map { it.shortName }.sortedDescending())
+
+        translations.download("WEBU").download("RVR").expectDownloaded("WEBU", "RVR").remove("RVR").expectDownloaded("WEBU")
     }
 
     @Test
