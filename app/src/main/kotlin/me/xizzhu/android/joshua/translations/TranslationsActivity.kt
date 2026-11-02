@@ -18,8 +18,6 @@ package me.xizzhu.android.joshua.translations
 
 import android.text.InputType
 import android.view.MotionEvent
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -39,7 +37,6 @@ import me.xizzhu.android.joshua.ui.ProgressDialog
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.fadeIn
 import me.xizzhu.android.joshua.ui.indeterminateProgressDialog
-import me.xizzhu.android.joshua.ui.languageDisplayNameWithNative
 import me.xizzhu.android.joshua.ui.progressDialog
 import me.xizzhu.android.joshua.ui.toast
 
@@ -85,17 +82,13 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
 
         viewBinding.filterKeyword.setText(viewModel.keywordFilter)
         viewBinding.filterKeyword.doAfterTextChanged { text ->
-            viewModel.applyFilter(language = viewModel.languageFilter, keyword = text.toString())
+            viewModel.applyFilter(text.toString())
         }
 
         with(viewBinding.toolbar) {
             inflateMenu(R.menu.menu_translations)
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
-                    R.id.action_filter_translations -> {
-                        showFilterDialog()
-                        true
-                    }
                     R.id.action_download_sites -> {
                         showDownloadSitesDialog()
                         true
@@ -147,28 +140,6 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
             val trackHeight = viewBinding.fastScrollTrack.height
             translationY = (fraction * trackHeight - height / 2f).coerceIn(0f, (trackHeight - height).toFloat().coerceAtLeast(0f))
         }
-    }
-
-    private fun showFilterDialog() {
-        val languages = viewModel.availableLanguages()
-        val labels = languages.associateWith { languageDisplayNameWithNative(it) }
-        val content = layoutInflater.inflate(R.layout.dialog_filter_translations, null)
-        val languageInput = content.findViewById<AutoCompleteTextView>(R.id.filter_language).apply {
-            setAdapter(ArrayAdapter(this@TranslationsActivity, android.R.layout.simple_dropdown_item_1line, labels.values.toList()))
-            setText(viewModel.languageFilter?.let { labels[it] }.orEmpty(), false)
-        }
-        AlertDialog.Builder(this)
-            .setTitle(R.string.dialog_title_filter_translations)
-            .setView(content)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                val text = languageInput.text.toString().trim()
-                viewModel.applyFilter(
-                    language = labels.entries.firstOrNull { it.value.equals(text, ignoreCase = true) }?.key,
-                    keyword = viewModel.keywordFilter,
-                )
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
     }
 
     private fun showDownloadTranslationDialog(translation: TranslationInfo) {
