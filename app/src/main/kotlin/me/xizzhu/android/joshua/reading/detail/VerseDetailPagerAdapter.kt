@@ -161,8 +161,6 @@ private class VersesPage(inflater: LayoutInflater, container: ViewGroup)
 private class ParatextPage(inflater: LayoutInflater, container: ViewGroup)
     : VerseDetailPage<PageVerseDetailNotesBinding>(PageVerseDetailNotesBinding.inflate(inflater, container, false)) {
     override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
-        bindSection(viewBinding.headingsTitle, viewBinding.headingsScroll, viewBinding.headings,
-                verseDetail.headings, settings)
         bindSection(viewBinding.footnotesTitle, viewBinding.footnotesScroll, viewBinding.footnotes,
                 verseDetail.footnotes, settings)
         bindSection(viewBinding.crossReferencesTitle, viewBinding.crossReferencesScroll, viewBinding.crossReferences,

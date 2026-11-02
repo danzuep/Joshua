@@ -296,7 +296,6 @@ class ReadingViewModelTest : BaseUnitTest() {
         val detail = shown.verseDetail
         assertEquals(listOf("a note"), detail.footnotes)
         assertEquals(listOf("1:1 Gen 1:1"), detail.crossReferences)
-        assertEquals(listOf("Creation"), detail.headings)
         assertEquals(3, detail.downloadedTranslationCount)
         assertTrue(detail.hasParallel)
         assertTrue(detail.hasParatext)

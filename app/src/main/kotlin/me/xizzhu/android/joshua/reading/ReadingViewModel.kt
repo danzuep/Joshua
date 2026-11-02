@@ -35,7 +35,6 @@ import me.xizzhu.android.joshua.core.Highlight
 import me.xizzhu.android.joshua.core.Note
 import me.xizzhu.android.joshua.core.ReadingProgressManager
 import me.xizzhu.android.joshua.core.Settings
-import me.xizzhu.android.joshua.core.extractHeadings
 import me.xizzhu.android.joshua.core.extractNotes
 import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.TranslationManager
@@ -57,10 +56,10 @@ class VerseDetailViewData(
     val verseIndex: VerseIndex, val verseTextItems: List<VerseTextItem>,
     var bookmarked: Boolean, @Highlight.Companion.AvailableColor var highlightColor: Int, var note: String,
     val footnotes: List<String> = emptyList(), val crossReferences: List<String> = emptyList(),
-    val headings: List<String> = emptyList(), val downloadedTranslationCount: Int = 1
+    val downloadedTranslationCount: Int = 1
 ) {
     val hasParallel: Boolean get() = downloadedTranslationCount > 1
-    val hasParatext: Boolean get() = footnotes.isNotEmpty() || crossReferences.isNotEmpty() || headings.isNotEmpty()
+    val hasParatext: Boolean get() = footnotes.isNotEmpty() || crossReferences.isNotEmpty()
 }
 
 class VerseUpdate(val verseIndex: VerseIndex, @Operation val operation: Int, val data: Any? = null) {
@@ -289,12 +288,11 @@ class ReadingViewModel @Inject constructor(
         }
         if (verse == null) throw IllegalStateException("Failed to find verse '$verseIndex' for translation '$currentTranslation'")
 
-        // step 2: reads the footnotes, cross-references and headings of the verse, which the stripped verses don't keep
+        // step 2: reads the footnotes and cross-references of the verse, which the stripped verses don't keep
         val primaryIndex = verse.verseIndex
         val primaryText = bibleReadingManager.readStructuredVerses(currentTranslation, verseIndex.bookIndex, verseIndex.chapterIndex)
             .firstOrNull { it.verseIndex == primaryIndex }?.text?.text ?: ""
         val verseNotes = primaryText.extractNotes()
-        val headings = primaryText.extractHeadings()
 
         // step 3: builds the parallel
         val parallel = Array(parallelTranslations.size) { StringBuilder() }
@@ -339,7 +337,6 @@ class ReadingViewModel @Inject constructor(
             note = note.await(),
             footnotes = verseNotes.filter { !it.isCrossReference }.map { it.text },
             crossReferences = verseNotes.filter { it.isCrossReference }.map { it.text },
-            headings = headings,
             downloadedTranslationCount = downloadedTranslations.size
         )
     }
