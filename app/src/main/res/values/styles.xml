@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="ActionModeButton" parent="Widget.AppCompat.ActionButton">
+        <item name="android:minWidth">@dimen/action_mode_button_min_width</item>
+        <item name="android:paddingStart">@dimen/padding_small</item>
+        <item name="android:paddingEnd">@dimen/padding_small</item>
+    </style>
+
     <style name="AppWindowAnimationStyle">
         <item name="android:activityOpenEnterAnimation">@anim/slide_in_right_to_left</item>
         <item name="android:activityOpenExitAnimation">@anim/fade_out</item>
