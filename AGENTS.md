@@ -12,7 +12,8 @@ Don't spend time trying to work around this (no installing the SDK, mirrors or o
 
 | Goal | How |
 |------|-----|
-| Build and unit tests (`./gradlew testDebugUnitTest assembleDebug`, about 4 min) | Push the branch and open a PR (`gh pr create`). `Android CI` runs on pull requests and on pushes to `master`. It has no `workflow_dispatch`. |
+| Build and unit tests (`./gradlew testDebugUnitTest assembleDebug`, about 4 min) | Push the branch and open a PR (`gh pr create`). `Android CI` runs only when `app/`, `buildSrc/`, Gradle or workflow files change, and on pushes to `master`. It has no `workflow_dispatch`. |
+| Shared module tests (`./gradlew :shared:jvmTest`, about 1 min) | `Shared tests` workflow, runs when `shared/` or Gradle files change. Tests live in `shared/src/commonTest`. Only the JVM target runs them, so they need no Android SDK. Kotlin-only changes should rely on this job, not `Android CI`. |
 | Emulator smoke test of the release APK (about 4-8 min) | `gh workflow run smoke-test.yml --ref <branch>` |
 | Release APKs (plain and with WEB) | `gh workflow run release.yml --ref <branch>`. This is a dry run unless the ref is a `v*` tag. See [docs/RELEASING.md](docs/RELEASING.md). |
 

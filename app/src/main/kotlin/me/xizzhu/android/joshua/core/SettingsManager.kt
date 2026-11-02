@@ -16,42 +16,8 @@
 
 package me.xizzhu.android.joshua.core
 
-import androidx.annotation.IntDef
 import kotlinx.coroutines.flow.Flow
 import me.xizzhu.android.joshua.core.repository.SettingsRepository
-
-data class Settings(
-    val keepScreenOn: Boolean,
-    @NightMode val nightMode: Int,
-    val fontSizeScale: Float,
-    val simpleReadingModeOn: Boolean,
-    val hideSearchButton: Boolean,
-    val consolidateVersesForSharing: Boolean,
-    @Highlight.Companion.AvailableColor val defaultHighlightColor: Int,
-) {
-    companion object {
-        const val MIN_FONT_SIZE_SCALE = 0.5F
-        const val MAX_FONT_SIZE_SCALE = 3.0F
-
-        const val NIGHT_MODE_ON = 0
-        const val NIGHT_MODE_OFF = 1
-        const val NIGHT_MODE_FOLLOW_SYSTEM = 2
-
-        @IntDef(NIGHT_MODE_ON, NIGHT_MODE_OFF, NIGHT_MODE_FOLLOW_SYSTEM)
-        @Retention(AnnotationRetention.SOURCE)
-        annotation class NightMode
-
-        val DEFAULT = Settings(
-            keepScreenOn = true,
-            nightMode = NIGHT_MODE_FOLLOW_SYSTEM,
-            fontSizeScale = 1.0F,
-            simpleReadingModeOn = false,
-            hideSearchButton = false,
-            consolidateVersesForSharing = false,
-            defaultHighlightColor = Highlight.COLOR_NONE,
-        )
-    }
-}
 
 class SettingsManager(private val settingsRepository: SettingsRepository) {
     fun settings(): Flow<Settings> = settingsRepository.settings

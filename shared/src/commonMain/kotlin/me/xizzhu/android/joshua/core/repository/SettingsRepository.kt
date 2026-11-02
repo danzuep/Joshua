@@ -25,7 +25,7 @@ import co.touchlab.kermit.Logger
 
 class SettingsRepository(private val localSettingsStorage: LocalSettingsStorage, appScope: CoroutineScope) {
     companion object {
-        private val TAG = SettingsRepository::class.java.simpleName
+        private val TAG = "SettingsRepository"
     }
 
     private val _settings = MutableStateFlow<Settings?>(null)

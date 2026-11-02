@@ -32,7 +32,7 @@ class VerseAnnotationRepository<T : VerseAnnotation>(
         appScope: CoroutineScope
 ) {
     companion object {
-        private val TAG = VerseAnnotationRepository::class.java.simpleName
+        private val TAG = "VerseAnnotationRepository"
     }
 
     private val _sortOrder = MutableStateFlow<Int?>(null)

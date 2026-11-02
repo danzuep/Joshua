@@ -2,7 +2,25 @@ name: Android CI
 on:
   push:
     branches: [master]
+    paths:
+      - 'app/**'
+      - 'buildSrc/**'
+      - 'gradle/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradlew*'
+      - '.github/workflows/android.yml'
   pull_request:
+    paths:
+      - 'app/**'
+      - 'buildSrc/**'
+      - 'gradle/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradlew*'
+      - '.github/workflows/android.yml'
 
 # A newer push to the same PR makes the older run redundant.
 concurrency:

@@ -1,0 +1,41 @@
+name: Shared tests
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'shared/**'
+      - 'buildSrc/**'
+      - 'gradle/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradlew*'
+      - '.github/workflows/shared-tests.yml'
+  pull_request:
+    paths:
+      - 'shared/**'
+      - 'buildSrc/**'
+      - 'gradle/**'
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
+      - 'gradlew*'
+      - '.github/workflows/shared-tests.yml'
+
+# A newer push to the same PR makes the older run redundant.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  jvm-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-java@v6
+      with:
+        distribution: 'temurin'
+        java-version: '25'
+    - uses: gradle/actions/setup-gradle@v6
+    - run: ./gradlew :shared:jvmTest
