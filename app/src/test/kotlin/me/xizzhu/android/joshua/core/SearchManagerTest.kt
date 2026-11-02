@@ -274,6 +274,8 @@ class SearchManagerTest : BaseUnitTest() {
         fun parse(query: String) = parseReference(query, bookNames, bookShortNames)
 
         assertEquals(BibleReference(0, 0), parse("Genesis 1"))
+        assertEquals(BibleReference(42, 0), parse("jhn1"))
+        assertEquals(BibleReference(42, 0, 0..0), parse("jhn1:1"))
         assertEquals(BibleReference(0, 0, 0..0), parse("Gen. 1:1"))
         assertEquals(BibleReference(0, 0, 0..0), parse("  Genesis 1:1  "))
         assertEquals(BibleReference(42, 0, 3..3), parse("John 1:4"))

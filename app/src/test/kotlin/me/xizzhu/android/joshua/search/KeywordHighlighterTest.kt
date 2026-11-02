@@ -43,6 +43,16 @@ class KeywordHighlighterTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test highlight with blank or empty query does nothing`() {
+        with(SpannableStringBuilder("Gen. 1:1 In the beginning God created the heaven and the earth.").highlightKeyword("", 0)) {
+            assertTrue(getSpans<RelativeSizeSpan>(0, length).isEmpty())
+        }
+        with(SpannableStringBuilder("Gen. 1:1 In the beginning God created the heaven and the earth.").highlightKeyword("  ", 0)) {
+            assertTrue(getSpans<RelativeSizeSpan>(0, length).isEmpty())
+        }
+    }
+
+    @Test
     fun `test highlight with one keyword and one match`() {
         val ssb = SpannableStringBuilder("Gen. 1:1 In the beginning God created the heaven and the earth.")
                 .highlightKeyword("god", 9)

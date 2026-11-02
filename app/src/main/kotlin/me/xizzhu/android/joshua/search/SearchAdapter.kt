@@ -30,7 +30,6 @@ import me.xizzhu.android.joshua.databinding.ItemSearchNoteBinding
 import me.xizzhu.android.joshua.databinding.ItemSearchVerseBinding
 import me.xizzhu.android.joshua.databinding.ItemTitleBinding
 import me.xizzhu.android.joshua.ui.append
-import me.xizzhu.android.joshua.ui.clearAll
 import me.xizzhu.android.joshua.ui.createHighlightSpans
 import me.xizzhu.android.joshua.ui.createTitleSpans
 import me.xizzhu.android.joshua.ui.createTitleStyleSpan
@@ -64,10 +63,6 @@ class SearchAdapter(
 }
 
 sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
-    companion object {
-        private val SPANNABLE_STRING_BUILDER = SpannableStringBuilder()
-    }
-
     class DiffCallback : DiffUtil.ItemCallback<SearchItem>() {
         override fun areItemsTheSame(oldItem: SearchItem, newItem: SearchItem): Boolean = when {
             oldItem is Header && newItem is Header -> oldItem.text == newItem.text
@@ -105,7 +100,7 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
         val verseForDisplay: CharSequence by lazy(LazyThreadSafetyMode.NONE) {
             // format:
             // <book short name> <chapter index>:<verse index> <verse text>
-            return@lazy SPANNABLE_STRING_BUILDER.clearAll()
+            return@lazy SpannableStringBuilder()
                 .append(bookShortName).append(' ')
                 .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
                 .setSpan(BOOK_NAME_SPAN)
@@ -114,10 +109,9 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
         }
 
         val noteForDisplay: CharSequence by lazy(LazyThreadSafetyMode.NONE) {
-            SPANNABLE_STRING_BUILDER.clearAll().append(note)
+            SpannableStringBuilder().append(note)
                 .highlightKeyword(query, 0) // highlights the keywords
-
-            return@lazy SPANNABLE_STRING_BUILDER.toCharSequence()
+                .toCharSequence()
         }
     }
 
@@ -139,7 +133,7 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
             // format:
             // <short book name> <chapter verseIndex>:<verse verseIndex>
             // <verse text>
-            SPANNABLE_STRING_BUILDER.clearAll()
+            val builder = SpannableStringBuilder()
                 .append(bookShortName)
                 .append(' ')
                 .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
@@ -148,14 +142,14 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
                 .append(verseText)
 
             // highlights the keywords
-            SPANNABLE_STRING_BUILDER.highlightKeyword(query, SPANNABLE_STRING_BUILDER.length - verseText.length)
+            builder.highlightKeyword(query, builder.length - verseText.length)
 
             // highlights the verse
-            SPANNABLE_STRING_BUILDER.setSpans(
-                createHighlightSpans(highlightColor), SPANNABLE_STRING_BUILDER.length - verseText.length, SPANNABLE_STRING_BUILDER.length
+            builder.setSpans(
+                createHighlightSpans(highlightColor), builder.length - verseText.length, builder.length
             )
 
-            return@lazy SPANNABLE_STRING_BUILDER.toCharSequence()
+            return@lazy builder.toCharSequence()
         }
     }
 }

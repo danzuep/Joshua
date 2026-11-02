@@ -26,7 +26,7 @@ fun SpannableStringBuilder.highlightKeyword(query: String, start: Int): Spannabl
     if (query.isBlank()) return this
 
     val lowercase = toString().lowercase(Locale.getDefault())
-    query.toKeywords().forEach { keyword ->
+    query.toKeywords().filter { it.isNotEmpty() }.forEach { keyword ->
         var startIndex = start
         var keywordStart: Int
         while (true) {
