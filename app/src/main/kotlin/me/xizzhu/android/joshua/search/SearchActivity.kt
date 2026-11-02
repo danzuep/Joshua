@@ -106,6 +106,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
         if (query.isNullOrEmpty()) return
 
         viewBinding.toolbar.setQuery(query)
+        viewModel.search(query, false)
         intent.removeExtra(SearchManager.QUERY)
     }
 

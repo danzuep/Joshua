@@ -197,4 +197,37 @@ class SearchToolbarTest : BaseUnitTest() {
         assertFalse(searchToolbar.menu.findItem(R.id.action_search_include_notes).isChecked)
         assertFalse(searchToolbar.menu.findItem(R.id.action_search_whole_words).isChecked)
     }
+
+    @Test
+    fun `test setQuery() does not submit the query`() {
+        val submitted = mutableListOf<String>()
+        val changed = mutableListOf<String>()
+        searchToolbar.initialize(
+            onSearchByReferenceChanged = {},
+            onIncludeOldTestamentChanged = {},
+            onIncludeNewTestamentChanged = {},
+            onIncludeBookmarksChanged = {},
+            onIncludeHighlightsChanged = {},
+            onIncludeNotesChanged = {},
+            onWholeWordsChanged = {},
+            onQueryTextListener = object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    submitted.add(query)
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String): Boolean {
+                    changed.add(newText)
+                    return true
+                }
+            },
+            clearHistory = {},
+        )
+
+        searchToolbar.setQuery("jhn1")
+
+        // A submit would make SearchView relaunch SearchActivity with ACTION_SEARCH, which calls setQuery() again, forever.
+        assertTrue(submitted.isEmpty())
+        assertEquals(listOf("jhn1"), changed)
+    }
 }
