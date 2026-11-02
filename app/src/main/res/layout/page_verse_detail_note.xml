@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/note_input_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:hint="@string/text_notes"
-    android:padding="@dimen/padding">
+    android:padding="@dimen/padding"
+    app:endIconDrawable="@drawable/ic_check"
+    app:endIconMode="custom">
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/note"

@@ -41,6 +41,7 @@ class VersePagerAdapter(
     private val inflater = LayoutInflater.from(context)
     private val chapterItems = mutableMapOf<Int, List<BaseItem>>()
     private val loadingPositions = mutableSetOf<Int>()
+    private val livePages = mutableSetOf<Page>()
     private var currentPagePosition = RecyclerView.NO_POSITION
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
@@ -90,7 +91,8 @@ class VersePagerAdapter(
         val position = indexToPagePosition(bookIndex, chapterIndex)
         loadingPositions.remove(position)
         chapterItems[position] = verses
-        forEachAttachedPage { it.setChapter(position, verses) }
+        // Pages in RecyclerView's cache are detached but are reused without rebinding, so they must receive the chapter too.
+        livePages.forEach { it.setChapter(position, verses) }
     }
 
     fun onVersesLoadFailed(bookIndex: Int, chapterIndex: Int) {
@@ -161,7 +163,11 @@ class VersePagerAdapter(
         if (currentVerseIndex.isValid() && currentTranslation.isNotEmpty() && settings != null) Bible.TOTAL_CHAPTER_COUNT else 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-        Page(inflater, parent, ::getChapter, ::loadChapter, updateCurrentVerse)
+        Page(inflater, parent, ::getChapter, ::loadChapter, updateCurrentVerse).also { livePages.add(it) }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        (holder as? Page)?.let(livePages::remove)
+    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as Page).bind(position, settings!!, currentVerseIndex)

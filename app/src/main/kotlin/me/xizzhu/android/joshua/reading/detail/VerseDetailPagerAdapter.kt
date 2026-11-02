@@ -17,7 +17,6 @@
 package me.xizzhu.android.joshua.reading.detail
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.os.Handler
 import android.os.Looper
@@ -28,7 +27,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import androidx.core.content.ContextCompat
 import androidx.viewbinding.ViewBinding
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.Settings
@@ -52,7 +50,6 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
     private val handler = Handler(Looper.getMainLooper())
 
     private var updateNote: ((VerseIndex, String) -> Unit)? = null
-    private var notePage: NotePage? = null
     private var pendingNote: Pair<VerseIndex, String>? = null
     private val saveNoteRunnable = Runnable { flushNote() }
 
@@ -84,7 +81,7 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VerseDetailPage<*> =
             when (viewType) {
                 PAGE_VERSES -> VersesPage(inflater, parent)
-                PAGE_NOTE -> NotePage(inflater, parent, this::scheduleNoteSave).also { notePage = it }
+                PAGE_NOTE -> NotePage(inflater, parent, this::scheduleNoteSave)
                 PAGE_PARATEXT -> ParatextPage(inflater, parent)
                 else -> throw IllegalArgumentException("Unsupported view type: $viewType")
             }
@@ -116,7 +113,6 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
 
     fun markNoteSaved(note: String) {
         verseDetail?.note = note
-        notePage?.markSaved()
     }
 
     private fun scheduleNoteSave(verseIndex: VerseIndex, note: String) {
@@ -183,15 +179,25 @@ private class ParatextPage(inflater: LayoutInflater, container: ViewGroup)
     }
 }
 
+private const val NOTE_SAVED_INDICATOR_DELAY_MILLIS = 500L
+
 private class NotePage(inflater: LayoutInflater, container: ViewGroup, scheduleNoteSave: (VerseIndex, String) -> Unit)
     : VerseDetailPage<PageVerseDetailNoteBinding>(PageVerseDetailNoteBinding.inflate(inflater, container, false)) {
+    private val handler = Handler(Looper.getMainLooper())
+    private val showSavedIndicator = Runnable {
+        viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes)
+        viewBinding.noteInputLayout.isEndIconVisible = true
+    }
     private val textWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
 
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
 
         override fun afterTextChanged(s: Editable) {
-            viewBinding.noteInputLayout.helperText = null
+            viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes_typing)
+            viewBinding.noteInputLayout.isEndIconVisible = false
+            handler.removeCallbacks(showSavedIndicator)
+            handler.postDelayed(showSavedIndicator, NOTE_SAVED_INDICATOR_DELAY_MILLIS)
             verseDetail?.let { scheduleNoteSave(it.verseIndex, s.toString()) }
         }
     }
@@ -200,18 +206,14 @@ private class NotePage(inflater: LayoutInflater, container: ViewGroup, scheduleN
 
     init {
         viewBinding.note.addTextChangedListener(textWatcher)
-        viewBinding.noteInputLayout.setHelperTextColor(
-            ColorStateList.valueOf(ContextCompat.getColor(viewBinding.root.context, R.color.light_gray))
-        )
-    }
-
-    fun markSaved() {
-        viewBinding.noteInputLayout.helperText = viewBinding.root.context.getString(R.string.text_saved)
+        viewBinding.noteInputLayout.isEndIconVisible = false
     }
 
     override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
         this.verseDetail = verseDetail
-        viewBinding.noteInputLayout.helperText = null
+        handler.removeCallbacks(showSavedIndicator)
+        viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes)
+        viewBinding.noteInputLayout.isEndIconVisible = false
         with(viewBinding.note) {
             removeTextChangedListener(textWatcher)
             setText(verseDetail.note)
