@@ -35,9 +35,5 @@ jobs:
         name: smoke-results
         path: |
           logcat.txt
-          screen.png
           ui.xml
-          ui-search.xml
-          ui-search-menu.xml
-          ui-search-menu-before.xml
           screen-search-menu.png

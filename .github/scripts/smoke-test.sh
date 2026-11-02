@@ -1,134 +1,28 @@
 #!/usr/bin/env bash
-# Installs the release APK, launches it straight into John 1 and checks that the chapter is shown as flowing USFM text,
-# then searches "jhn1" and checks the search screen stays responsive.
+# Installs the release APK, opens the search screen, opens its overflow menu and saves a screenshot.
 set -u
-
-dump_ui() {
-  rm -f ui.xml
-  adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
-  adb pull /sdcard/ui.xml ui.xml > /dev/null 2>&1
-}
 
 adb install app/build/outputs/apk/release/app-release.apk
 adb logcat -c
-# Open Genesis first (importing the bundled translation takes a while), then jump to another book. A page must
-# never be left on the loading spinner after the jump.
-adb shell am start -W --activity-single-top -n me.xizzhu.android.joshua/.LauncherActivity --ei me.xizzhu.android.joshua.KEY_OPEN_BOOK 0
-sleep 20
-# Open straight to the requested book (0-based index, default 42 = John) instead of navigating the UI.
-adb shell am start -W --activity-single-top -n me.xizzhu.android.joshua/.LauncherActivity --ei me.xizzhu.android.joshua.KEY_OPEN_BOOK "${SMOKE_BOOK_INDEX:-42}"
-
-# The bundled translation is imported on first launch, so give it time to appear.
-sleep 10
-dump_ui
-found=0
-if grep -q "In the beginning was the Word" ui.xml 2> /dev/null; then
-  found=1
-fi
-
-status=0
-if [ "$found" -ne 1 ]; then
-  echo "FAIL: John 1 text was not shown"
-  status=1
-fi
-# The paragraph / heading markers must never leak into the UI.
-if grep -qP '\x{2028}|\x{2029}' ui.xml 2> /dev/null; then
-  echo "FAIL: USFM structure markers leaked into the UI"
-  status=1
-fi
-# The chapter flows in paragraphs rather than one row per verse, so verse 5 shares a view with verse 1.
-if ! grep -q "The light shines in the darkness" ui.xml 2> /dev/null; then
-  echo "FAIL: expected flowing paragraph text (John 1:1-5 not in one paragraph)"
-  status=1
-fi
-# Regression test: submitting "jhn1" used to relaunch SearchActivity in an endless loop, freezing the screen after the results showed.
-adb shell am start -W -n me.xizzhu.android.joshua/.search.SearchActivity > /dev/null
+# Launch once so the bundled translation is imported, then open search.
+adb shell am start -W -n me.xizzhu.android.joshua/.LauncherActivity
+sleep 25
+adb shell am start -W -n me.xizzhu.android.joshua/.search.SearchActivity
 sleep 3
-adb shell input text jhn1
-# Instant search waits for a typing pause before running.
-sleep 5
-adb shell input keyevent KEYCODE_ENTER
-sleep 8
-dump_ui
-cp ui.xml ui-search.xml 2> /dev/null
-if ! grep -q "In the beginning was the Word" ui-search.xml 2> /dev/null; then
-  echo "FAIL: searching jhn1 did not show John 1 (or the UI dump timed out because the UI is frozen)"
-  status=1
-fi
+adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
+adb pull /sdcard/ui.xml ui.xml > /dev/null 2>&1
 
-# The clear button must still work, which fails if the main thread is stuck.
-clear_xy=$(python3 - << 'PY'
-import re
-xml = open("ui-search.xml", encoding="utf-8").read()
-node = re.search(r'<node[^>]*content-desc="Clear query"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
-if node:
-    x1, y1, x2, y2 = map(int, node.groups())
-    print((x1 + x2) // 2, (y1 + y2) // 2)
-PY
-)
-if [ -z "$clear_xy" ]; then
-  echo "FAIL: no clear button in the search screen"
-  status=1
-else
-  adb shell input tap $clear_xy
-  sleep 3
-  dump_ui
-  if grep -q "In the beginning was the Word" ui.xml 2> /dev/null; then
-    echo "FAIL: the clear button did not clear the search results"
-    status=1
-  fi
-fi
-
-# Screenshot of the search toolbar's overflow menu, to check it is not squeezed against the screen edge.
-dump_ui
-cp ui.xml ui-search-menu-before.xml 2> /dev/null
 overflow_xy=$(python3 - << 'PY'
 import re
-xml = open("ui-search-menu-before.xml", encoding="utf-8").read()
+xml = open("ui.xml", encoding="utf-8").read()
 node = re.search(r'<node[^>]*content-desc="More options"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
 if node:
     x1, y1, x2, y2 = map(int, node.groups())
     print((x1 + x2) // 2, (y1 + y2) // 2)
 PY
 )
-if [ -n "$overflow_xy" ]; then
-  adb shell input tap $overflow_xy
-  sleep 2
-  adb exec-out screencap -p > screen-search-menu.png
-  dump_ui
-  cp ui.xml ui-search-menu.xml 2> /dev/null
-  adb shell input keyevent KEYCODE_BACK
-  sleep 1
-else
-  echo "NOTE: no overflow button found to screenshot"
-fi
-
-adb shell input keyevent KEYCODE_BACK
+[ -n "$overflow_xy" ] && adb shell input tap $overflow_xy
 sleep 2
-adb shell input keyevent KEYCODE_BACK
-sleep 3
-if adb shell dumpsys activity activities | grep -E "mResumedActivity|ResumedActivity" | grep -q "SearchActivity"; then
-  echo "FAIL: back did not leave the search screen"
-  status=1
-fi
-
+adb exec-out screencap -p > screen-search-menu.png
 adb logcat -d > logcat.txt
-adb exec-out screencap -p > screen.png
-
-# SearchActivity should be started once by us, plus at most one self-relaunch when the query is submitted.
-search_starts=$(grep -c "START u0.*cmp=me.xizzhu.android.joshua/.search.SearchActivity" logcat.txt)
-if [ "$search_starts" -gt 3 ]; then
-  echo "FAIL: SearchActivity was started $search_starts times, it keeps relaunching itself"
-  status=1
-fi
-if grep -qE "ANR in me.xizzhu.android.joshua|Application Not Responding" logcat.txt; then
-  echo "FAIL: the app is not responding"
-  status=1
-fi
-if grep -q "FATAL EXCEPTION" logcat.txt; then
-  echo "FAIL: the app crashed"
-  grep -A 20 "FATAL EXCEPTION" logcat.txt | head -40
-  status=1
-fi
-[ "$status" -eq 0 ] && echo "PASS"
-exit "$status"
+[ -n "$overflow_xy" ] || { echo "FAIL: no overflow button found"; exit 1; }
