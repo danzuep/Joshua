@@ -205,8 +205,11 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         })
 
         versePagerAdapter = VersePagerAdapter(this@ReadingActivity, viewModel::loadVerses) { verseIndex ->
-            verseReportedByScroll = verseIndex
-            viewModel.updateCurrentVerse(verseIndex)
+            // Neighbour pages report their own scroll position too; only the selected page may update the current verse.
+            if (verseIndex.toPagePosition() == verseViewPager.currentItem) {
+                verseReportedByScroll = verseIndex
+                viewModel.updateCurrentVerse(verseIndex)
+            }
         }
         verseViewPager.offscreenPageLimit = 1
         verseViewPager.adapter = versePagerAdapter
