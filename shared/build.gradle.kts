@@ -30,7 +30,7 @@ kotlin {
         }
     }
 
-    // JVM-only target: runs commonTest without an Android SDK (see AGENTS.md "Testing shared code").
+    // JVM-only target: runs commonTest without an Android SDK (`./gradlew :shared:jvmTest`, see AGENTS.md).
     jvm {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(Versions.Kotlin.jvmTarget))
