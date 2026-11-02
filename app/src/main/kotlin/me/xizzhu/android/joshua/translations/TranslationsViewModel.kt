@@ -27,9 +27,11 @@ import me.xizzhu.android.joshua.core.SettingsManager
 import me.xizzhu.android.joshua.core.TranslationInfo
 import me.xizzhu.android.joshua.core.TranslationManager
 import me.xizzhu.android.joshua.core.containsAnyKeyword
+import me.xizzhu.android.joshua.core.repository.remote.TranslationTableRow
 import me.xizzhu.android.joshua.core.repository.remote.parseTranslationTsv
 import me.xizzhu.android.joshua.core.toKeywords
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
+import me.xizzhu.android.joshua.ui.languageDisplayName
 import me.xizzhu.android.joshua.ui.languageDisplayNameWithNative
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -103,6 +105,13 @@ class TranslationsViewModel @Inject constructor(
         private set
     private var pendingDownloadShortName: String? = null
 
+    private val tsvRows: Map<String, TranslationTableRow> by lazy {
+        runCatching {
+            val tsv = application.assets.open("ebible_downloads.tsv").use { it.readBytes().toString(Charsets.UTF_8) }
+            parseTranslationTsv(tsv, "https://ebible.org/").associateBy { it.id.replace(Regex("[^A-Za-z0-9]"), "_") }
+        }.getOrDefault(emptyMap())
+    }
+
     init {
         loadTranslations(forceRefresh = false)
     }
@@ -147,7 +156,7 @@ class TranslationsViewModel @Inject constructor(
         val keywords = keywordFilter.toKeywords()
         if (keywords.isEmpty()) return true
         // Every keyword must match, like a web search.
-        val haystack = "$shortName $name $language ${languageDisplayNameWithNative(languageCode)}"
+        val haystack = "$shortName $name $language ${tsvRows[shortName]?.language.orEmpty()} ${languageDisplayName(languageCode)}"
         return keywords.all { haystack.containsAnyKeyword(listOf(it), wholeWords = false) }
     }
 
@@ -200,18 +209,19 @@ class TranslationsViewModel @Inject constructor(
 
     private fun List<TranslationInfo>.toItems(settings: Settings, currentTranslation: String): List<TranslationsItem> {
         val items: ArrayList<TranslationsItem> = ArrayList()
-        var currentLanguage = ""
-        forEach { translationInfo ->
-            val language = translationInfo.language.split("_")[0]
-            if (currentLanguage != language) {
-                items.add(TranslationsItem.Header(settings, languageDisplayNameWithNative(language), hideDivider = true))
-                currentLanguage = language
+        // Translations are grouped by language code, then by the native name from ebible_downloads.tsv.
+        groupBy { it.language.split("_")[0] }.forEach { (language, translations) ->
+            items.add(TranslationsItem.Header(settings, languageDisplayNameWithNative(language), hideDivider = true))
+            translations.groupBy { tsvRows[it.shortName]?.language.orEmpty() }.forEach { (subGroup, group) ->
+                if (subGroup.isNotEmpty()) items.add(TranslationsItem.Header(settings, subGroup, hideDivider = false))
+                group.forEach { translationInfo ->
+                    items.add(TranslationsItem.Translation(
+                        settings = settings,
+                        translationInfo = translationInfo,
+                        isCurrentTranslation = translationInfo.downloaded && translationInfo.shortName == currentTranslation
+                    ))
+                }
             }
-            items.add(TranslationsItem.Translation(
-                settings = settings,
-                translationInfo = translationInfo,
-                isCurrentTranslation = translationInfo.downloaded && translationInfo.shortName == currentTranslation
-            ))
         }
         return items
     }
