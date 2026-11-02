@@ -31,6 +31,7 @@ import me.xizzhu.android.joshua.core.repository.remote.parseTranslationTsv
 import me.xizzhu.android.joshua.core.toKeywords
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
 import me.xizzhu.android.joshua.ui.languageDisplayName
+import me.xizzhu.android.joshua.ui.languageDisplayNameWithNative
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -149,7 +150,7 @@ class TranslationsViewModel @Inject constructor(
         if (languageFilter != null && languageCode != languageFilter) return false
         val keywords = keywordFilter.toKeywords()
         if (keywords.isEmpty()) return true
-        return "$shortName $name $language ${languageDisplayName(languageCode)}".containsAnyKeyword(keywords, wholeWords = false)
+        return "$shortName $name $language ${languageDisplayNameWithNative(languageCode)}".containsAnyKeyword(keywords, wholeWords = false)
     }
 
     /** Languages of all known translations, sorted by display name, for the language filter. */
@@ -212,7 +213,7 @@ class TranslationsViewModel @Inject constructor(
         forEach { translationInfo ->
             val language = translationInfo.language.split("_")[0]
             if (currentLanguage != language) {
-                items.add(TranslationsItem.Header(settings, languageDisplayName(language), hideDivider = true))
+                items.add(TranslationsItem.Header(settings, languageDisplayNameWithNative(language), hideDivider = true))
                 currentLanguage = language
             }
             items.add(TranslationsItem.Translation(
@@ -273,7 +274,11 @@ class TranslationsViewModel @Inject constructor(
                     in 0..99 -> updateViewState { it.copy(translationDownloadingState = ViewState.TranslationDownloadingState.Downloading(progress = progress)) }
                     100 -> updateViewState { it.copy(translationDownloadingState = ViewState.TranslationDownloadingState.Installing) }
                     101 -> {
-                        loadTranslations(forceRefresh = false)
+                        viewModelScope.launch {
+                            runCatching { bibleReadingManager.saveCurrentTranslation(translationToDownload.shortName) }
+                                .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to select downloaded translation" } }
+                            loadTranslations(forceRefresh = false)
+                        }
                         updateViewState { it.copy(translationDownloadingState = ViewState.TranslationDownloadingState.Completed(successful = true)) }
                     }
                     else -> throw IllegalArgumentException("Unsupported downloading progress: $progress")

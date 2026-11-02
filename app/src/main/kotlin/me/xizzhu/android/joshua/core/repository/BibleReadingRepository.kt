@@ -108,6 +108,9 @@ class BibleReadingRepository(private val localReadingStorage: LocalReadingStorag
                 ?: localReadingStorage.readBookShortNames(translationShortName).also { cache.putBookShortNames(translationShortName, it) }
     }
 
+    suspend fun readBookIndicesWithVerses(translationShortName: String): Set<Int> =
+            localReadingStorage.readBookIndicesWithVerses(translationShortName)
+
     suspend fun readVerses(translationShortName: String, bookIndex: Int, chapterIndex: Int): List<Verse> {
         val key = "$translationShortName-$bookIndex-$chapterIndex"
         return cache.getVerses(key)

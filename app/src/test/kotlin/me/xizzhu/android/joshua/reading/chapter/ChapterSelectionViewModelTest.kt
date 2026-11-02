@@ -70,6 +70,7 @@ class ChapterSelectionViewModelTest : BaseUnitTest() {
     fun `test ViewState_chapterSelectionItems, called in constructor`() = runTest {
         every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
         coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
+        coEvery { bibleReadingManager.readBookIndicesWithVerses(MockContents.kjvShortName) } returns MockContents.kjvBookNames.indices.toSet()
 
         chapterSelectionViewModel = ChapterSelectionViewModel(bibleReadingManager)
         assertEquals(
@@ -82,6 +83,19 @@ class ChapterSelectionViewModelTest : BaseUnitTest() {
                 error = null,
             ),
             chapterSelectionViewModel.viewState().first()
+        )
+    }
+
+    @Test
+    fun `test ViewState_chapterSelectionItems, hides books without verses`() = runTest {
+        every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
+        coEvery { bibleReadingManager.readBookNames(MockContents.kjvShortName) } returns MockContents.kjvBookNames
+        coEvery { bibleReadingManager.readBookIndicesWithVerses(MockContents.kjvShortName) } returns setOf(39, 40)
+
+        chapterSelectionViewModel = ChapterSelectionViewModel(bibleReadingManager)
+        assertEquals(
+            listOf(39, 40),
+            chapterSelectionViewModel.viewState().first().chapterSelectionItems.map { it.bookIndex }
         )
     }
 

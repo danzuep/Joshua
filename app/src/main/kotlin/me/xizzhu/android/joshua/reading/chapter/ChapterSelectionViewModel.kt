@@ -54,8 +54,9 @@ class ChapterSelectionViewModel @Inject constructor(
 
     init {
         bibleReadingManager.currentTranslation().onEach { currentTranslation ->
-            val chapterSelectionItems = bibleReadingManager.readBookNames(currentTranslation).mapIndexed { index, bookName ->
-                ChapterSelectionItem(bookIndex = index, bookName = bookName, chapterCount = Bible.getChapterCount(index))
+            val booksWithVerses = bibleReadingManager.readBookIndicesWithVerses(currentTranslation)
+            val chapterSelectionItems = bibleReadingManager.readBookNames(currentTranslation).mapIndexedNotNull { index, bookName ->
+                if (index in booksWithVerses) ChapterSelectionItem(bookIndex = index, bookName = bookName, chapterCount = Bible.getChapterCount(index)) else null
             }
             updateViewState { it.copy(chapterSelectionItems = chapterSelectionItems) }
         }.launchIn(viewModelScope)

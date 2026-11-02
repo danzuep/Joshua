@@ -48,10 +48,11 @@ class ChapterListView : ExpandableListView {
             if (isGroupExpanded(groupPosition)) {
                 collapseGroup(groupPosition)
             } else {
-                expandBook(bookIndex = groupPosition)
+                val bookIndex = adapter.getGroup(groupPosition).bookIndex
+                expandBook(bookIndex = bookIndex)
                 // Load the book straight away; the chapter list stays open until a chapter is picked.
-                if (groupPosition != currentBookIndex) {
-                    onViewEvent?.invoke(ChapterSelectionView.ViewEvent.SelectBook(bookIndex = groupPosition))
+                if (bookIndex != currentBookIndex) {
+                    onViewEvent?.invoke(ChapterSelectionView.ViewEvent.SelectBook(bookIndex = bookIndex))
                 }
             }
 
@@ -62,8 +63,8 @@ class ChapterListView : ExpandableListView {
     }
 
     private fun expandBook(bookIndex: Int) {
-        val groupToExpand = bookIndex
-        // The books may not be loaded yet; expanding a missing group crashes in the adapter.
+        val groupToExpand = adapter.groupPositionOf(bookIndex)
+        // The books may not be loaded yet, or may be missing from this translation; expanding a missing group crashes in the adapter.
         if (groupToExpand !in 0 until adapter.groupCount || isGroupExpanded(groupToExpand)) {
             return
         }
@@ -96,7 +97,10 @@ class ChapterListView : ExpandableListView {
         expandBook(bookIndex = currentBookIndex)
     }
 
-    fun scrollToGroupPosition(groupPosition: Int) {
+    fun scrollToFirstBookFrom(bookIndex: Int) {
+        val groupPosition = adapter.firstGroupPositionFrom(bookIndex)
+        if (groupPosition < 0) return
+
         val flatListPosition = getFlatListPosition(ExpandableListView.getPackedPositionForGroup(groupPosition))
         if (flatListPosition >= 0) {
             smoothScrollToPositionFromTop(flatListPosition, 0, 100)

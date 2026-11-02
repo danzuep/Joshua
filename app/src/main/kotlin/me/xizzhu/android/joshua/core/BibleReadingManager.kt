@@ -124,6 +124,9 @@ class BibleReadingManager(
     suspend fun readBookShortNames(translationShortName: String): List<String> =
             bibleReadingRepository.readBookShortNames(translationShortName)
 
+    suspend fun readBookIndicesWithVerses(translationShortName: String): Set<Int> =
+            bibleReadingRepository.readBookIndicesWithVerses(translationShortName)
+
     suspend fun readVerses(translationShortName: String, bookIndex: Int, chapterIndex: Int): List<Verse> =
             readStructuredVerses(translationShortName, bookIndex, chapterIndex).map { it.stripStructure() }
 
