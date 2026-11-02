@@ -55,6 +55,13 @@ class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
     }
 
     @WorkerThread
+    fun readBookIndicesWithVerses(translationShortName: String): Set<Int> = db.withTransaction {
+        if (!hasTableAndLogIfNoTable(translationShortName)) return@withTransaction emptySet()
+
+        select(translationShortName, COLUMN_BOOK_INDEX) { noOp() }.toList { row -> row.getInt(COLUMN_BOOK_INDEX) }.toSet()
+    }
+
+    @WorkerThread
     private fun SQLiteDatabase.hasTableAndLogIfNoTable(table: String): Boolean = hasTable(table)
             .also { hasTable -> if (!hasTable) Logger.withTag(TAG).e { "Missing translation $table" } }
 

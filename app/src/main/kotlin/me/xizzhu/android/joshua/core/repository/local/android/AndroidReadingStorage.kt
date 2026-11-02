@@ -77,6 +77,10 @@ class AndroidReadingStorage(private val androidDatabase: AndroidDatabase) : Loca
         androidDatabase.bookNamesDao.readShortName(translationShortName)
     }
 
+    override suspend fun readBookIndicesWithVerses(translationShortName: String): Set<Int> = withContext(Dispatchers.IO) {
+        androidDatabase.translationDao.readBookIndicesWithVerses(translationShortName)
+    }
+
     override suspend fun readVerses(translationShortName: String, bookIndex: Int,
                                     chapterIndex: Int): List<Verse> = withContext(Dispatchers.IO) {
         androidDatabase.translationDao.read(translationShortName, bookIndex, chapterIndex)

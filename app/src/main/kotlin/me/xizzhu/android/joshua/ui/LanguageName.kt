@@ -23,3 +23,12 @@ fun languageDisplayName(language: String): String {
     val code = language.split("_")[0]
     return Locale.forLanguageTag(code).displayLanguage.ifEmpty { code }
 }
+
+/** The English name followed by the native name in brackets (e.g. `Greek (Ελληνικά)`), or the English name alone if no other native name is known. */
+fun languageDisplayNameWithNative(language: String): String {
+    val code = language.split("_")[0]
+    val english = languageDisplayName(code)
+    val locale = Locale.forLanguageTag(code)
+    val native = locale.getDisplayLanguage(locale)
+    return if (native.isEmpty() || native == english) english else "$english ($native)"
+}

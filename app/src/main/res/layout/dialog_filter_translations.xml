@@ -7,15 +7,11 @@
     android:paddingTop="8dp"
     android:paddingEnd="24dp">
 
-    <Spinner
+    <AutoCompleteTextView
         android:id="@+id/filter_language"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <EditText
-        android:id="@+id/filter_keyword"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_filter_translations"
+        android:completionThreshold="1"
+        android:hint="@string/text_all_languages"
         android:inputType="text" />
 </LinearLayout>

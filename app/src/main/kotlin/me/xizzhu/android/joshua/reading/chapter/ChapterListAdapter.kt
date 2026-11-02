@@ -71,11 +71,16 @@ class ChapterListAdapter(context: Context, onViewEvent: (ChapterSelectionView.Vi
 
     override fun getGroup(groupPosition: Int): ChapterSelectionItem = items[groupPosition]
 
+    /** Group positions only cover the listed books, so they can differ from the book indices. */
+    fun groupPositionOf(bookIndex: Int): Int = items.indexOfFirst { it.bookIndex == bookIndex }
+
+    fun firstGroupPositionFrom(bookIndex: Int): Int = items.indexOfFirst { it.bookIndex >= bookIndex }
+
     override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup?): View {
         val binding = convertView?.let { ItemBookNameBinding.bind(it) }
             ?: ItemBookNameBinding.inflate(inflater, parent, false)
         binding.root.text = getGroup(groupPosition).bookName
-        binding.root.isSelected = groupPosition == currentBookIndex
+        binding.root.isSelected = getGroup(groupPosition).bookIndex == currentBookIndex
         return binding.root
     }
 
@@ -110,7 +115,7 @@ class ChapterListAdapter(context: Context, onViewEvent: (ChapterSelectionView.Vi
     }
 
     private fun ItemChapterRowBinding.bind(groupPosition: Int, childPosition: Int) {
-        val bookIndex = groupPosition
+        val bookIndex = getGroup(groupPosition).bookIndex
         val chapterCount = getGroup(groupPosition).chapterCount
         repeat(ROW_CHILD_COUNT) { i ->
             val chapterIndex = childPosition * ROW_CHILD_COUNT + i

@@ -19,12 +19,13 @@ package me.xizzhu.android.joshua.translations
 import android.text.InputType
 import android.view.MotionEvent
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.EditText
-import android.widget.Spinner
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -38,7 +39,7 @@ import me.xizzhu.android.joshua.ui.ProgressDialog
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.fadeIn
 import me.xizzhu.android.joshua.ui.indeterminateProgressDialog
-import me.xizzhu.android.joshua.ui.languageDisplayName
+import me.xizzhu.android.joshua.ui.languageDisplayNameWithNative
 import me.xizzhu.android.joshua.ui.progressDialog
 import me.xizzhu.android.joshua.ui.toast
 
@@ -81,6 +82,11 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
         }
         viewBinding.translationList.adapter = adapter
         setupFastScroller()
+
+        viewBinding.filterKeyword.setText(viewModel.keywordFilter)
+        viewBinding.filterKeyword.doAfterTextChanged { text ->
+            viewModel.applyFilter(language = viewModel.languageFilter, keyword = text.toString())
+        }
 
         with(viewBinding.toolbar) {
             inflateMenu(R.menu.menu_translations)
@@ -145,23 +151,20 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
 
     private fun showFilterDialog() {
         val languages = viewModel.availableLanguages()
+        val labels = languages.associateWith { languageDisplayNameWithNative(it) }
         val content = layoutInflater.inflate(R.layout.dialog_filter_translations, null)
-        val keywordInput = content.findViewById<EditText>(R.id.filter_keyword).apply { setText(viewModel.keywordFilter) }
-        val languageSpinner = content.findViewById<Spinner>(R.id.filter_language).apply {
-            adapter = ArrayAdapter(
-                this@TranslationsActivity,
-                android.R.layout.simple_spinner_dropdown_item,
-                listOf(getString(R.string.text_all_languages)) + languages.map { languageDisplayName(it) }
-            )
-            setSelection(viewModel.languageFilter?.let { languages.indexOf(it) + 1 } ?: 0)
+        val languageInput = content.findViewById<AutoCompleteTextView>(R.id.filter_language).apply {
+            setAdapter(ArrayAdapter(this@TranslationsActivity, android.R.layout.simple_dropdown_item_1line, labels.values.toList()))
+            setText(viewModel.languageFilter?.let { labels[it] }.orEmpty(), false)
         }
         AlertDialog.Builder(this)
             .setTitle(R.string.dialog_title_filter_translations)
             .setView(content)
             .setPositiveButton(android.R.string.ok) { _, _ ->
+                val text = languageInput.text.toString().trim()
                 viewModel.applyFilter(
-                    language = languages.getOrNull(languageSpinner.selectedItemPosition - 1),
-                    keyword = keywordInput.text.toString(),
+                    language = labels.entries.firstOrNull { it.value.equals(text, ignoreCase = true) }?.key,
+                    keyword = viewModel.keywordFilter,
                 )
             }
             .setNegativeButton(android.R.string.cancel, null)
