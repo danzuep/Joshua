@@ -110,6 +110,7 @@ class ReadingViewModel @Inject constructor(
         val settings: Settings,
         val currentReadingStatus: CurrentReadingStatus?,
         val error: Error?,
+        val translationNames: Map<String, String> = emptyMap(),
     ) {
         data class CurrentReadingStatus(
             val currentTranslation: String, val parallelTranslations: List<String>,
@@ -132,6 +133,12 @@ class ReadingViewModel @Inject constructor(
     init {
         settingsManager.settings()
             .onEach { settings -> updateViewState { it.copy(settings = settings) } }
+            .launchIn(viewModelScope)
+
+        translationManager.downloadedTranslations()
+            .onEach { translations ->
+                updateViewState { it.copy(translationNames = translations.associate { t -> t.shortName to t.name }) }
+            }
             .launchIn(viewModelScope)
 
         combine(

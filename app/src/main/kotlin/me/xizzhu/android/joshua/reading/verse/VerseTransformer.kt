@@ -90,11 +90,12 @@ fun List<Verse>.toParagraphItems(
     return items
 }
 
-/** Text for the clipboard: the same line breaks as on screen, optionally formatted as Markdown quotes. */
-fun Collection<Verse>.toStringForCopy(bookName: String, consolidateVerses: Boolean, markdown: Boolean): String =
-        map { it.toDisplayedVerse() }.toStringForSharing(bookName, consolidateVerses, markdown)
+/** Text for the clipboard: Markdown quotes, with the full translation name in brackets after each reference. */
+fun Collection<Verse>.toStringForCopy(bookName: String, translationName: String, consolidateVerses: Boolean): String =
+        map { it.toDisplayedVerse() }.toStringForSharing(bookName, consolidateVerses, markdown = true, translationName = translationName)
 
-fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Boolean, markdown: Boolean = false): String {
+fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Boolean, markdown: Boolean = false,
+                                         translationName: String? = null): String {
     val sortedVerses = sortedBy { verse ->
         val verseIndex = verse.verseIndex
         verseIndex.bookIndex * 100000 + verseIndex.chapterIndex * 1000 + verseIndex.verseIndex
@@ -102,7 +103,7 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
 
     if (!consolidateVerses || size == 1) {
         return StringBuilder().apply {
-            sortedVerses.forEach { verse -> append(verse, bookName, markdown) }
+            sortedVerses.forEach { verse -> append(verse, bookName, markdown, translationName) }
         }.toString()
     }
 
@@ -151,6 +152,7 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
             if (currentVerseGroup.first < currentVerseGroup.second) {
                 stringBuilder.append('-').append(currentVerseGroup.second + 1)
             }
+            if (markdown) translationName?.let { stringBuilder.append(" (").append(it).append(')') }
             stringBuilder.append('\n')
             bodyStart = stringBuilder.length
 
@@ -196,16 +198,18 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
 
 private fun String.quoted(): String = split('\n').joinToString("\n") { "> $it" }
 
-private fun StringBuilder.append(verse: Verse, bookName: String, markdown: Boolean): StringBuilder {
+private fun StringBuilder.append(verse: Verse, bookName: String, markdown: Boolean, translationName: String?): StringBuilder {
     if (isNotEmpty()) append(if (markdown) "\n\n" else "\n")
 
     if (markdown) {
         // format:
-        // <book name> <chapter index>:<verse index>
+        // <book name> <chapter index>:<verse index> (<translation name>)
         // > <verse text>
         // or, with parallel translations, one "> <translation>: <verse text>" line per translation
         append(bookName).append(' ')
-                .append(verse.verseIndex.chapterIndex + 1).append(':').append(verse.verseIndex.verseIndex + 1).append('\n')
+                .append(verse.verseIndex.chapterIndex + 1).append(':').append(verse.verseIndex.verseIndex + 1)
+        translationName?.let { append(" (").append(it).append(')') }
+        append('\n')
         val body = if (verse.parallel.isEmpty()) verse.text.text else {
             (listOf(verse.text) + verse.parallel).joinToString("\n") { "${it.translationShortName}: ${it.text}" }
         }
@@ -230,7 +234,7 @@ private fun StringBuilder.append(verse: Verse, bookName: String, markdown: Boole
     return this
 }
 
-fun Verse.toStringForSharing(bookName: String): String = StringBuilder().append(this, bookName, false).toString()
+fun Verse.toStringForSharing(bookName: String): String = StringBuilder().append(this, bookName, false, null).toString()
 
-fun Verse.toStringForCopy(bookName: String, markdown: Boolean): String =
-        StringBuilder().append(toDisplayedVerse(), bookName, markdown).toString()
+fun Verse.toStringForCopy(bookName: String, translationName: String): String =
+        StringBuilder().append(toDisplayedVerse(), bookName, true, translationName).toString()
