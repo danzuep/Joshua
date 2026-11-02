@@ -46,8 +46,18 @@ class ReadingToolbarViewModelTest : BaseUnitTest() {
         super.setup()
 
         bibleReadingManager = mockk<BibleReadingManager>().apply {
-            every { currentTranslation() } returns flowOf("")
- = ReadingToolbarViewModel(bibleReadingManager, translationManager, application)
+            every { currentTranslation() } returns emptyFlow()
+            every { currentVerseIndex() } returns emptyFlow()
+            every { parallelTranslations() } returns emptyFlow()
+        }
+        translationManager = mockk<TranslationManager>().apply {
+            every { downloadedTranslations() } returns emptyFlow()
+        }
+        application = mockk<Application>().apply {
+            every { getString(R.string.app_name) } returns "Bible"
+        }
+
+        readingToolbarViewModel = ReadingToolbarViewModel(bibleReadingManager, translationManager, application)
     }
 
     @Test

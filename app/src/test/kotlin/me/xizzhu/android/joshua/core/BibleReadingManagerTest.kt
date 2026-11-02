@@ -105,6 +105,7 @@ class BibleReadingManagerTest : BaseUnitTest() {
         coEvery { bibleReadingRepository.saveParallelTranslations(any()) } returns Unit
         coEvery { bibleReadingRepository.saveCurrentTranslation(any()) } returns Unit
 
+        val bibleReadingManager = BibleReadingManager(bibleReadingRepository, translationRepository, testScope)
         bibleReadingManager.updateDownloadedTranslations(listOf(
                 MockContents.cuvDownloadedTranslationInfo, MockContents.kjvDownloadedTranslationInfo
         ))
