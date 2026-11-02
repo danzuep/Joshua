@@ -52,6 +52,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
     override val viewBinding: ActivitySettingsBinding by lazy(LazyThreadSafetyMode.NONE) { ActivitySettingsBinding.inflate(layoutInflater) }
 
     override fun initializeView() = with(viewBinding) {
+        toolbar.setNavigationOnClickListener { navigator.goBack(this@SettingsActivity) }
         keepScreenOn.setOnCheckedChangeByUserListener(viewModel::saveKeepScreenOn)
         hideSearchButton.setOnCheckedChangeByUserListener(viewModel::saveHideSearchButton)
         consolidatedSharing.setOnCheckedChangeByUserListener(viewModel::saveConsolidateVersesForSharing)

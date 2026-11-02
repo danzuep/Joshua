@@ -43,6 +43,7 @@ class ReadingProgressActivity : BaseActivity<ActivityReadingProgressBinding, Rea
     override val viewBinding: ActivityReadingProgressBinding by lazy(LazyThreadSafetyMode.NONE) { ActivityReadingProgressBinding.inflate(layoutInflater) }
 
     override fun initializeView() {
+        viewBinding.toolbar.setNavigationOnClickListener { navigator.goBack(this) }
         adapter = ReadingProgressAdapter(
             inflater = layoutInflater,
             executor = coroutineDispatcherProvider.default.asExecutor()

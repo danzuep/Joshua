@@ -19,10 +19,12 @@ package me.xizzhu.android.joshua.core
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import me.xizzhu.android.joshua.core.repository.BibleReadingRepository
 import me.xizzhu.android.joshua.core.repository.VerseAnnotationRepository
+import me.xizzhu.android.joshua.core.repository.remote.BOOK_CODES
 import me.xizzhu.android.joshua.tests.BaseUnitTest
 import me.xizzhu.android.joshua.tests.MockContents
 import kotlin.test.*
@@ -40,6 +42,8 @@ class SearchManagerTest : BaseUnitTest() {
 
         bibleReadingRepository = mockk()
         every { bibleReadingRepository.currentTranslation } returns flowOf(MockContents.kjvShortName)
+        coEvery { bibleReadingRepository.readBookNames(any()) } returns MockContents.kjvBookNames
+        coEvery { bibleReadingRepository.readBookShortNames(any()) } returns MockContents.kjvBookShortNames
         coEvery { bibleReadingRepository.readVerses(any(), any()) } returns emptyMap()
         coEvery { bibleReadingRepository.search(any()) } returns emptyList()
 
@@ -288,6 +292,26 @@ class SearchManagerTest : BaseUnitTest() {
         assertNull(parse("Unknown 1"))
         assertNull(parse("Joh 1"))
         assertNull(parse("John 1 2"))
+
+        assertEquals(BibleReference(42, 0), parse("JHN 1"))
+        assertEquals(BibleReference(42, 0), parse("jhn 1"))
+        assertEquals(BibleReference(42, 0, 0..0), parse("JHN1.1"))
+        assertEquals(BibleReference(42, 0, 0..0), parse("jhn1:1"))
+        assertEquals(BibleReference(42, 0, 0..0), parse("Jhn 1.1"))
+        assertEquals(BibleReference(42, 10), parse("JHN11"))
+        assertEquals(BibleReference(42, 0, 0..2), parse("jhn 1.1-3"))
+        assertEquals(BibleReference(BOOK_CODES.indexOf("1JN"), 1, 2..2), parse("1jn 2:3"))
+        assertEquals(BibleReference(BOOK_CODES.indexOf("1JN"), 1, 2..3), parse("1 JN 2.3-4"))
+        assertEquals(BibleReference(0, 0, 0..0), parse("gen1.1"))
+        assertNull(parse("JHN"))
+        assertNull(parse("XYZ 1"))
+        assertNull(parse("JHN 1:0"))
+    }
+
+    @Test
+    fun `test default configuration searches by reference`() = runTest {
+        assertTrue(SearchConfiguration(true, true, true, true, true).searchByReference)
+        assertTrue(searchManager.configuration().first().searchByReference)
     }
 
     @Test

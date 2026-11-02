@@ -61,6 +61,7 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
     override val viewBinding: ActivityTranslationsBinding by lazy(LazyThreadSafetyMode.NONE) { ActivityTranslationsBinding.inflate(layoutInflater) }
 
     override fun initializeView() {
+        viewBinding.toolbar.setNavigationOnClickListener { navigator.goBack(this) }
         adapter = TranslationsAdapter(
             inflater = layoutInflater,
             executor = coroutineDispatcherProvider.default.asExecutor()
