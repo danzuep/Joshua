@@ -69,8 +69,9 @@ class ReadingViewModelTest : BaseUnitTest() {
 
         bibleReadingManager = mockk()
         every { bibleReadingManager.currentTranslation() } returns emptyFlow()
-        every { bibleReadingManager.parallelTranslations() } returns flowOf(emptyList())
-
+        every { bibleReadingManager.parallelTranslations() } returns emptyFlow()
+        every { bibleReadingManager.currentVerseIndex() } returns emptyFlow()
+        readingProgressManager = mockk()
         translationManager = mockk()
         every { translationManager.downloadedTranslations() } returns emptyFlow()
         bookmarkManager = mockk()
