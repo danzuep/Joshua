@@ -23,13 +23,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 import me.xizzhu.android.joshua.core.repository.BibleReadingRepository
 import me.xizzhu.android.joshua.core.repository.VerseAnnotationRepository
+import me.xizzhu.android.joshua.core.repository.remote.BOOK_CODES
 import me.xizzhu.android.joshua.utils.firstNotEmpty
 import java.util.*
 
 data class SearchConfiguration(
         val includeOldTestament: Boolean, val includeNewTestament: Boolean,
         val includeBookmarks: Boolean, val includeHighlights: Boolean, val includeNotes: Boolean,
-        val wholeWords: Boolean = false, val searchByReference: Boolean = false
+        val wholeWords: Boolean = false, val searchByReference: Boolean = true
 )
 
 data class VerseSearchQuery(
@@ -167,11 +168,11 @@ private fun String.isWordCharacterBefore(index: Int): Boolean =
 private fun String.isWordCharacterAt(index: Int): Boolean =
         Character.isLetterOrDigit(Character.codePointAt(this, index)) || Character.codePointAt(this, index) == '_'.code
 
-private val REFERENCE_REGEX = Regex("""(.*?\S)\s+(\d+)(?::(\d+)(?:\s*-\s*(\d+))?)?""")
+private val REFERENCE_REGEX = Regex("""(.*?\S)\s*(\d+)(?:[:.](\d+)(?:\s*-\s*(\d+))?)?""")
 
 /**
- * Parses references such as "John 1", "John 1:4", "1 John 3:2-5" or "Gen. 1:1" against the book names
- * (or short names) of a translation. Returns null if the query is not a reference, so it can be searched as text.
+ * Parses references such as "John 1", "John 1:4", "1 John 3:2-5", "Gen. 1:1", "JHN1.1" or "jhn 1" against the book names
+ * (or short names, or 3-letter book codes) of a translation. Returns null if the query is not a reference, so it can be searched as text.
  */
 internal fun parseReference(query: String, bookNames: List<String>, bookShortNames: List<String>): BibleReference? {
     val match = REFERENCE_REGEX.matchEntire(query.trim()) ?: return null
@@ -181,6 +182,8 @@ internal fun parseReference(query: String, bookNames: List<String>, bookShortNam
     val bookIndex = bookNames.indexOfFirst { it.normalizeBookName() == bookName }
             .takeIf { it >= 0 }
             ?: bookShortNames.indexOfFirst { it.normalizeBookName() == bookName }
+                    .takeIf { it >= 0 }
+            ?: BOOK_CODES.indexOfFirst { it.lowercase(Locale.getDefault()) == bookName.replace(" ", "") }
     if (bookIndex < 0) return null
 
     val chapterIndex = chapter.toIntOrNull()?.takeIf { it >= 1 }?.minus(1) ?: return null

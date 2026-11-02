@@ -18,6 +18,7 @@ package me.xizzhu.android.joshua.search
 
 import android.app.SearchManager
 import android.content.Context
+import android.content.Intent
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
@@ -49,6 +50,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
     override val viewBinding: ActivitySearchBinding by lazy(LazyThreadSafetyMode.NONE) { ActivitySearchBinding.inflate(layoutInflater) }
 
     override fun initializeView() {
+        viewBinding.toolbar.setNavigationOnClickListener { navigator.goBack(this) }
         viewBinding.toolbar.initialize(
             onSearchByReferenceChanged = viewModel::searchByReference,
             onIncludeOldTestamentChanged = viewModel::includeOldTestament,
@@ -88,6 +90,23 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
             }
         }
         viewBinding.searchResult.adapter = adapter
+
+        handleSearchIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleSearchIntent(intent)
+    }
+
+    /** Voice input (launchRecognizer) returns the recognised text as an ACTION_SEARCH intent carrying SearchManager.QUERY. */
+    private fun handleSearchIntent(intent: Intent) {
+        if (intent.action != Intent.ACTION_SEARCH) return
+        val query = intent.getStringExtra(SearchManager.QUERY)?.trim()
+        if (query.isNullOrEmpty()) return
+
+        viewBinding.toolbar.setQuery(query)
+        intent.removeExtra(SearchManager.QUERY)
     }
 
     override fun onViewActionEmitted(viewAction: SearchViewModel.ViewAction) = when (viewAction) {

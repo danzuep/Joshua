@@ -49,6 +49,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways"
+            app:navigationContentDescription="@string/content_description_back"
+            app:navigationIcon="?attr/homeAsUpIndicator"
             app:title="@string/title_translation_management" />
     </com.google.android.material.appbar.AppBarLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

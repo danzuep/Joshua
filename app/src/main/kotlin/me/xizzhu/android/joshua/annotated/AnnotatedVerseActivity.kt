@@ -44,6 +44,7 @@ abstract class AnnotatedVerseActivity<V : VerseAnnotation, VM : AnnotatedVerseVi
     override val viewBinding: ActivityAnnotatedBinding by lazy(LazyThreadSafetyMode.NONE) { ActivityAnnotatedBinding.inflate(layoutInflater) }
 
     override fun initializeView() = with(viewBinding) {
+        toolbar.setNavigationOnClickListener { navigator.goBack(this@AnnotatedVerseActivity) }
         toolbar.initialize(sortOrderUpdated = viewModel::saveSortOrder)
         toolbar.setTitle(toolbarText)
 

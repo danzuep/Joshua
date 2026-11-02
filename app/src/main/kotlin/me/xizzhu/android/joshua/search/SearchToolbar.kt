@@ -132,4 +132,8 @@ class SearchToolbar : MaterialToolbar {
     fun setSearchableInfo(searchable: SearchableInfo) {
         searchView().setSearchableInfo(searchable)
     }
+
+    fun setQuery(query: String) {
+        searchView().setQuery(query, true)
+    }
 }
