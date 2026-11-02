@@ -118,20 +118,19 @@ class ChapterSelectionView : ConstraintLayout {
         newTab.visibility = if (visibility.showNewTestament) View.VISIBLE else View.GONE
 
         val bothShown = visibility.showOldTestament && visibility.showNewTestament
-        (oldTab.layoutParams as ConstraintLayout.LayoutParams).apply {
+        // Reassigning the params makes ConstraintLayout re-resolve its start/end constraints; in-place edits can be ignored.
+        oldTab.layoutParams = (oldTab.layoutParams as ConstraintLayout.LayoutParams).apply {
             startToStart = ConstraintLayout.LayoutParams.PARENT_ID
             startToEnd = ConstraintLayout.LayoutParams.UNSET
             endToStart = if (bothShown) R.id.chapter_selection_new_testament else ConstraintLayout.LayoutParams.UNSET
             endToEnd = if (bothShown) ConstraintLayout.LayoutParams.UNSET else ConstraintLayout.LayoutParams.PARENT_ID
         }
-        (newTab.layoutParams as ConstraintLayout.LayoutParams).apply {
+        newTab.layoutParams = (newTab.layoutParams as ConstraintLayout.LayoutParams).apply {
             endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
             endToStart = ConstraintLayout.LayoutParams.UNSET
             startToEnd = if (bothShown) R.id.chapter_selection_old_testament else ConstraintLayout.LayoutParams.UNSET
             startToStart = if (bothShown) ConstraintLayout.LayoutParams.UNSET else ConstraintLayout.LayoutParams.PARENT_ID
         }
-        oldTab.requestLayout()
-        newTab.requestLayout()
     }
 
     fun expandCurrentBook() {
