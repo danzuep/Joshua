@@ -16,6 +16,7 @@
 
 package me.xizzhu.android.joshua.reading
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
@@ -168,6 +169,14 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     private lateinit var versePagerAdapter: VersePagerAdapter
     private var verseReportedByScroll: VerseIndex? = null
     private var userSwipingPager = false
+
+    // The launcher alias reuses a running reader, so an open-book request arrives here instead of onCreate().
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val openBook = intent.getIntExtra(KEY_OPEN_BOOK, -1)
+        if (openBook in 0 until Bible.BOOK_COUNT) viewModel.openBook(openBook)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
