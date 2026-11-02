@@ -33,7 +33,8 @@ class AdbUiDriver(private val uiDumpFile: File = File("ui.xml")) : UiDriver {
 
     override fun launch(component: String, intExtras: Map<String, Int>) {
         val extras = intExtras.flatMap { (key, value) -> listOf("--ei", key, value.toString()) }
-        adb("shell", "am", "start", "-W", "-n", component, *extras.toTypedArray())
+        // Single top delivers the intent to a running activity (onNewIntent) instead of only bringing it to the front.
+        adb("shell", "am", "start", "-W", "--activity-single-top", "-n", component, *extras.toTypedArray())
     }
 
     override fun dump(): UiHierarchy {
