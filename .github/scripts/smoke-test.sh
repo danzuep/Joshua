@@ -11,11 +11,15 @@ dump_ui() {
 
 adb install app/build/outputs/apk/release/app-release.apk
 adb logcat -c
+# Open Genesis first (importing the bundled translation takes a while), then jump to another book. A page must
+# never be left on the loading spinner after the jump.
+adb shell am start -W -n me.xizzhu.android.joshua/.LauncherActivity --ei me.xizzhu.android.joshua.KEY_OPEN_BOOK 0
+sleep 20
 # Open straight to the requested book (0-based index, default 42 = John) instead of navigating the UI.
 adb shell am start -W -n me.xizzhu.android.joshua/.LauncherActivity --ei me.xizzhu.android.joshua.KEY_OPEN_BOOK "${SMOKE_BOOK_INDEX:-42}"
 
 # The bundled translation is imported on first launch, so give it time to appear.
-sleep 20
+sleep 10
 dump_ui
 found=0
 if grep -q "In the beginning was the Word" ui.xml 2> /dev/null; then

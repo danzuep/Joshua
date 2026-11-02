@@ -166,14 +166,17 @@ class VersePagerAdapter(
         if (currentVerseIndex.isValid() && currentTranslation.isNotEmpty() && settings != null) Bible.TOTAL_CHAPTER_COUNT else 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-        Page(inflater, parent, ::getChapter, ::loadChapter, updateCurrentVerse).also { livePages.add(it) }
+        Page(inflater, parent, ::getChapter, ::loadChapter, updateCurrentVerse)
 
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         (holder as? Page)?.let(livePages::remove)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as Page).bind(position, settings!!, currentVerseIndex)
+        // Holders taken from RecyclerView's pool were removed in onViewRecycled and are not recreated, so register on every bind.
+        // Otherwise a chapter that finishes loading after the bind never reaches the page, which then spins forever.
+        livePages.add(holder as Page)
+        holder.bind(position, settings!!, currentVerseIndex)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
