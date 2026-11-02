@@ -48,11 +48,3 @@ kotlin {
         }
     }
 }
-
-// UI smoke scenario driven over adb (`./gradlew :shared:runSmokeScenario`, see .github/scripts/smoke-test.sh).
-tasks.register<JavaExec>("runSmokeScenario") {
-    val main = kotlin.jvm().compilations.getByName("main")
-    classpath(main.output.allOutputs, main.runtimeDependencyFiles ?: files())
-    workingDir = rootDir // the dumped ui*.xml land where the smoke-test workflow uploads them
-    mainClass.set("${Configurations.applicationId}.testing.SmokeScenarioKt")
-}
