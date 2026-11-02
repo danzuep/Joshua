@@ -92,7 +92,7 @@ class TranslationSpinnerAdapter(
 
         title.text = item.displayName
         checkbox.isVisible = true
-        checkbox.isEnabled = !item.isCurrentTranslation
+        checkbox.isEnabled = !(item.isCurrentTranslation && downloadedTranslationCount() <= 1)
         checkbox.isChecked = item.isCurrentTranslation or item.isParallelTranslation
     }
 
@@ -104,6 +104,8 @@ class TranslationSpinnerAdapter(
         checkbox.isEnabled = false
         checkbox.isChecked = false
     }
+
+    private fun downloadedTranslationCount(): Int = items.count { it is TranslationItem.Translation }
 }
 
 sealed class TranslationItem {

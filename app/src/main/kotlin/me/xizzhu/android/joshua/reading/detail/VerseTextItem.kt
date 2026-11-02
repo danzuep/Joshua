@@ -18,7 +18,9 @@ package me.xizzhu.android.joshua.reading.detail
 
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.Verse
@@ -27,9 +29,11 @@ import me.xizzhu.android.joshua.databinding.ItemVerseTextBinding
 import me.xizzhu.android.joshua.ui.*
 import me.xizzhu.android.joshua.ui.recyclerview.BaseItem
 import me.xizzhu.android.joshua.ui.recyclerview.BaseViewHolder
+import me.xizzhu.android.joshua.ui.recyclerview.CommonRecyclerView
 
 class VerseTextItem(
-        val verseIndex: VerseIndex, followingEmptyVerseCount: Int, val verseText: Verse.Text, private val bookName: String
+        val verseIndex: VerseIndex, followingEmptyVerseCount: Int, val verseText: Verse.Text, private val bookName: String,
+        override val isReorderable: Boolean = false
 ) : BaseItem(R.layout.item_verse_text, { inflater, parent -> VerseTextItemViewHolder(inflater, parent) }) {
     companion object {
         private val BOOK_NAME_SPANS = createTitleSpans()
@@ -73,6 +77,11 @@ private class VerseTextItemViewHolder(inflater: LayoutInflater, parent: ViewGrou
                 true
             } ?: false
         }
+        viewBinding.dragHandle.setOnTouchListener { _, event ->
+            if (event.actionMasked != MotionEvent.ACTION_DOWN) return@setOnTouchListener false
+            (itemView.parent as? CommonRecyclerView)?.startDrag(this)
+            true
+        }
     }
 
     private fun callback(): VerseTextItem.Callback = (itemView.activity as? VerseTextItem.Callback)
@@ -83,5 +92,6 @@ private class VerseTextItemViewHolder(inflater: LayoutInflater, parent: ViewGrou
             setPrimaryTextSize(settings)
             text = item.textForDisplay
         }
+        viewBinding.dragHandle.isVisible = item.isReorderable
     }
 }

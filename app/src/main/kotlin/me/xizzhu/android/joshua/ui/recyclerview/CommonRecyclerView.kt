@@ -20,6 +20,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -32,6 +33,9 @@ abstract class BaseItem protected constructor(val viewType: Int, viewHolderCreat
         fun getViewHolderCreator(viewType: Int) = VIEW_HOLDER_CREATORS
                 .getOrElse(viewType) { throw IllegalStateException("Unknown view type - $viewType") }
     }
+
+    open val isReorderable: Boolean
+        get() = false
 
     init {
         VIEW_HOLDER_CREATORS[viewType] = viewHolderCreator
@@ -64,6 +68,15 @@ private class CommonAdapter(context: Context) : RecyclerView.Adapter<BaseViewHol
         }
     }
 
+    fun isReorderable(position: Int): Boolean = items.getOrNull(position)?.isReorderable == true
+
+    fun move(fromPosition: Int, toPosition: Int) {
+        items.add(toPosition, items.removeAt(fromPosition))
+        notifyItemMoved(fromPosition, toPosition)
+    }
+
+    fun currentItems(): List<BaseItem> = items.toList()
+
     fun setSettings(settings: Settings) {
         this.settings = settings
 
@@ -91,6 +104,37 @@ private class CommonAdapter(context: Context) : RecyclerView.Adapter<BaseViewHol
 
 class CommonRecyclerView : RecyclerView {
     private val adapter: CommonAdapter = CommonAdapter(context).apply { setAdapter(this) }
+    private var onItemsReordered: ((List<BaseItem>) -> Unit)? = null
+    private var itemsMoved = false
+
+    private val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+        override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int =
+                if (adapter.isReorderable(viewHolder.bindingAdapterPosition)) super.getMovementFlags(recyclerView, viewHolder) else 0
+
+        override fun isLongPressDragEnabled(): Boolean = false
+
+        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+            val from = viewHolder.bindingAdapterPosition
+            val to = target.bindingAdapterPosition
+            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION || !adapter.isReorderable(to)) return false
+
+            adapter.move(from, to)
+            itemsMoved = true
+            return true
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            // Swiping is not supported
+        }
+
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            super.clearView(recyclerView, viewHolder)
+            if (itemsMoved) {
+                itemsMoved = false
+                onItemsReordered?.invoke(adapter.currentItems())
+            }
+        }
+    })
 
     constructor(context: Context) : super(context)
 
@@ -100,6 +144,7 @@ class CommonRecyclerView : RecyclerView {
 
     init {
         layoutManager = LinearLayoutManager(context, VERTICAL, false)
+        itemTouchHelper.attachToRecyclerView(this)
     }
 
     fun setSettings(settings: Settings) {
@@ -108,5 +153,14 @@ class CommonRecyclerView : RecyclerView {
 
     fun setItems(items: List<BaseItem>) {
         adapter.setItems(items)
+    }
+
+    /** Items with [BaseItem.isReorderable] can be dragged, only within the reorderable items. */
+    fun setOnItemsReorderedListener(listener: (List<BaseItem>) -> Unit) {
+        onItemsReordered = listener
+    }
+
+    fun startDrag(viewHolder: RecyclerView.ViewHolder) {
+        itemTouchHelper.startDrag(viewHolder)
     }
 }

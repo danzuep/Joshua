@@ -50,6 +50,7 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
     private val handler = Handler(Looper.getMainLooper())
 
     private var updateNote: ((VerseIndex, String) -> Unit)? = null
+    private var reorderTranslations: ((List<String>) -> Unit)? = null
     private var pendingNote: Pair<VerseIndex, String>? = null
     private val saveNoteRunnable = Runnable { flushNote() }
 
@@ -65,14 +66,16 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
             notifyDataSetChanged()
         }
 
-    fun initialize(updateNote: (VerseIndex, String) -> Unit) {
+    fun initialize(updateNote: (VerseIndex, String) -> Unit, reorderTranslations: (List<String>) -> Unit) {
         this.updateNote = updateNote
+        this.reorderTranslations = reorderTranslations
     }
 
     override fun getItemCount(): Int {
         val fullyInitialized = settings != null
                 && verseDetail != null
                 && updateNote != null
+                && reorderTranslations != null
         return if (fullyInitialized) visiblePages().size else 0
     }
 
@@ -80,7 +83,7 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VerseDetailPage<*> =
             when (viewType) {
-                PAGE_VERSES -> VersesPage(inflater, parent)
+                PAGE_VERSES -> VersesPage(inflater, parent, reorderTranslations!!)
                 PAGE_NOTE -> NotePage(inflater, parent, this::scheduleNoteSave)
                 PAGE_PARATEXT -> ParatextPage(inflater, parent)
                 else -> throw IllegalArgumentException("Unsupported view type: $viewType")
@@ -143,10 +146,15 @@ abstract class VerseDetailPage<VB : ViewBinding>(val viewBinding: VB) : Recycler
     abstract fun bind(verseDetail: VerseDetailViewData, settings: Settings)
 }
 
-private class VersesPage(inflater: LayoutInflater, container: ViewGroup)
+private class VersesPage(inflater: LayoutInflater, container: ViewGroup, reorderTranslations: (List<String>) -> Unit)
     : VerseDetailPage<PageVerseDetailVersesBinding>(PageVerseDetailVersesBinding.inflate(inflater, container, false)) {
     init {
         viewBinding.verseTextList.isNestedScrollingEnabled = false
+        viewBinding.verseTextList.setOnItemsReorderedListener { items ->
+            reorderTranslations(items.filter { it.isReorderable }
+                    .filterIsInstance<VerseTextItem>()
+                    .map { it.verseText.translationShortName })
+        }
     }
 
     override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {

@@ -69,7 +69,7 @@ class ReadingViewModelTest : BaseUnitTest() {
 
         bibleReadingManager = mockk()
         every { bibleReadingManager.currentTranslation() } returns emptyFlow()
-        every { bibleReadingManager.parallelTranslations() } returns emptyFlow()
+        every { bibleReadingManager.parallelTranslations() } returns flowOf(emptyList())
         every { bibleReadingManager.currentVerseIndex() } returns emptyFlow()
         readingProgressManager = mockk()
         translationManager = mockk()
@@ -320,6 +320,49 @@ class ReadingViewModelTest : BaseUnitTest() {
         assertTrue(detail.bookmarked)
         assertEquals(Highlight.COLOR_PURPLE, detail.highlightColor)
         assertEquals("just a note", detail.note)
+    }
+
+    @Test
+    fun `test loadVerseDetail with stored parallel translations in saved order`() = runTest {
+        val verseIndex = VerseIndex(0, 0, 0)
+        coEvery { bookmarkManager.read(verseIndex) } returns Bookmark(verseIndex, 0L)
+        coEvery { highlightManager.read(verseIndex) } returns Highlight(verseIndex, Highlight.COLOR_NONE, 0L)
+        coEvery { noteManager.read(verseIndex) } returns Note(verseIndex, "", 0L)
+        every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
+        every { bibleReadingManager.parallelTranslations() } returns flowOf(listOf(MockContents.cuvShortName))
+        every { translationManager.downloadedTranslations() } returns flowOf(listOf(
+                MockContents.kjvDownloadedTranslationInfo, MockContents.cuvDownloadedTranslationInfo, MockContents.bbeDownloadedTranslationInfo
+        ))
+        coEvery {
+            bibleReadingManager.readVerses(
+                    MockContents.kjvShortName, listOf(MockContents.cuvShortName, MockContents.bbeShortName),
+                    verseIndex.bookIndex, verseIndex.chapterIndex
+            )
+        } returns MockContents.kjvVersesWithBbeCuvParallel
+        coEvery {
+            bibleReadingManager.readStructuredVerses(MockContents.kjvShortName, verseIndex.bookIndex, verseIndex.chapterIndex)
+        } returns listOf(Verse(verseIndex, Verse.Text(MockContents.kjvShortName, "In the beginning"), emptyList()))
+        coEvery { bibleReadingManager.readBookNames(any()) } returns MockContents.kjvBookNames
+
+        val actions = collectViewActions()
+
+        readingViewModel.loadVerseDetail(verseIndex, VerseDetailViewLayout.VERSE_DETAIL_VERSES)
+
+        val detail = (actions[0] as ReadingViewModel.ViewAction.ShowVerseDetail).verseDetail
+        assertEquals(
+                listOf(MockContents.kjvShortName, MockContents.cuvShortName, MockContents.bbeShortName),
+                detail.verseTextItems.map { it.verseText.translationShortName }
+        )
+        assertEquals(listOf(true, true, false), detail.verseTextItems.map { it.isReorderable })
+    }
+
+    @Test
+    fun `test reorderTranslations()`() = runTest {
+        coEvery { bibleReadingManager.reorderTranslations(listOf(MockContents.cuvShortName, MockContents.bbeShortName)) } returns Unit
+
+        readingViewModel.reorderTranslations(listOf(MockContents.cuvShortName, MockContents.bbeShortName))
+
+        coVerify(exactly = 1) { bibleReadingManager.reorderTranslations(listOf(MockContents.cuvShortName, MockContents.bbeShortName)) }
     }
 
     @Test

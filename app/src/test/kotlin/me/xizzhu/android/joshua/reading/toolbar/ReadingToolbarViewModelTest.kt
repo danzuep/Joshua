@@ -18,6 +18,7 @@ package me.xizzhu.android.joshua.reading.toolbar
 
 import android.app.Application
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.BeforeTest
@@ -213,10 +214,12 @@ class ReadingToolbarViewModelTest : BaseUnitTest() {
 
     @Test
     fun `test removeParallelTranslation()`() = runTest {
+        every { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.cuvShortName)
         coEvery { bibleReadingManager.removeParallelTranslation(any()) } returns Unit
 
         readingToolbarViewModel.removeParallelTranslation(MockContents.kjvShortName)
 
+        coVerify(exactly = 1) { bibleReadingManager.removeParallelTranslation(MockContents.kjvShortName) }
         assertEquals(
             ReadingToolbarViewModel.ViewState(
                 title = application.getString(R.string.app_name),

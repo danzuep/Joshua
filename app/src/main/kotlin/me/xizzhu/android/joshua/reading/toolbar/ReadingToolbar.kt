@@ -52,6 +52,7 @@ class ReadingToolbar : MaterialToolbar {
     fun initialize(onViewEvent: (ViewEvent) -> Unit) {
         with(spinner()) {
             adapter = TranslationSpinnerAdapter(context = context, onViewEvent = onViewEvent)
+            dropDownWidth = resources.getDimensionPixelSize(R.dimen.translation_spinner_drop_down_width)
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                     if (spinnerPosition == position) return
