@@ -5,9 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:hint="@string/text_notes"
-    android:padding="@dimen/padding"
-    app:endIconDrawable="@drawable/ic_check"
-    app:endIconMode="custom">
+    android:padding="@dimen/padding">
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/note"
