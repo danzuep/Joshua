@@ -30,7 +30,6 @@ import me.xizzhu.android.joshua.core.containsAnyKeyword
 import me.xizzhu.android.joshua.core.repository.remote.parseTranslationTsv
 import me.xizzhu.android.joshua.core.toKeywords
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
-import me.xizzhu.android.joshua.ui.languageDisplayName
 import me.xizzhu.android.joshua.ui.languageDisplayNameWithNative
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -100,8 +99,6 @@ class TranslationsViewModel @Inject constructor(
 
     private var loadedDownloadedTranslations: List<TranslationInfo> = emptyList()
     private var loadedAvailableTranslations: List<TranslationInfo> = emptyList()
-    var languageFilter: String? = null
-        private set
     var keywordFilter: String = ""
         private set
     private var pendingDownloadShortName: String? = null
@@ -147,20 +144,14 @@ class TranslationsViewModel @Inject constructor(
 
     private fun TranslationInfo.matchesFilter(): Boolean {
         val languageCode = language.split("_")[0]
-        if (languageFilter != null && languageCode != languageFilter) return false
         val keywords = keywordFilter.toKeywords()
         if (keywords.isEmpty()) return true
-        return "$shortName $name $language ${languageDisplayNameWithNative(languageCode)}".containsAnyKeyword(keywords, wholeWords = false)
+        // Every keyword must match, like a web search.
+        val haystack = "$shortName $name $language ${languageDisplayNameWithNative(languageCode)}"
+        return keywords.all { haystack.containsAnyKeyword(listOf(it), wholeWords = false) }
     }
 
-    /** Languages of all known translations, sorted by display name, for the language filter. */
-    fun availableLanguages(): List<String> = (loadedDownloadedTranslations + loadedAvailableTranslations)
-        .map { it.language.split("_")[0] }
-        .distinct()
-        .sortedBy { languageDisplayName(it) }
-
-    fun applyFilter(language: String?, keyword: String) {
-        languageFilter = language
+    fun applyFilter(keyword: String) {
         keywordFilter = keyword.trim()
         viewModelScope.launch(coroutineDispatcherProvider.default) {
             val settings = settingsManager.settings().first()
