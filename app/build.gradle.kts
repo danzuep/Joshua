@@ -126,6 +126,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":shared"))
+
     implementation(Dependencies.Kotlin.coroutines)
     implementation(Dependencies.AndroidX.activity)
     implementation(Dependencies.AndroidX.annotation)

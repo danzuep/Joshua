@@ -88,10 +88,15 @@ object Dependencies {
     object Kotlin {
         const val classpath = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.Kotlin.core}"
         const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.Kotlin.coroutines}"
+        const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.Kotlin.coroutines}"
         const val reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.Kotlin.core}"
 
         const val test = "org.jetbrains.kotlin:kotlin-test-junit:${Versions.Kotlin.core}"
         const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.Kotlin.coroutines}"
+
+        object Multiplatform {
+            const val plugin = "org.jetbrains.kotlin.multiplatform"
+        }
 
         object Ksp {
             const val plugin = "com.google.devtools.ksp"

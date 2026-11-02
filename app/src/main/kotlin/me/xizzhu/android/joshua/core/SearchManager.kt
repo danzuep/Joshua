@@ -27,28 +27,6 @@ import me.xizzhu.android.joshua.core.repository.remote.BOOK_CODES
 import me.xizzhu.android.joshua.utils.firstNotEmpty
 import java.util.*
 
-data class SearchConfiguration(
-        val includeOldTestament: Boolean, val includeNewTestament: Boolean,
-        val includeBookmarks: Boolean, val includeHighlights: Boolean, val includeNotes: Boolean,
-        val wholeWords: Boolean = false, val searchByReference: Boolean = true
-)
-
-data class VerseSearchQuery(
-        val translation: String, val keyword: String, val includeOldTestament: Boolean, val includeNewTestament: Boolean,
-        val wholeWords: Boolean = false
-)
-
-data class SearchResult(
-        val verses: List<Verse>,
-        val bookmarks: List<Pair<Bookmark, Verse>>,
-        val highlights: List<Pair<Highlight, Verse>>,
-        val notes: List<Pair<Note, Verse>>,
-        val byReference: Boolean = false
-)
-
-/** A parsed reference, with 0-based indexes. A null [verseIndexes] means the whole chapter. */
-data class BibleReference(val bookIndex: Int, val chapterIndex: Int, val verseIndexes: IntRange? = null)
-
 class SearchManager(
         private val bibleReadingRepository: BibleReadingRepository,
         private val bookmarkRepository: VerseAnnotationRepository<Bookmark>,
