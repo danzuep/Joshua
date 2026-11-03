@@ -33,6 +33,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 @RunWith(RobolectricTestRunner::class)
 class SearchViewHolderTest : BaseUnitTest() {
@@ -75,6 +76,7 @@ class SearchViewHolderTest : BaseUnitTest() {
                     assertEquals(VerseIndex(0, 0, 0), viewEvent.verseToOpen)
                     openVerseCalled++
                 }
+                is SearchAdapter.ViewEvent.OpenBook -> fail("Unexpected OpenBook")
                 is SearchAdapter.ViewEvent.ShowPreview -> {
                     assertEquals(VerseIndex(0, 0, 0), viewEvent.verseToPreview)
                     showPreviewCalled++
@@ -132,6 +134,7 @@ class SearchViewHolderTest : BaseUnitTest() {
                     assertEquals(VerseIndex(0, 0, 0), viewEvent.verseToOpen)
                     openVerseCalled++
                 }
+                is SearchAdapter.ViewEvent.OpenBook -> fail("Unexpected OpenBook")
                 is SearchAdapter.ViewEvent.ShowPreview -> {
                     assertEquals(VerseIndex(0, 0, 0), viewEvent.verseToPreview)
                     showPreviewCalled++
