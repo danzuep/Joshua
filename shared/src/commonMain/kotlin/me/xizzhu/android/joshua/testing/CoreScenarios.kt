@@ -87,7 +87,6 @@ class CoreSettings(private val repository: SettingsRepository, private var curre
 
     suspend fun hideSearchButton(on: Boolean = true) = update { copy(hideSearchButton = on) }
 
-    suspend fun consolidateVersesForSharing(on: Boolean = true) = update { copy(consolidateVersesForSharing = on) }
 
     suspend fun defaultHighlightColor(color: Int) = update { copy(defaultHighlightColor = color) }
 }

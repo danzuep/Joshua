@@ -31,7 +31,6 @@ class AndroidSettingsStorage(private val androidDatabase: AndroidDatabase) : Loc
                 Pair(MetadataDao.KEY_FONT_SIZE_SCALE, Settings.DEFAULT.fontSizeScale.toString()),
                 Pair(MetadataDao.KEY_SIMPLE_READING_MODE_ON, Settings.DEFAULT.simpleReadingModeOn.toString()),
                 Pair(MetadataDao.KEY_HIDE_SEARCH_BUTTON, Settings.DEFAULT.hideSearchButton.toString()),
-                Pair(MetadataDao.KEY_CONSOLIDATE_VERSES_FOR_SHARING, Settings.DEFAULT.consolidateVersesForSharing.toString()),
                 Pair(MetadataDao.KEY_DEFAULT_HIGHLIGHT_COLOR, Settings.DEFAULT.defaultHighlightColor.toString()),
         ))
         return@withContext Settings(values.getValue(MetadataDao.KEY_SCREEN_ON).toBoolean(),
@@ -39,7 +38,6 @@ class AndroidSettingsStorage(private val androidDatabase: AndroidDatabase) : Loc
                 values.getValue(MetadataDao.KEY_FONT_SIZE_SCALE).toFloat(),
                 values.getValue(MetadataDao.KEY_SIMPLE_READING_MODE_ON).toBoolean(),
                 values.getValue(MetadataDao.KEY_HIDE_SEARCH_BUTTON).toBoolean(),
-                values.getValue(MetadataDao.KEY_CONSOLIDATE_VERSES_FOR_SHARING).toBoolean(),
                 values.getValue(MetadataDao.KEY_DEFAULT_HIGHLIGHT_COLOR).toInt()
         )
     }
@@ -52,7 +50,6 @@ class AndroidSettingsStorage(private val androidDatabase: AndroidDatabase) : Loc
                     Pair(MetadataDao.KEY_FONT_SIZE_SCALE, settings.fontSizeScale.toString()),
                     Pair(MetadataDao.KEY_SIMPLE_READING_MODE_ON, settings.simpleReadingModeOn.toString()),
                     Pair(MetadataDao.KEY_HIDE_SEARCH_BUTTON, settings.hideSearchButton.toString()),
-                    Pair(MetadataDao.KEY_CONSOLIDATE_VERSES_FOR_SHARING, settings.consolidateVersesForSharing.toString()),
                     Pair(MetadataDao.KEY_DEFAULT_HIGHLIGHT_COLOR, settings.defaultHighlightColor.toString()),
             ))
         }

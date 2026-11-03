@@ -79,7 +79,6 @@ class SettingsActivityTest : BaseActivityTest() {
             val viewBinding: ActivitySettingsBinding = activity.getProperty("viewBinding")
             viewBinding.keepScreenOn.performClickPressed()
             viewBinding.hideSearchButton.performClickPressed()
-            viewBinding.consolidatedSharing.performClickPressed()
             viewBinding.fontSize.performClick()
             viewBinding.nightMode.performClick()
             viewBinding.defaultHighlightColor.performClick()
@@ -91,7 +90,6 @@ class SettingsActivityTest : BaseActivityTest() {
             verify(ordering = Ordering.ORDERED) {
                 viewModel.saveKeepScreenOn(true)
                 viewModel.saveHideSearchButton(true)
-                viewModel.saveConsolidateVersesForSharing(true)
                 viewModel.selectFontSizeScale()
                 viewModel.selectNightMode()
                 viewModel.selectHighlightColor()
@@ -162,7 +160,6 @@ class SettingsActivityTest : BaseActivityTest() {
             nightModeStringRes = R.string.settings_text_night_mode_off,
             simpleReadingModeOn = true,
             hideSearchButton = true,
-        consolidateVersesForSharing = true,
             defaultHighlightColorStringRes = R.string.text_highlight_color_none,
             backupState = SettingsViewModel.ViewState.BackupRestoreState.Completed(successful = true),
             restoreState = SettingsViewModel.ViewState.BackupRestoreState.Idle,
@@ -178,7 +175,6 @@ class SettingsActivityTest : BaseActivityTest() {
             assertEquals("1.0x", viewBinding.fontSize.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertTrue(viewBinding.keepScreenOn.isChecked)
             assertTrue(viewBinding.hideSearchButton.isChecked)
-            assertTrue(viewBinding.consolidatedSharing.isChecked)
             assertEquals("Off", viewBinding.nightMode.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertEquals("None", viewBinding.defaultHighlightColor.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertEquals("app_version", viewBinding.version.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
@@ -196,7 +192,6 @@ class SettingsActivityTest : BaseActivityTest() {
             nightModeStringRes = R.string.settings_text_night_mode_off,
             simpleReadingModeOn = true,
             hideSearchButton = true,
-            consolidateVersesForSharing = true,
             defaultHighlightColorStringRes = R.string.text_highlight_color_none,
             backupState = SettingsViewModel.ViewState.BackupRestoreState.Idle,
             restoreState = SettingsViewModel.ViewState.BackupRestoreState.Completed(successful = false),
@@ -212,7 +207,6 @@ class SettingsActivityTest : BaseActivityTest() {
             assertEquals("1.0x", viewBinding.fontSize.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertTrue(viewBinding.keepScreenOn.isChecked)
             assertTrue(viewBinding.hideSearchButton.isChecked)
-            assertTrue(viewBinding.consolidatedSharing.isChecked)
             assertEquals("Off", viewBinding.nightMode.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertEquals("None", viewBinding.defaultHighlightColor.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertEquals("app_version", viewBinding.version.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
