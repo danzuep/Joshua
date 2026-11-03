@@ -3,6 +3,21 @@
 # then searches "jhn1" and checks the search screen stays responsive.
 set -u
 
+# Taps the center of the node whose content-desc contains $1 in ui.xml; returns 1 if there is none.
+tap_desc() {
+  local xy
+  xy=$(DESC="$1" python3 - << 'PY'
+import os, re
+xml = open("ui.xml", encoding="utf-8").read()
+node = re.search(r'<node[^>]*content-desc="[^"]*' + os.environ["DESC"] + r'[^"]*"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
+if node:
+    x1, y1, x2, y2 = map(int, node.groups())
+    print((x1 + x2) // 2, (y1 + y2) // 2)
+PY
+)
+  [ -n "$xy" ] && adb shell input tap $xy
+}
+
 dump_ui() {
   rm -f ui.xml
   adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
@@ -64,6 +79,22 @@ if [ -n "$verse_xy" ]; then
       status=1
     fi
   done
+  # Bookmark the verse: the heart goes at the end of verse 1 (in the second paragraph), not after its first part.
+  cp ui-actionmode.xml ui.xml
+  if tap_desc "Bookmark"; then
+    sleep 2
+    adb exec-out screencap -p > screen-bookmarked.png
+    # Tapping bookmark on a bookmarked verse removes the bookmark.
+    adb shell input swipe $verse_xy $verse_xy 1500
+    sleep 2
+    dump_ui
+    tap_desc "Bookmark" || { echo "FAIL: no Bookmark icon the second time"; status=1; }
+    sleep 2
+    adb exec-out screencap -p > screen-unbookmarked.png
+  else
+    echo "FAIL: could not tap the Bookmark icon"
+    status=1
+  fi
   adb shell input keyevent KEYCODE_BACK
   sleep 1
 else

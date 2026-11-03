@@ -45,6 +45,7 @@ fun List<Verse>.toParagraphItems(
     val selected = mutableSetOf<Int>()
 
     val items = ArrayList<BaseItem>()
+    var previousSegment: ParagraphItem.Segment? = null
     var heading: String? = null
     var segments = ArrayList<ParagraphItem.Segment>()
     fun flush() {
@@ -71,7 +72,10 @@ fun List<Verse>.toParagraphItems(
         fun addSegment(part: String) {
             val trimmed = (if (segments.isEmpty()) part.trimStart('\n') else part).removeNotes()
             if (trimmed.isNotBlank()) {
-                segments.add(ParagraphItem.Segment(verse, trimmed.trimEnd(), label))
+                val segment = ParagraphItem.Segment(verse, trimmed.trimEnd(), label)
+                if (previousSegment?.verse === verse) previousSegment?.endsVerse = false
+                previousSegment = segment
+                segments.add(segment)
                 label = null
             }
         }

@@ -37,6 +37,8 @@ jobs:
           logcat.txt
           screen.png
           screen-actionmode.png
+          screen-bookmarked.png
+          screen-unbookmarked.png
           ui-actionmode.xml
           ui.xml
           ui-search.xml

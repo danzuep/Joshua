@@ -59,6 +59,14 @@ class VerseTransformerTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test toParagraphItems only the last part of a split verse ends the verse`() {
+        val items = listOf(verse(0, "One ${PARAGRAPH}Two"), verse(1, "Three"))
+                .toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()
+        assertEquals(listOf(false), items[0].segments.map { it.endsVerse })
+        assertEquals(listOf(true, true), items[1].segments.map { it.endsVerse })
+    }
+
+    @Test
     fun `test toParagraphItems with a heading in the middle of a verse`() {
         val items = listOf(verse(0, "In the beginning${HEADING}Creation${HEADING}${PARAGRAPH}God made"))
                 .toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs()
