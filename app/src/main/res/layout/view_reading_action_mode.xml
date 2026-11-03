@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AppCompat limits an action mode's menu to half the screen width, so the verse actions are laid out here instead. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageButton
+        android:id="@+id/action_highlight_verse"
+        style="@style/ReadingActionModeButton"
+        android:contentDescription="@string/action_highlight_verse"
+        android:src="@drawable/ic_highlight" />
+
+    <ImageButton
+        android:id="@+id/action_copy"
+        style="@style/ReadingActionModeButton"
+        android:contentDescription="@string/action_copy"
+        android:src="@drawable/ic_copy" />
+
+    <ImageButton
+        android:id="@+id/action_share"
+        style="@style/ReadingActionModeButton"
+        android:contentDescription="@string/action_share"
+        android:src="@drawable/ic_share" />
+
+    <ImageButton
+        android:id="@+id/action_bookmark_verse"
+        style="@style/ReadingActionModeButton"
+        android:contentDescription="@string/action_bookmark_verse"
+        android:src="@drawable/ic_bookmark"
+        app:tint="?attr/colorControlNormal" />
+</LinearLayout>

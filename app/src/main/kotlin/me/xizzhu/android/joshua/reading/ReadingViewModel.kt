@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import me.xizzhu.android.joshua.core.BibleReadingManager
 import me.xizzhu.android.joshua.core.Bookmark
 import me.xizzhu.android.joshua.core.Highlight
@@ -62,6 +63,8 @@ class VerseDetailViewData(
     val hasParallel: Boolean get() = downloadedTranslationCount > 1
     val hasParatext: Boolean get() = footnotes.isNotEmpty() || crossReferences.isNotEmpty()
 }
+
+private const val INSTALLING_INDICATOR_DELAY_MILLIS = 300L
 
 class VerseUpdate(val verseIndex: VerseIndex, @Operation val operation: Int, val data: Any? = null) {
     companion object {
@@ -112,6 +115,7 @@ class ReadingViewModel @Inject constructor(
         val currentReadingStatus: CurrentReadingStatus?,
         val error: Error?,
         val translationNames: Map<String, String> = emptyMap(),
+        val installingTranslation: Boolean = false,
     ) {
         data class CurrentReadingStatus(
             val currentTranslation: String, val parallelTranslations: List<String>,
@@ -177,7 +181,17 @@ class ReadingViewModel @Inject constructor(
 
     fun checkDownloadedTranslation() {
         viewModelScope.launch {
-            if (!translationManager.downloadedTranslations().first().isEmpty()) return@launch
+            // Translations are published only after the first-launch bundled install, so only show progress if that is slow
+            val downloaded = withTimeoutOrNull(INSTALLING_INDICATOR_DELAY_MILLIS) { translationManager.downloadedTranslations().first() }
+                ?: run {
+                    updateViewState { it.copy(installingTranslation = true) }
+                    try {
+                        translationManager.downloadedTranslations().first()
+                    } finally {
+                        updateViewState { it.copy(installingTranslation = false) }
+                    }
+                }
+            if (!downloaded.isEmpty()) return@launch
             updateViewState { it.copy(error = ViewState.Error.NoTranslationDownloadedError) }
         }
     }

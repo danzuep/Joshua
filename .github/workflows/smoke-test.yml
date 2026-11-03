@@ -36,5 +36,7 @@ jobs:
         path: |
           logcat.txt
           screen.png
+          screen-actionmode.png
+          ui-actionmode.xml
           ui.xml
           ui-search.xml
