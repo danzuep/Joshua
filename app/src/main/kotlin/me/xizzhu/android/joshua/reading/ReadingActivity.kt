@@ -87,37 +87,34 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     private var actionMode: ActionMode? = null
     private val actionModeCallback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            mode.menuInflater.inflate(R.menu.menu_reading_action_mode, menu)
+            val actions = layoutInflater.inflate(R.layout.view_reading_action_mode, null)
+            intArrayOf(R.id.action_highlight_verse, R.id.action_copy, R.id.action_share, R.id.action_bookmark_verse).forEach { id ->
+                actions.findViewById<View>(id).setOnClickListener { onVerseActionClicked(id) }
+            }
+            mode.customView = actions
             return true
         }
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean = false
 
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = when (item.itemId) {
-            R.id.action_highlight_verse -> {
-                highlightSelectedVerses()
-                true
-            }
-            R.id.action_copy -> {
-                copy()
-                true
-            }
-            R.id.action_share -> {
-                share()
-                true
-            }
-            R.id.action_bookmark_verse -> {
-                selectedVerses.forEach { verse -> viewModel.saveBookmark(verse.verseIndex, true) }
-                actionMode?.finish()
-                true
-            }
-            else -> false
-        }
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = false
 
         override fun onDestroyActionMode(mode: ActionMode) {
             selectedVerses.forEach { verse -> versePagerAdapter.deselectVerse(verse.verseIndex) }
             selectedVerses.clear()
             actionMode = null
+        }
+    }
+
+    private fun onVerseActionClicked(actionId: Int) {
+        when (actionId) {
+            R.id.action_highlight_verse -> highlightSelectedVerses()
+            R.id.action_copy -> copy()
+            R.id.action_share -> share()
+            R.id.action_bookmark_verse -> {
+                selectedVerses.forEach { verse -> viewModel.saveBookmark(verse.verseIndex, true) }
+                actionMode?.finish()
+            }
         }
     }
 

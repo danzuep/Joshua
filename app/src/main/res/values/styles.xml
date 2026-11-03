@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ActionModeButton" parent="Widget.AppCompat.ActionButton">
-        <item name="android:minWidth">@dimen/action_mode_button_min_width</item>
-        <item name="android:paddingStart">@dimen/padding_small</item>
-        <item name="android:paddingEnd">@dimen/padding_small</item>
+    <style name="ReadingActionModeButton" parent="Widget.AppCompat.ActionButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
     </style>
 
     <style name="AppWindowAnimationStyle">
