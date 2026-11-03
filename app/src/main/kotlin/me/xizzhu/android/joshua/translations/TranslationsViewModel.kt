@@ -219,9 +219,9 @@ class TranslationsViewModel @Inject constructor(
         // Translations are grouped by "Language (English)" from ebible_downloads.tsv, with a sub heading for a different native name.
         groupBy { tsvRows[it.shortName]?.languageEnglish?.ifEmpty { null } ?: languageDisplayNameWithNative(it.language.split("_")[0]) }
             .forEach { (languageEnglish, translations) ->
-                items.add(TranslationsItem.Header(settings, languageEnglish, hideDivider = true))
+                items.add(TranslationsItem.Header(settings, languageEnglish, hideDivider = false, isLanguage = true))
                 translations.groupBy { tsvRows[it.shortName]?.language.orEmpty() }.forEach { (native, group) ->
-                    if (native.isNotEmpty() && native != languageEnglish) items.add(TranslationsItem.Header(settings, native, hideDivider = false))
+                    if (native.isNotEmpty() && native != languageEnglish) items.add(TranslationsItem.Header(settings, native, hideDivider = true))
                     group.forEach { translationInfo ->
                         items.add(TranslationsItem.Translation(
                             settings = settings,

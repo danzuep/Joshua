@@ -125,9 +125,9 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
     }
 
     private fun scrollToLanguage(fraction: Float) {
-        // Only language headers are used for the index; the "Available" section header has hideDivider = false.
+        // Only language headers are used for the index; the "Available" section header and native name sub headings are not languages.
         val headers = adapter.currentList.withIndex()
-            .filter { (it.value as? TranslationsItem.Header)?.hideDivider == true }
+            .filter { (it.value as? TranslationsItem.Header)?.isLanguage == true }
         if (headers.isEmpty()) return
 
         val index = (fraction * headers.size).toInt().coerceIn(0, headers.lastIndex)

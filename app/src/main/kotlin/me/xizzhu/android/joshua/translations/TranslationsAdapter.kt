@@ -67,6 +67,7 @@ sealed class TranslationsItem(viewType: Int) : VerticalRecyclerViewItem(viewType
         val settings: Settings,
         val title: String,
         val hideDivider: Boolean,
+        val isLanguage: Boolean = false,
     ) : TranslationsItem(VIEW_TYPE) {
         companion object {
             @JvmField val VIEW_TYPE = R.layout.item_title
