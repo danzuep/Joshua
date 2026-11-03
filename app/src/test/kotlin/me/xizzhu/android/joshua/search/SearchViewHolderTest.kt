@@ -75,6 +75,7 @@ class SearchViewHolderTest : BaseUnitTest() {
                     assertEquals(VerseIndex(0, 0, 0), viewEvent.verseToOpen)
                     openVerseCalled++
                 }
+                is SearchAdapter.ViewEvent.OpenBook -> fail("Unexpected OpenBook")
                 is SearchAdapter.ViewEvent.ShowPreview -> {
                     assertEquals(VerseIndex(0, 0, 0), viewEvent.verseToPreview)
                     showPreviewCalled++
@@ -132,6 +133,7 @@ class SearchViewHolderTest : BaseUnitTest() {
                     assertEquals(VerseIndex(0, 0, 0), viewEvent.verseToOpen)
                     openVerseCalled++
                 }
+                is SearchAdapter.ViewEvent.OpenBook -> fail("Unexpected OpenBook")
                 is SearchAdapter.ViewEvent.ShowPreview -> {
                     assertEquals(VerseIndex(0, 0, 0), viewEvent.verseToPreview)
                     showPreviewCalled++
