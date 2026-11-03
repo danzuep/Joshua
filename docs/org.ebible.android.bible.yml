@@ -15,9 +15,9 @@ RepoType: git
 Repo: https://github.com/danzuep/eBible.git
 
 Builds:
-  - versionName: 0.27.0
-    versionCode: 2700
-    commit: v0.27.0
+  - versionName: 0.27.1
+    versionCode: 2701
+    commit: v0.27.1
     subdir: app
     gradle:
       - yes
@@ -27,5 +27,5 @@ Builds:
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^v[0-9.]+$
-CurrentVersion: 0.27.0
-CurrentVersionCode: 2700
+CurrentVersion: 0.27.1
+CurrentVersionCode: 2701
