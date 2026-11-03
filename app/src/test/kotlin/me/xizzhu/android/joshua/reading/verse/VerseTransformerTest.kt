@@ -113,7 +113,7 @@ class VerseTransformerTest : BaseUnitTest() {
         val text = "${HEADING}Title${HEADING}${PARAGRAPH}\u201CHello\u201D\u2014world\u00A0now\n\u2003Line two"
         assertEquals(
                 "John 1:16 (World English Bible)\n> \u201CHello\u201D\u2014world\u00A0now\n> \u2003Line two",
-                listOf(verse(15, text)).toStringForCopy("John", "World English Bible", consolidateVerses = false)
+                listOf(verse(15, text)).toStringForCopy("John", "World English Bible")
         )
     }
 
@@ -121,7 +121,7 @@ class VerseTransformerTest : BaseUnitTest() {
     fun `test toStringForCopy as Markdown for a single verse`() {
         assertEquals(
                 "John 1:16 (World English Bible)\n> For God so loved the world",
-                listOf(verse(15, "For God so loved the world")).toStringForCopy("John", "World English Bible", consolidateVerses = false)
+                listOf(verse(15, "For God so loved the world")).toStringForCopy("John", "World English Bible")
         )
     }
 
@@ -129,35 +129,23 @@ class VerseTransformerTest : BaseUnitTest() {
     fun `test toStringForCopy as Markdown for poetry lines`() {
         assertEquals(
                 "John 1:16 (World English Bible)\n> Line one\n> \u2003Line two",
-                listOf(verse(15, "${PARAGRAPH}\nLine one\n\u2003Line two")).toStringForCopy("John", "World English Bible", consolidateVerses = false)
+                listOf(verse(15, "${PARAGRAPH}\nLine one\n\u2003Line two")).toStringForCopy("John", "World English Bible")
         )
     }
 
     @Test
-    fun `test toStringForCopy as Markdown for separate verses`() {
+    fun `test toStringForCopy as Markdown for consecutive verses`() {
         assertEquals(
-                "John 1:16 (World English Bible)\n> A\n\nJohn 1:17 (World English Bible)\n> B",
-                listOf(verse(15, "A"), verse(16, "B")).toStringForCopy("John", "World English Bible", consolidateVerses = false)
-        )
-    }
-
-    @Test
-    fun `test toStringForCopy as Markdown for consolidated verses`() {
-        assertEquals(
-                "John 1:16-17 (World English Bible)\n> A B",
-                listOf(verse(15, "A"), verse(16, "B")).toStringForCopy("John", "World English Bible", consolidateVerses = true)
+                "John 1:16-17 (World English Bible)\n> 16 A 17 B",
+                listOf(verse(15, "A"), verse(16, "B")).toStringForCopy("John", "World English Bible")
         )
     }
 
     @Test
     fun `test toStringForSharing keeps the plain format without the translation name`() {
         assertEquals(
-                "John 1:16 A\nJohn 1:17 B",
-                listOf(verse(15, "A"), verse(16, "B")).toStringForSharing("John", consolidateVerses = false)
-        )
-        assertEquals(
-                "John 1:16-17\nA B",
-                listOf(verse(15, "A"), verse(16, "B")).toStringForSharing("John", consolidateVerses = true)
+                "John 1:16-17\n16 A 17 B",
+                listOf(verse(15, "A"), verse(16, "B")).toStringForSharing("John")
         )
     }
 

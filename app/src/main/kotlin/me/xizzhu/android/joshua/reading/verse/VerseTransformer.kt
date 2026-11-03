@@ -95,17 +95,16 @@ fun List<Verse>.toParagraphItems(
 }
 
 /** Text for the clipboard: Markdown quotes, with the full translation name in brackets after each reference. */
-fun Collection<Verse>.toStringForCopy(bookName: String, translationName: String, consolidateVerses: Boolean): String =
-        map { it.toDisplayedVerse() }.toStringForSharing(bookName, consolidateVerses, markdown = true, translationName = translationName)
+fun Collection<Verse>.toStringForCopy(bookName: String, translationName: String): String =
+        map { it.toDisplayedVerse() }.toStringForSharing(bookName, markdown = true, translationName = translationName)
 
-fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Boolean, markdown: Boolean = false,
-                                         translationName: String? = null): String {
+fun Collection<Verse>.toStringForSharing(bookName: String, markdown: Boolean = false, translationName: String? = null): String {
     val sortedVerses = sortedBy { verse ->
         val verseIndex = verse.verseIndex
         verseIndex.bookIndex * 100000 + verseIndex.chapterIndex * 1000 + verseIndex.verseIndex
     }
 
-    if (!consolidateVerses || size == 1) {
+    if (size == 1) {
         return StringBuilder().apply {
             sortedVerses.forEach { verse -> append(verse, bookName, markdown, translationName) }
         }.toString()
@@ -113,7 +112,7 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
 
     // format (without parallel):
     // <book name> <chapter index>:<start verse index>-<end verse index>
-    // <verse text>
+    // <verse number> <verse text> <verse number> <verse text>
     // <book name> <chapter index>:<verse index>
     // <verse text>
     //
@@ -172,13 +171,17 @@ fun Collection<Verse>.toStringForSharing(bookName: String, consolidateVerses: Bo
             }
         }
 
-        if (verse.verseIndex.verseIndex > currentVerseGroup.first) stringBuilder.append(' ')
-        stringBuilder.append(verse.text.text)
+        // multi-verse groups get a plain text verse number with a space either side before each verse
+        val isRange = currentVerseGroup.first < currentVerseGroup.second
+        val numberPrefix = if (isRange) "${verse.verseIndex.verseIndex + 1} " else ""
+        val isGroupStart = verse.verseIndex.verseIndex == currentVerseGroup.first
+        if (!isGroupStart) stringBuilder.append(' ')
+        stringBuilder.append(numberPrefix).append(verse.text.text)
 
         verse.parallel.forEachIndexed { index, parallel ->
             with(parallelVersesBuilder[index]) {
-                if (verse.verseIndex.verseIndex > currentVerseGroup.first) append(' ')
-                append(parallel.text)
+                if (!isGroupStart) append(' ')
+                append(numberPrefix).append(parallel.text)
             }
         }
 
