@@ -32,7 +32,6 @@ import me.xizzhu.android.joshua.core.repository.remote.parseTranslationTsv
 import me.xizzhu.android.joshua.core.toKeywords
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
 import me.xizzhu.android.joshua.ui.languageDisplayName
-import me.xizzhu.android.joshua.ui.languageDisplayNameWithNative
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -112,6 +111,13 @@ class TranslationsViewModel @Inject constructor(
         }.getOrDefault(emptyMap())
     }
 
+    /** The vernacular title with the English title in brackets, e.g. `新译本 (Chinese New Version (simplified))`. */
+    private fun TranslationTableRow.displayTitle(): String = when {
+        vernacularTitle.isEmpty() -> englishTitle
+        englishTitle.isEmpty() || englishTitle == vernacularTitle -> vernacularTitle
+        else -> "$vernacularTitle ($englishTitle)"
+    }
+
     init {
         loadTranslations(forceRefresh = false)
     }
@@ -156,7 +162,7 @@ class TranslationsViewModel @Inject constructor(
         val keywords = keywordFilter.toKeywords()
         if (keywords.isEmpty()) return true
         // Every keyword must match, like a web search.
-        val haystack = "$shortName $name $language ${tsvRows[shortName]?.language.orEmpty()} ${languageDisplayName(languageCode)}"
+        val haystack = "$shortName $name $language ${languageDisplayName(languageCode)} ${tsvRows[shortName]?.let { "${it.language} ${it.languageEnglish} ${it.vernacularTitle}" }.orEmpty()}"
         return keywords.all { haystack.containsAnyKeyword(listOf(it), wholeWords = false) }
     }
 
@@ -209,20 +215,22 @@ class TranslationsViewModel @Inject constructor(
 
     private fun List<TranslationInfo>.toItems(settings: Settings, currentTranslation: String): List<TranslationsItem> {
         val items: ArrayList<TranslationsItem> = ArrayList()
-        // Translations are grouped by language code, then by the native name from ebible_downloads.tsv.
-        groupBy { it.language.split("_")[0] }.forEach { (language, translations) ->
-            items.add(TranslationsItem.Header(settings, languageDisplayNameWithNative(language), hideDivider = true))
-            translations.groupBy { tsvRows[it.shortName]?.language.orEmpty() }.forEach { (subGroup, group) ->
-                if (subGroup.isNotEmpty()) items.add(TranslationsItem.Header(settings, subGroup, hideDivider = false))
-                group.forEach { translationInfo ->
-                    items.add(TranslationsItem.Translation(
-                        settings = settings,
-                        translationInfo = translationInfo,
-                        isCurrentTranslation = translationInfo.downloaded && translationInfo.shortName == currentTranslation
-                    ))
+        // Translations are grouped by "Language (English)" from ebible_downloads.tsv, with a sub heading for a different native name.
+        groupBy { tsvRows[it.shortName]?.languageEnglish?.ifEmpty { null } ?: languageDisplayName(it.language.split("_")[0]) }
+            .forEach { (languageEnglish, translations) ->
+                items.add(TranslationsItem.Header(settings, languageEnglish, hideDivider = true))
+                translations.groupBy { tsvRows[it.shortName]?.language.orEmpty() }.forEach { (native, group) ->
+                    if (native.isNotEmpty() && native != languageEnglish) items.add(TranslationsItem.Header(settings, native, hideDivider = false))
+                    group.forEach { translationInfo ->
+                        items.add(TranslationsItem.Translation(
+                            settings = settings,
+                            translationInfo = translationInfo,
+                            isCurrentTranslation = translationInfo.downloaded && translationInfo.shortName == currentTranslation,
+                            title = tsvRows[translationInfo.shortName]?.displayTitle() ?: translationInfo.name,
+                        ))
+                    }
                 }
             }
-        }
         return items
     }
 
