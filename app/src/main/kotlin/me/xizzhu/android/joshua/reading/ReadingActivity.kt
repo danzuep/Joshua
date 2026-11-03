@@ -242,6 +242,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 if (userSwipingPager) {
                     // A swipe always lands on verse one of the new chapter.
                     versePagerAdapter.scrollToChapterStart(position)
+                    appBar.setExpanded(true, true)
                     viewModel.selectChapter(bookIndex, chapterIndex)
                     return
                 }
