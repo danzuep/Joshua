@@ -169,6 +169,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     private lateinit var versePagerAdapter: VersePagerAdapter
     private var verseReportedByScroll: VerseIndex? = null
     private var userSwipingPager = false
+    private val referenceBackStack = ArrayDeque<VerseIndex>()
 
     // The launcher alias reuses a running reader, so an open-book request arrives here instead of onCreate().
     override fun onNewIntent(intent: Intent) {
@@ -193,6 +194,11 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 }
 
                 if (hideVerseDetail()) {
+                    return
+                }
+
+                if (referenceBackStack.isNotEmpty()) {
+                    viewModel.selectVerse(referenceBackStack.removeLast())
                     return
                 }
 
@@ -264,6 +270,8 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             updateNote = viewModel::saveNote,
             reorderTranslations = viewModel::reorderTranslations,
             openVerse = { verseIndex ->
+                // Remember where the reference was followed from, so that back returns there.
+                viewBinding.verseDetailView.verseDetail?.verseIndex?.let { referenceBackStack.addLast(it) }
                 hideVerseDetail()
                 viewModel.selectVerse(verseIndex)
             },
