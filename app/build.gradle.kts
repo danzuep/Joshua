@@ -68,6 +68,12 @@ android {
         buildConfigField("int", "DEFAULT_BOOK_INDEX", defaultBookIndex.toString())
     }
 
+    // F-Droid forbids the signing-block dependency metadata that AGP embeds by default.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     buildFeatures {
         viewBinding = true
         buildConfig = true

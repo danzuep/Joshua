@@ -1,0 +1,13 @@
+A simple, free and open source Bible reader for Android with a minimalist design.
+
+<ul>
+<li>Read offline: translations are downloaded once from eBible.org and stored on your device</li>
+<li>Compare translations side by side</li>
+<li>Search every verse</li>
+<li>Keep notes, bookmarks and highlights</li>
+<li>Copy or share verses with consecutive verses consolidated</li>
+<li>Light and dark themes</li>
+<li>Tiny install, no ads, no tracking, no analytics</li>
+</ul>
+
+Translations come from eBible.org as USFM files, including the public domain World English Bible (WEB). You can also add your own download sites.

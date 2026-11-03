@@ -33,6 +33,8 @@ Not sure which translation to pick? These are good starting points, and you can 
 * NET Bible (engnet): Academically transparent Protestant translation praised for modern readability and exhaustive notes.
 * Open English Bible (engoebus / engoebcw): Open-source, modern English update of the Twentieth Century New Testament and critical source texts, tailored for contemporary readers.
 
+F-Droid packaging metadata is in `fastlane/` and [docs/RELEASING.md](docs/RELEASING.md#f-droid).
+
 ### Stay up to date with Obtainium
 
 [Obtainium](https://github.com/ImranR98/Obtainium) installs and updates apps straight from GitHub Releases, so you don't need an app store.
