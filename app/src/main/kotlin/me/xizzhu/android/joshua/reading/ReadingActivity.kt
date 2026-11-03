@@ -263,6 +263,10 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             onClicked = ::hideVerseDetail,
             updateNote = viewModel::saveNote,
             reorderTranslations = viewModel::reorderTranslations,
+            openVerse = { verseIndex ->
+                hideVerseDetail()
+                viewModel.selectVerse(verseIndex)
+            },
             hide = !openNoteWhenCreated
         )
         if (openNoteWhenCreated) {

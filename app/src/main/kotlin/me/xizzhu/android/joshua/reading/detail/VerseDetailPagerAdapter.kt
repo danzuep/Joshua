@@ -21,7 +21,12 @@ import android.content.res.Resources
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextPaint
 import android.text.TextWatcher
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +36,7 @@ import androidx.viewbinding.ViewBinding
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.VerseIndex
+import me.xizzhu.android.joshua.core.findVerseReferences
 import me.xizzhu.android.joshua.databinding.PageVerseDetailNoteBinding
 import me.xizzhu.android.joshua.databinding.PageVerseDetailNotesBinding
 import me.xizzhu.android.joshua.databinding.PageVerseDetailVersesBinding
@@ -51,6 +57,7 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
 
     private var updateNote: ((VerseIndex, String) -> Unit)? = null
     private var reorderTranslations: ((List<String>) -> Unit)? = null
+    private var openVerse: ((VerseIndex) -> Unit)? = null
     private var pendingNote: Pair<VerseIndex, String>? = null
     private val saveNoteRunnable = Runnable { flushNote() }
 
@@ -66,8 +73,13 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
             notifyDataSetChanged()
         }
 
-    fun initialize(updateNote: (VerseIndex, String) -> Unit, reorderTranslations: (List<String>) -> Unit) {
+    fun initialize(
+            updateNote: (VerseIndex, String) -> Unit,
+            reorderTranslations: (List<String>) -> Unit,
+            openVerse: (VerseIndex) -> Unit = {}
+    ) {
         this.updateNote = updateNote
+        this.openVerse = openVerse
         this.reorderTranslations = reorderTranslations
     }
 
@@ -85,7 +97,7 @@ class VerseDetailPagerAdapter(context: Context) : RecyclerView.Adapter<VerseDeta
             when (viewType) {
                 PAGE_VERSES -> VersesPage(inflater, parent, reorderTranslations!!)
                 PAGE_NOTE -> NotePage(inflater, parent, this::scheduleNoteSave)
-                PAGE_PARATEXT -> ParatextPage(inflater, parent)
+                PAGE_PARATEXT -> ParatextPage(inflater, parent) { openVerse?.invoke(it) }
                 else -> throw IllegalArgumentException("Unsupported view type: $viewType")
             }
 
@@ -166,22 +178,42 @@ private class VersesPage(inflater: LayoutInflater, container: ViewGroup, reorder
     }
 }
 
-private class ParatextPage(inflater: LayoutInflater, container: ViewGroup)
+private class ParatextPage(inflater: LayoutInflater, container: ViewGroup, private val openVerse: (VerseIndex) -> Unit)
     : VerseDetailPage<PageVerseDetailNotesBinding>(PageVerseDetailNotesBinding.inflate(inflater, container, false)) {
     override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
         bindSection(viewBinding.footnotesTitle, viewBinding.footnotesScroll, viewBinding.footnotes,
-                verseDetail.footnotes, settings)
+                verseDetail.footnotes, verseDetail, settings)
         bindSection(viewBinding.crossReferencesTitle, viewBinding.crossReferencesScroll, viewBinding.crossReferences,
-                verseDetail.crossReferences, settings)
+                verseDetail.crossReferences, verseDetail, settings)
     }
 
-    private fun bindSection(title: TextView, scroll: View, content: TextView, items: List<String>, settings: Settings) {
+    private fun bindSection(title: TextView, scroll: View, content: TextView, items: List<String>,
+                            verseDetail: VerseDetailViewData, settings: Settings) {
         val visible = items.isNotEmpty()
         title.visibility = if (visible) View.VISIBLE else View.GONE
         scroll.visibility = if (visible) View.VISIBLE else View.GONE
-        content.text = items.joinToString("\n\n")
+        content.text = linkReferences(items.joinToString("\n\n"), verseDetail)
+        content.movementMethod = LinkMovementMethod.getInstance()
         content.setPrimaryTextSize(settings)
         title.setPrimaryTextSize(settings)
+    }
+
+    private fun linkReferences(text: String, verseDetail: VerseDetailViewData): CharSequence {
+        val references = text.findVerseReferences(verseDetail.bookNames, verseDetail.verseIndex.bookIndex)
+        if (references.isEmpty()) return text
+
+        return SpannableString(text).apply {
+            references.forEach { reference ->
+                setSpan(object : ClickableSpan() {
+                    override fun onClick(widget: View) = openVerse(reference.verseIndex)
+
+                    override fun updateDrawState(ds: TextPaint) {
+                        super.updateDrawState(ds)
+                        ds.isUnderlineText = true
+                    }
+                }, reference.start, reference.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
     }
 }
 

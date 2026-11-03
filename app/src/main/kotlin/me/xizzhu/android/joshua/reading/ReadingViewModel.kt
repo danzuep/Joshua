@@ -58,7 +58,7 @@ class VerseDetailViewData(
     val verseIndex: VerseIndex, val verseTextItems: List<VerseTextItem>,
     var bookmarked: Boolean, @Highlight.Companion.AvailableColor var highlightColor: Int, var note: String,
     val footnotes: List<String> = emptyList(), val crossReferences: List<String> = emptyList(),
-    val downloadedTranslationCount: Int = 1
+    val downloadedTranslationCount: Int = 1, val bookNames: List<String> = emptyList()
 ) {
     val hasParallel: Boolean get() = downloadedTranslationCount > 1
     val hasParatext: Boolean get() = footnotes.isNotEmpty() || crossReferences.isNotEmpty()
@@ -386,7 +386,8 @@ class ReadingViewModel @Inject constructor(
             note = note.await(),
             footnotes = verseNotes.filter { !it.isCrossReference }.map { it.text },
             crossReferences = verseNotes.filter { it.isCrossReference }.map { it.text },
-            downloadedTranslationCount = downloadedTranslations.size
+            downloadedTranslationCount = downloadedTranslations.size,
+            bookNames = bibleReadingManager.readBookNames(verse.text.translationShortName)
         )
     }
 

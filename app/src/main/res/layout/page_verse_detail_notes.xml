@@ -23,7 +23,7 @@
             android:id="@+id/footnotes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textIsSelectable="true" />
+            android:textColorLink="?attr/colorPrimary" />
     </androidx.core.widget.NestedScrollView>
 
     <TextView
@@ -44,6 +44,6 @@
             android:id="@+id/cross_references"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textIsSelectable="true" />
+            android:textColorLink="?attr/colorPrimary" />
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

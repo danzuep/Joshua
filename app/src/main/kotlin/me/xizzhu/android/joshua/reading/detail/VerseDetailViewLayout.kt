@@ -73,10 +73,11 @@ class VerseDetailViewLayout : FrameLayout {
             onClicked: () -> Boolean,
             updateNote: (VerseIndex, String) -> Unit,
             reorderTranslations: (List<String>) -> Unit,
+            openVerse: (VerseIndex) -> Unit,
             hide: Boolean
     ) {
         setOnClickListener { onClicked() }
-        adapter.initialize(updateNote = updateNote, reorderTranslations = reorderTranslations)
+        adapter.initialize(updateNote = updateNote, reorderTranslations = reorderTranslations, openVerse = openVerse)
 
         if (hide) post { hide() }
     }
