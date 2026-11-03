@@ -26,6 +26,7 @@ import androidx.viewbinding.ViewBinding
 import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.Settings
 import me.xizzhu.android.joshua.core.VerseIndex
+import me.xizzhu.android.joshua.databinding.ItemSearchBookLinkBinding
 import me.xizzhu.android.joshua.databinding.ItemSearchNoteBinding
 import me.xizzhu.android.joshua.databinding.ItemSearchVerseBinding
 import me.xizzhu.android.joshua.databinding.ItemTitleBinding
@@ -50,12 +51,14 @@ class SearchAdapter(
 ) : VerticalRecyclerViewAdapter<SearchItem, SearchViewHolder<SearchItem, *>>(SearchItem.DiffCallback(), executor) {
     sealed class ViewEvent {
         data class OpenVerse(val verseToOpen: VerseIndex) : ViewEvent()
+        data class OpenBook(val bookIndex: Int) : ViewEvent()
         data class ShowPreview(val verseToPreview: VerseIndex) : ViewEvent()
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder<SearchItem, *> = when (viewType) {
         SearchItem.Header.VIEW_TYPE -> SearchViewHolder.Header(inflater, parent)
+        SearchItem.BookLink.VIEW_TYPE -> SearchViewHolder.BookLink(inflater, parent, onViewEvent)
         SearchItem.Note.VIEW_TYPE -> SearchViewHolder.Note(inflater, parent, onViewEvent)
         SearchItem.Verse.VIEW_TYPE -> SearchViewHolder.Verse(inflater, parent, onViewEvent)
         else -> throw IllegalStateException("Unknown view type - $viewType")
@@ -66,6 +69,7 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
     class DiffCallback : DiffUtil.ItemCallback<SearchItem>() {
         override fun areItemsTheSame(oldItem: SearchItem, newItem: SearchItem): Boolean = when {
             oldItem is Header && newItem is Header -> oldItem.text == newItem.text
+            oldItem is BookLink && newItem is BookLink -> oldItem.bookIndex == newItem.bookIndex
             oldItem is Note && newItem is Note -> oldItem.verseIndex == newItem.verseIndex
             oldItem is Verse && newItem is Verse -> oldItem.verseIndex == newItem.verseIndex
             else -> false
@@ -80,6 +84,16 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
     ) : SearchItem(VIEW_TYPE) {
         companion object {
             @JvmField val VIEW_TYPE = R.layout.item_title
+        }
+    }
+
+    data class BookLink(
+        val settings: Settings,
+        val bookIndex: Int,
+        val bookName: String,
+    ) : SearchItem(VIEW_TYPE) {
+        companion object {
+            @JvmField val VIEW_TYPE = R.layout.item_search_book_link
         }
     }
 
@@ -164,6 +178,20 @@ sealed class SearchViewHolder<Item : SearchItem, VB : ViewBinding>(viewBinding: 
         override fun bind(item: SearchItem.Header, payloads: List<Any>) = with(viewBinding.title) {
             setSecondaryTextSize(item.settings)
             text = item.text
+        }
+    }
+
+    class BookLink(inflater: LayoutInflater, parent: ViewGroup, onViewEvent: (SearchAdapter.ViewEvent) -> Unit)
+        : SearchViewHolder<SearchItem.BookLink, ItemSearchBookLinkBinding>(ItemSearchBookLinkBinding.inflate(inflater, parent, false)) {
+        init {
+            itemView.setOnClickListener {
+                item?.let { onViewEvent(SearchAdapter.ViewEvent.OpenBook(it.bookIndex)) }
+            }
+        }
+
+        override fun bind(item: SearchItem.BookLink, payloads: List<Any>) = with(viewBinding.root) {
+            setPrimaryTextSize(item.settings)
+            text = "\u2192 ${item.bookName}"
         }
     }
 

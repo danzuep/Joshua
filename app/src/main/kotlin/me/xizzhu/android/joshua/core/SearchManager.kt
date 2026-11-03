@@ -53,7 +53,8 @@ class SearchManager(
             )?.let { reference ->
                 val referencedVerses = bibleReadingRepository.readVerses(currentTranslation, reference.bookIndex, reference.chapterIndex)
                         .filter { verse -> reference.verseIndexes?.contains(verse.verseIndex.verseIndex) ?: true }
-                return@withContext SearchResult(referencedVerses, emptyList(), emptyList(), emptyList(), byReference = true)
+                // The chapter comes straight from the repository, so the structure marks (paragraph, heading) must be removed here.
+                return@withContext SearchResult(referencedVerses.map { it.stripStructure() }, emptyList(), emptyList(), emptyList(), byReference = true)
             }
         }
         val verses = async {
@@ -82,7 +83,10 @@ class SearchManager(
                 emptyList()
             }
         }
-        return@withContext SearchResult(verses.await(), bookmarks.await(), highlights.await(), notes.await())
+        return@withContext SearchResult(verses.await(), bookmarks.await(), highlights.await(), notes.await(),
+                bookIndex = keyword.trim().takeIf { it.length == 3 }?.let { code ->
+                    BOOK_CODES.indexOfFirst { it.equals(code, ignoreCase = true) }.takeIf { it >= 0 }
+                })
     }
 
     private suspend fun <V : VerseAnnotation> searchAnnotations(

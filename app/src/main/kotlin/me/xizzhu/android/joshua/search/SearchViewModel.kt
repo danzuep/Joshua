@@ -75,6 +75,7 @@ class SearchViewModel @Inject constructor(
 ) {
     sealed class ViewAction {
         object OpenReadingScreen : ViewAction()
+        data class OpenBook(val bookIndex: Int) : ViewAction()
     }
 
     data class ViewState(
@@ -213,7 +214,8 @@ class SearchViewModel @Inject constructor(
                 highlights = searchResult.highlights,
                 notes = searchResult.notes,
                 bookNames = bibleReadingManager.readBookNames(currentTranslation),
-                bookShortNames = bibleReadingManager.readBookShortNames(currentTranslation)
+                bookShortNames = bibleReadingManager.readBookShortNames(currentTranslation),
+                bookIndex = searchResult.bookIndex
             )
             val toast = if (instantSearch) {
                 null
@@ -246,7 +248,8 @@ class SearchViewModel @Inject constructor(
         highlights: List<Pair<Highlight, Verse>>,
         notes: List<Pair<Note, Verse>>,
         bookNames: List<String>,
-        bookShortNames: List<String>
+        bookShortNames: List<String>,
+        bookIndex: Int?
     ): List<SearchItem> {
         val items = ArrayList<SearchItem>(
             (if (notes.isEmpty()) 0 else notes.size + 1)
@@ -255,6 +258,10 @@ class SearchViewModel @Inject constructor(
                 + verses.size
                 + Bible.BOOK_COUNT
         )
+
+        if (bookIndex != null) {
+            items.add(SearchItem.BookLink(settings, bookIndex, bookNames[bookIndex]))
+        }
 
         if (notes.isNotEmpty()) {
             items.add(SearchItem.Header(settings, application.getString(R.string.title_notes)))
@@ -328,6 +335,10 @@ class SearchViewModel @Inject constructor(
                 updateViewState { it.copy(error = ViewState.Error.VerseOpeningError(verseToOpen)) }
             }
         }
+    }
+
+    fun openBook(bookIndex: Int) {
+        viewModelScope.launch { emitViewAction(ViewAction.OpenBook(bookIndex)) }
     }
 
     fun loadPreview(verseToPreview: VerseIndex) {

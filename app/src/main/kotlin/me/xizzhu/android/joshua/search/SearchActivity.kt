@@ -20,6 +20,7 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import androidx.activity.viewModels
+import androidx.core.os.bundleOf
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,6 +30,7 @@ import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import me.xizzhu.android.joshua.databinding.ActivitySearchBinding
 import me.xizzhu.android.joshua.infra.BaseActivity
+import me.xizzhu.android.joshua.reading.ReadingActivity
 import me.xizzhu.android.joshua.ui.dialog
 import me.xizzhu.android.joshua.ui.fadeIn
 import me.xizzhu.android.joshua.ui.hideKeyboard
@@ -86,6 +88,7 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
         ) { viewEvent ->
             when (viewEvent) {
                 is SearchAdapter.ViewEvent.OpenVerse -> viewModel.openVerse(viewEvent.verseToOpen)
+                is SearchAdapter.ViewEvent.OpenBook -> viewModel.openBook(viewEvent.bookIndex)
                 is SearchAdapter.ViewEvent.ShowPreview -> viewModel.loadPreview(viewEvent.verseToPreview)
             }
         }
@@ -112,6 +115,8 @@ class SearchActivity : BaseActivity<ActivitySearchBinding, SearchViewModel.ViewA
 
     override fun onViewActionEmitted(viewAction: SearchViewModel.ViewAction) = when (viewAction) {
         SearchViewModel.ViewAction.OpenReadingScreen -> navigator.navigate(this, Navigator.SCREEN_READING)
+        is SearchViewModel.ViewAction.OpenBook -> navigator.navigate(
+            this, Navigator.SCREEN_READING, bundleOf(ReadingActivity.KEY_OPEN_BOOK to viewAction.bookIndex))
     }
 
     override fun onViewStateUpdated(viewState: SearchViewModel.ViewState): Unit = with(viewBinding) {
