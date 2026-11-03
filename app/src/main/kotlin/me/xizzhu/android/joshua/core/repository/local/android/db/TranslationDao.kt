@@ -175,15 +175,19 @@ class TranslationDao(sqliteHelper: SQLiteOpenHelper) {
             it[COLUMN_TEXT] = TEXT + NOT_NULL
         }
 
-        verses.forEach { (index, verseList) ->
-            val bookIndex = index.first
-            val chapterIndex = index.second
-            verseList.forEachIndexed { verseIndex, verse ->
-                insert(translationShortName, SQLiteDatabase.CONFLICT_REPLACE) {
-                    it[COLUMN_BOOK_INDEX] = bookIndex
-                    it[COLUMN_CHAPTER_INDEX] = chapterIndex
-                    it[COLUMN_VERSE_INDEX] = verseIndex
-                    it[COLUMN_TEXT] = verse
+        // One compiled statement is reused for every verse, which is much cheaper than building a new insert each time.
+        val tableName = translationShortName.replace("\"", "\"\"")
+        db.compileStatement(
+            "INSERT OR REPLACE INTO \"$tableName\" ($COLUMN_BOOK_INDEX, $COLUMN_CHAPTER_INDEX, $COLUMN_VERSE_INDEX, $COLUMN_TEXT) VALUES (?, ?, ?, ?)"
+        ).use { statement ->
+            verses.forEach { (index, verseList) ->
+                verseList.forEachIndexed { verseIndex, verse ->
+                    statement.clearBindings()
+                    statement.bindLong(1, index.first.toLong())
+                    statement.bindLong(2, index.second.toLong())
+                    statement.bindLong(3, verseIndex.toLong())
+                    statement.bindString(4, verse)
+                    statement.executeInsert()
                 }
             }
         }
