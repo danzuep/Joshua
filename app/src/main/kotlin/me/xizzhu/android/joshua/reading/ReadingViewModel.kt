@@ -395,6 +395,14 @@ class ReadingViewModel @Inject constructor(
         emitViewAction(ViewAction.UpdateVerse(update))
     }
 
+    /** Removes the bookmarks if every verse already has one, otherwise bookmarks them all. */
+    fun toggleBookmarks(verseIndexes: List<VerseIndex>) {
+        viewModelScope.launch {
+            val allBookmarked = runCatching { verseIndexes.all { bookmarkManager.read(it).isValid() } }.getOrDefault(false)
+            verseIndexes.forEach { saveBookmark(it, !allBookmarked) }
+        }
+    }
+
     fun saveBookmark(verseIndex: VerseIndex, toBeBookmarked: Boolean) {
         viewModelScope.launch {
             runCatching {

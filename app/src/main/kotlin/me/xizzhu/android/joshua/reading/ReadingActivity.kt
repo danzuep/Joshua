@@ -115,7 +115,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             R.id.action_copy -> copy()
             R.id.action_share -> share()
             R.id.action_bookmark_verse -> {
-                selectedVerses.forEach { verse -> viewModel.saveBookmark(verse.verseIndex, true) }
+                viewModel.toggleBookmarks(selectedVerses.map { it.verseIndex })
                 actionMode?.finish()
             }
         }
