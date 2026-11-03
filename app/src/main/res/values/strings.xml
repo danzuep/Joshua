@@ -49,6 +49,14 @@
 
     <string name="dialog_title_no_translation_downloaded">No translation</string>
     <string name="action_download_sites">Download sites</string>
+    <string name="action_upload_translation">Upload</string>
+    <string name="dialog_title_upload_translation">Upload a Bible</string>
+    <string name="hint_upload_name">Name, e.g. King James Version</string>
+    <string name="hint_upload_short_name">Abbreviation, e.g. KJV (letters and digits)</string>
+    <string name="hint_upload_language">Language code, e.g. en, cmn or es</string>
+    <string name="dialog_title_uploading">Uploading…</string>
+    <string name="dialog_message_failed_to_upload">Could not read a Bible from the file. It must be a zip of USFM books (.usfm or .sfm), and the abbreviation must not be used by an installed translation.</string>
+    <string name="toast_uploaded">Successfully uploaded</string>
     <string name="action_download">Download</string>
     <string name="action_download_engbsb">Berean Standard Bible</string>
     <string name="action_download_engwebp">World English Bible</string>

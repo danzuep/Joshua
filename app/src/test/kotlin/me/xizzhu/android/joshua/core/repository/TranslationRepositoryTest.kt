@@ -326,6 +326,27 @@ class TranslationRepositoryTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test importTranslation()`() = runTest {
+        val content = byteArrayOf(1, 2, 3)
+        coEvery { remoteTranslationService.readTranslation(RemoteTranslationInfo.fromTranslationInfo(MockContents.kjvTranslationInfo), content) } returns RemoteTranslation(
+                RemoteTranslationInfo.fromTranslationInfo(MockContents.kjvTranslationInfo),
+                MockContents.kjvBookNames, MockContents.kjvBookShortNames, MockContents.kjvVerses.toMap()
+        )
+        coEvery { localTranslationStorage.saveTranslation(any(), any(), any(), any()) } returns Unit
+
+        val translationRepository = TranslationRepository(localTranslationStorage, remoteTranslationService, TestTimeProvider(), testScope)
+        translationRepository.importTranslation(MockContents.kjvTranslationInfo, content)
+
+        assertEquals(listOf(MockContents.kjvDownloadedTranslationInfo), translationRepository.downloadedTranslations.first())
+        coVerify(exactly = 1) {
+            localTranslationStorage.saveTranslation(
+                    MockContents.kjvDownloadedTranslationInfo, MockContents.kjvBookNames,
+                    MockContents.kjvBookShortNames, MockContents.kjvVerses.toMap()
+            )
+        }
+    }
+
+    @Test
     fun `test downloadTranslation() internal`() = runTest {
         coEvery { localTranslationStorage.readTranslations() } returns listOf(MockContents.kjvDownloadedTranslationInfo)
         coEvery {

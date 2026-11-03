@@ -6,4 +6,9 @@
         android:id="@+id/action_download_sites"
         android:title="@string/action_download_sites"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_upload_translation"
+        android:title="@string/action_upload_translation"
+        app:showAsAction="never" />
 </menu>

@@ -36,6 +36,10 @@ class TranslationManager(private val translationRepository: TranslationRepositor
 
     fun downloadTranslation(translationToDownload: TranslationInfo): Flow<Int> = translationRepository.downloadTranslation(translationToDownload)
 
+    suspend fun importTranslation(translationInfo: TranslationInfo, content: ByteArray) {
+        translationRepository.importTranslation(translationInfo, content)
+    }
+
     suspend fun removeTranslation(translationInfo: TranslationInfo) {
         translationRepository.removeTranslation(translationInfo)
     }
