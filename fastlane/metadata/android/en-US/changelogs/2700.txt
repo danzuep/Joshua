@@ -1,0 +1,3 @@
+- Translations are built from the eBible.org download table and read as USFM
+- Flowing paragraph reader with headings, poetry and inline notes
+- Removed Strong's Numbers and cross references

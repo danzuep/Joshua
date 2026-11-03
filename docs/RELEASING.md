@@ -43,3 +43,9 @@ More about app signing can be found [here](https://developer.android.com/studio/
 
 - Merging a PR into `main` runs the *Auto Tag* workflow, which creates the next `vX.Y.Z` tag from the prefix of the PR title: `major: ...` bumps X, `minor: ...` bumps Y, `patch: ...` bumps Z. Any other title creates no tag and no release. After a tag is created it starts the *Release APK* workflow.
 - The release workflow stamps the tag into the app (`versionName` and `versionCode` via `-PappVersion`) and publishes two APKs: `eBible-vX.Y.Z.apk`, and `eBible-vX.Y.Z-with-WEB.apk`, which has the WEB Bible prepackaged (installed on first launch when no translation is present; built with `-PbundledAssetsDir=<dir>` containing `bundled/list.tsv` (id, name and language separated by tabs) and `bundled/translations/<id>.zip` (USFM)`).
+
+
+F-Droid
+-------
+
+Store listing text, icon and changelogs live in `fastlane/metadata/android/en-US/`. Add `changelogs/<versionCode>.txt` (versionCode is `major*10000 + minor*100 + patch`, e.g. `2700` for v0.27.0) for each release. To get listed, open a merge request to [fdroiddata](https://gitlab.com/fdroid/fdroiddata) using `docs/org.ebible.android.bible.yml` as the metadata file. F-Droid builds from the tag and signs with its own key, so users can't update between the GitHub APK and the F-Droid build without reinstalling, unless F-Droid reproducible builds are set up with the release keystore.
