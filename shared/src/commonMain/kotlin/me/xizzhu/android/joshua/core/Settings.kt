@@ -22,7 +22,6 @@ data class Settings(
     val fontSizeScale: Float,
     val simpleReadingModeOn: Boolean,
     val hideSearchButton: Boolean,
-    val consolidateVersesForSharing: Boolean,
     @Highlight.Companion.AvailableColor val defaultHighlightColor: Int,
 ) {
     companion object {
@@ -42,7 +41,6 @@ data class Settings(
             fontSizeScale = 1.0F,
             simpleReadingModeOn = false,
             hideSearchButton = false,
-            consolidateVersesForSharing = false,
             defaultHighlightColor = Highlight.COLOR_NONE,
         )
     }

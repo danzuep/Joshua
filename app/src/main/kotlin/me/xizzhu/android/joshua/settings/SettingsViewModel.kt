@@ -57,7 +57,6 @@ class SettingsViewModel @Inject constructor(
         nightModeStringRes = nightModeStringResource(Settings.DEFAULT.nightMode),
         simpleReadingModeOn = Settings.DEFAULT.simpleReadingModeOn,
         hideSearchButton = Settings.DEFAULT.hideSearchButton,
-        consolidateVersesForSharing = Settings.DEFAULT.consolidateVersesForSharing,
         defaultHighlightColorStringRes = highlightColorStringResource(Settings.DEFAULT.defaultHighlightColor),
         backupState = ViewState.BackupRestoreState.Idle,
         restoreState = ViewState.BackupRestoreState.Idle,
@@ -83,7 +82,6 @@ class SettingsViewModel @Inject constructor(
         @StringRes val nightModeStringRes: Int,
         val simpleReadingModeOn: Boolean,
         val hideSearchButton: Boolean,
-        val consolidateVersesForSharing: Boolean,
         @StringRes val defaultHighlightColorStringRes: Int,
         val backupState: BackupRestoreState,
         val restoreState: BackupRestoreState,
@@ -135,7 +133,6 @@ class SettingsViewModel @Inject constructor(
                     nightModeStringRes = nightModeStringResource(settings.nightMode),
                     simpleReadingModeOn = settings.simpleReadingModeOn,
                     hideSearchButton = settings.hideSearchButton,
-                    consolidateVersesForSharing = settings.consolidateVersesForSharing,
                     defaultHighlightColorStringRes = highlightColorStringResource(settings.defaultHighlightColor),
                 )
             }
@@ -204,10 +201,6 @@ class SettingsViewModel @Inject constructor(
 
     fun saveHideSearchButton(hideSearchButton: Boolean) {
         updateSettings { it.copy(hideSearchButton = hideSearchButton) }
-    }
-
-    fun saveConsolidateVersesForSharing(consolidateVersesForSharing: Boolean) {
-        updateSettings { it.copy(consolidateVersesForSharing = consolidateVersesForSharing) }
     }
 
     fun saveDefaultHighlightColor(@Highlight.Companion.AvailableColor defaultHighlightColor: Int) {

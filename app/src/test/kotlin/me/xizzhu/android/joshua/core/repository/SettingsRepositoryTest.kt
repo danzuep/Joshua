@@ -108,11 +108,6 @@ class SettingsRepositoryTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test saveSettings() for for consolidating verses for sharing`() = runTest {
-        saveUpdatedSettingsAndVerifySaveSettingsIsCalled(Settings.DEFAULT.copy(consolidateVersesForSharing = true))
-    }
-
-    @Test
     fun `test saveSettings() for highlight color`() = runTest {
         saveUpdatedSettingsAndVerifySaveSettingsIsCalled(Settings.DEFAULT.copy(defaultHighlightColor = Highlight.COLOR_PURPLE))
     }

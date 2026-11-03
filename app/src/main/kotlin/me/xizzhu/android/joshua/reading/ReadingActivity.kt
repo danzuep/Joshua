@@ -121,8 +121,6 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         }
     }
 
-    private fun consolidateVersesForSharing(): Boolean = settings?.consolidateVersesForSharing ?: false
-
     private fun translationName(translationShortName: String): String = translationNames[translationShortName] ?: translationShortName
 
     private fun currentBookName(): String {
@@ -138,7 +136,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             val translationName = translationName(currentReadingStatus?.currentTranslation.orEmpty())
             copyToClipBoard(
                 label = "${currentReadingStatus?.currentTranslation.orEmpty()} $bookName",
-                text = selectedVerses.toStringForCopy(bookName, translationName, consolidateVersesForSharing())
+                text = selectedVerses.toStringForCopy(bookName, translationName)
             )
             toast(R.string.toast_verses_copied)
         } catch (e: Exception) {
@@ -155,7 +153,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
 
             shareToSystem(
                 title = getString(R.string.text_share_with),
-                text = selectedVerses.toStringForSharing(currentBookName(), consolidateVersesForSharing())
+                text = selectedVerses.toStringForSharing(currentBookName())
             )
         } catch (e: Exception) {
             Logger.withTag(tag).e(e) { "Failed to share" }

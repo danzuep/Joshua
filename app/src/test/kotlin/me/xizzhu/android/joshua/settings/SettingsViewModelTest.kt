@@ -120,7 +120,6 @@ class SettingsViewModelTest : BaseUnitTest() {
         simpleReadingModeOn = Settings.DEFAULT.simpleReadingModeOn,
         nightModeStringRes = R.string.settings_text_night_mode_system,
         hideSearchButton = Settings.DEFAULT.hideSearchButton,
-        consolidateVersesForSharing = Settings.DEFAULT.consolidateVersesForSharing,
         defaultHighlightColorStringRes = R.string.text_highlight_color_none,
         backupState = SettingsViewModel.ViewState.BackupRestoreState.Idle,
         restoreState = SettingsViewModel.ViewState.BackupRestoreState.Idle,
@@ -238,27 +237,6 @@ class SettingsViewModelTest : BaseUnitTest() {
         coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(hideSearchButton = true)) } throws RuntimeException("random exception")
 
         settingsViewModel.saveHideSearchButton(hideSearchButton = true)
-
-        assertEquals(
-            createDefaultViewState().copy(error = SettingsViewModel.ViewState.Error.SettingsUpdatingError),
-            settingsViewModel.viewState().first()
-        )
-    }
-
-    @Test
-    fun `test saveConsolidateVersesForSharing()`() = runTest {
-        every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
-        coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(consolidateVersesForSharing = true)) } returns Unit
-
-        settingsViewModel.saveConsolidateVersesForSharing(consolidateVersesForSharing = false)
-        settingsViewModel.saveConsolidateVersesForSharing(consolidateVersesForSharing = true)
-
-        coVerify(exactly = 1) { settingsManager.saveSettings(Settings.DEFAULT.copy(consolidateVersesForSharing = true)) }
-        assertEquals(createDefaultViewState(), settingsViewModel.viewState().first())
-
-        coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(consolidateVersesForSharing = true)) } throws RuntimeException("random exception")
-
-        settingsViewModel.saveConsolidateVersesForSharing(consolidateVersesForSharing = true)
 
         assertEquals(
             createDefaultViewState().copy(error = SettingsViewModel.ViewState.Error.SettingsUpdatingError),
