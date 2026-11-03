@@ -22,7 +22,7 @@ grep -q '^\\c 1' "$work/minimal/$(basename "$john")"
 
 # Split verse 1 across two paragraphs, like a verse with a quote in it, to check its icons go at the end of the verse.
 sed -i 's/was with God, and the Word was God/was with God,\n\\p\nand the Word was God/' "$work/minimal/$(basename "$john")"
-grep -q '^and the Word was God' "$work/minimal/$(basename "$john")"
+grep -q '^and the Word was God' "$work/minimal/$(basename "$john")" || { grep -n -m3 '^\\v 1 ' "$work/minimal/$(basename "$john")" >&2; exit 1; }
 
 (cd "$work/minimal" && zip -q -r "$out" .)
 echo "Wrote $out ($(unzip -l "$out" | tail -n 1))"
