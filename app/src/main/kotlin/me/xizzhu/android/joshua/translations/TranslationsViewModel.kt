@@ -32,6 +32,7 @@ import me.xizzhu.android.joshua.core.repository.remote.parseTranslationTsv
 import me.xizzhu.android.joshua.core.toKeywords
 import me.xizzhu.android.joshua.ui.TranslationInfoComparator
 import me.xizzhu.android.joshua.ui.languageDisplayName
+import me.xizzhu.android.joshua.ui.languageDisplayNameWithNative
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -216,7 +217,7 @@ class TranslationsViewModel @Inject constructor(
     private fun List<TranslationInfo>.toItems(settings: Settings, currentTranslation: String): List<TranslationsItem> {
         val items: ArrayList<TranslationsItem> = ArrayList()
         // Translations are grouped by "Language (English)" from ebible_downloads.tsv, with a sub heading for a different native name.
-        groupBy { tsvRows[it.shortName]?.languageEnglish?.ifEmpty { null } ?: languageDisplayName(it.language.split("_")[0]) }
+        groupBy { tsvRows[it.shortName]?.languageEnglish?.ifEmpty { null } ?: languageDisplayNameWithNative(it.language.split("_")[0]) }
             .forEach { (languageEnglish, translations) ->
                 items.add(TranslationsItem.Header(settings, languageEnglish, hideDivider = true))
                 translations.groupBy { tsvRows[it.shortName]?.language.orEmpty() }.forEach { (native, group) ->
