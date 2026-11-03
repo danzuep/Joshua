@@ -32,7 +32,9 @@ data class SearchResult(
         val bookmarks: List<Pair<Bookmark, Verse>>,
         val highlights: List<Pair<Highlight, Verse>>,
         val notes: List<Pair<Note, Verse>>,
-        val byReference: Boolean = false
+        val byReference: Boolean = false,
+        /** Set when the query is a 3-letter book code, e.g. "hag", so the UI can offer to open that book. */
+        val bookIndex: Int? = null
 )
 
 /** A parsed reference, with 0-based indexes. A null [verseIndexes] means the whole chapter. */

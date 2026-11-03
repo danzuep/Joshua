@@ -268,6 +268,23 @@ class SearchManagerTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test search() by reference strips verse structure`() = runTest {
+        val structured = MockContents.kjvVerses[0].let { it.copy(text = it.text.copy(text = "$PARAGRAPH${it.text.text}")) }
+        coEvery { bibleReadingRepository.readVerses(MockContents.kjvShortName, 0, 0) } returns listOf(structured)
+        searchManager.saveConfiguration(SearchConfiguration(true, true, true, true, true, searchByReference = true))
+
+        assertEquals(listOf(MockContents.kjvVerses[0]), searchManager.search("Genesis 1").verses)
+    }
+
+    @Test
+    fun `test search() with a book code`() = runTest {
+        assertEquals(BOOK_CODES.indexOf("HAG"), searchManager.search("hag").bookIndex)
+        assertEquals(BOOK_CODES.indexOf("1JN"), searchManager.search(" 1JN ").bookIndex)
+        assertNull(searchManager.search("god").bookIndex)
+        assertNull(searchManager.search("haggai").bookIndex)
+    }
+
+    @Test
     fun `test parseReference()`() {
         val bookNames = MockContents.kjvBookNames
         val bookShortNames = MockContents.kjvBookShortNames
