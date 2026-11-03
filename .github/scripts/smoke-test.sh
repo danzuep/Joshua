@@ -41,6 +41,35 @@ if ! grep -q "The light shines in the darkness" ui.xml 2> /dev/null; then
   echo "FAIL: expected flowing paragraph text (John 1:1-5 not in one paragraph)"
   status=1
 fi
+# Long-press a verse to open the action mode and capture it, so the verse menu icons can be checked.
+verse_xy=$(python3 - << 'PY'
+import re
+xml = open("ui.xml", encoding="utf-8").read()
+node = re.search(r'<node[^>]*text="[^"]*In the beginning was the Word[^"]*"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml)
+if node:
+    x1, y1, x2, y2 = map(int, node.groups())
+    print((x1 + x2) // 2, y1 + 40)
+PY
+)
+if [ -n "$verse_xy" ]; then
+  adb shell input swipe $verse_xy $verse_xy 1500
+  sleep 2
+  adb exec-out screencap -p > screen-actionmode.png
+  rm -f ui-actionmode.xml
+  adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
+  adb pull /sdcard/ui.xml ui-actionmode.xml > /dev/null 2>&1
+  for desc in "Highlight" "Copy" "Share" "Bookmark"; do
+    if ! grep -q "content-desc=\"[^\"]*$desc" ui-actionmode.xml 2> /dev/null; then
+      echo "FAIL: verse action mode is missing the $desc icon"
+      status=1
+    fi
+  done
+  adb shell input keyevent KEYCODE_BACK
+  sleep 1
+else
+  echo "FAIL: could not find a verse to long-press"
+  status=1
+fi
 # Regression test: submitting "jhn1" used to relaunch SearchActivity in an endless loop, freezing the screen after the results showed.
 adb shell am start -W -n me.xizzhu.android.joshua/.search.SearchActivity > /dev/null
 sleep 3
