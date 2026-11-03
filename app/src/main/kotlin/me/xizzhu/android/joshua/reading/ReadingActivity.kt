@@ -26,6 +26,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -57,6 +58,7 @@ import me.xizzhu.android.joshua.reading.verse.toStringForCopy
 import me.xizzhu.android.joshua.reading.verse.toStringForSharing
 import me.xizzhu.android.joshua.translations.TranslationsActivity
 import me.xizzhu.android.joshua.ui.dialog
+import me.xizzhu.android.joshua.ui.indeterminateProgressDialog
 import me.xizzhu.android.joshua.ui.listDialog
 import me.xizzhu.android.joshua.ui.makeLessSensitive
 import me.xizzhu.android.joshua.ui.toast
@@ -85,6 +87,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     private var translationNames: Map<String, String> = emptyMap()
 
     private var actionMode: ActionMode? = null
+    private var installingDialog: AlertDialog? = null
     private val actionModeCallback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             val actions = layoutInflater.inflate(R.layout.view_reading_action_mode, null)
@@ -236,6 +239,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
                 if (userSwipingPager) {
                     // A swipe always lands on verse one of the new chapter.
                     versePagerAdapter.scrollToChapterStart(position)
+                    appBar.setExpanded(true, true)
                     viewModel.selectChapter(bookIndex, chapterIndex)
                     return
                 }
@@ -296,6 +300,13 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         }
         if (viewState.currentReadingStatus != currentReadingStatus) {
             viewState.currentReadingStatus?.let { applyCurrentReadingStatus(it) }
+        }
+
+        if (viewState.installingTranslation) {
+            if (installingDialog == null) installingDialog = indeterminateProgressDialog(R.string.dialog_title_installing)
+        } else {
+            installingDialog?.dismiss()
+            installingDialog = null
         }
 
         viewState.error?.handle()
@@ -427,6 +438,12 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     override fun onStart() {
         super.onStart()
         viewModel.checkDownloadedTranslation()
+    }
+
+    override fun onDestroy() {
+        installingDialog?.dismiss()
+        installingDialog = null
+        super.onDestroy()
     }
 
     override fun onResume() {
