@@ -57,7 +57,10 @@ class ParagraphItem(
         private val selected: MutableSet<Int> = mutableSetOf(), private val footnotes: Set<Int> = emptySet()
 ) : BaseItem(R.layout.item_paragraph, { inflater, parent -> ParagraphViewHolder(inflater, parent) }) {
     /** The part of [verse] that is in this paragraph; [label] (e.g. "2" or "3-4") is only set where the verse starts. */
-    class Segment(val verse: Verse, val text: String, val label: String?)
+    class Segment(val verse: Verse, val text: String, val label: String?) {
+        /** Whether this is the last part of [verse], where its bookmark, note and footnote icons go. */
+        var endsVerse = true
+    }
 
     companion object {
         private val ICON_COLOR_FILTER = PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY)
@@ -122,7 +125,7 @@ class ParagraphItem(
             builder.append(segment.text)
             highlights[verseIndex]?.let { builder.setSpans(createHighlightSpans(it), textStart, builder.length) }
 
-            if (segment.label != null) {
+            if (segment.endsVerse) {
                 if (bookmarks.contains(verseIndex)) builder.appendDrawable(R.drawable.ic_bookmark)
                 if (notes.contains(verseIndex)) builder.appendDrawable(R.drawable.ic_note)
                 if (footnotes.contains(verseIndex)) builder.appendDrawable(R.drawable.ic_note, FOOTNOTE_COLOR_FILTER)
