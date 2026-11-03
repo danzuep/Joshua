@@ -1,7 +1,7 @@
 name: Shared tests
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - 'shared/**'
       - 'buildSrc/**'

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified by eBible, 2026 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -13,7 +14,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <me.xizzhu.android.joshua.progress.ReadingProgressBar
+    <org.ebible.android.bible.progress.ReadingProgressBar
         android:id="@+id/reading_progress_bar"
         android:layout_width="240dp"
         android:layout_height="wrap_content"

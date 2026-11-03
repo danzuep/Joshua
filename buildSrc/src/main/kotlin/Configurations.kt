@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2023 Xizhi Zhu
+ * Copyright (C) 2026 eBible
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +20,7 @@ import java.time.format.DateTimeFormatter
 import org.gradle.api.JavaVersion
 
 object Configurations {
-    const val applicationId = "me.xizzhu.android.joshua"
+    const val applicationId = "org.ebible.android.bible"
     val supportedLocales = listOf("en")
 }
 

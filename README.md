@@ -1,10 +1,10 @@
-[![Build Status](https://img.shields.io/github/actions/workflow/status/danzuep/Joshua/android.yml?branch=master&color=blue)](https://github.com/danzuep/Joshua/actions/workflows/android.yml)
-[![Latest Release](https://img.shields.io/github/v/release/danzuep/Joshua?color=blue)](https://github.com/danzuep/Joshua/releases/latest)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/danzuep/eBible/android.yml?branch=main&color=blue)](https://github.com/danzuep/eBible/actions/workflows/android.yml)
+[![Latest Release](https://img.shields.io/github/v/release/danzuep/eBible?color=blue)](https://github.com/danzuep/eBible/releases/latest)
 ![Languages](https://img.shields.io/badge/languages-Kotlin-blue.svg?longCache=true&style=flat)
 [![API](https://img.shields.io/badge/API-23%2B-blue.svg?style=flat)](https://www.android.com/versions/marshmallow/)
 [![Apache License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
 
-# Joshua
+# eBible
 
 A simple, free and open source software Bible reader for Android with a minimalist design. Read offline, compare translations side by side, search every verse, and keep your notes, bookmarks and highlights, all in a tiny install of less than 4 MB.
 
@@ -12,12 +12,12 @@ The default Bible is the **World English Bible (WEB)**, a modern-English public 
 
 ## Download
 
-Get the latest APK from **[GitHub Releases](https://github.com/danzuep/Joshua/releases/latest)**. Two files are published with each release:
+Get the latest APK from **[GitHub Releases](https://github.com/danzuep/eBible/releases/latest)**. Two files are published with each release:
 
 | File | What it is |
 |------|------------|
-| `Joshua-vX.Y.Z-with-WEB.apk` | **Recommended.** Includes the WEB Bible, so it works offline from the first launch. 3.33 MB as of v0.21.2 |
-| `Joshua-vX.Y.Z.apk` | Download translations from inside the app. 1.67 MB as of v0.21.2 |
+| `eBible-vX.Y.Z-with-WEB.apk` | **Recommended.** Includes the WEB Bible, so it works offline from the first launch. 3.33 MB as of v0.21.2 |
+| `eBible-vX.Y.Z.apk` | Download translations from inside the app. 1.67 MB as of v0.21.2 |
 
 Open the APK on your device and allow installs from your browser or file manager when asked.
 
@@ -38,7 +38,7 @@ Not sure which translation to pick? These are good starting points, and you can 
 [Obtainium](https://github.com/ImranR98/Obtainium) installs and updates apps straight from GitHub Releases, so you don't need an app store.
 
 1. Install Obtainium from its [releases page](https://github.com/ImranR98/Obtainium/releases/latest) (or F-Droid).
-2. Open Obtainium, tap **Add App**, and enter `https://github.com/danzuep/Joshua` as the source URL.
+2. Open Obtainium, tap **Add App**, and enter `https://github.com/danzuep/eBible` as the source URL.
 3. Under the app's additional options, set **Filter APKs by regular expression** to `with-WEB`. This picks the WEB-bundled APK. Leave it empty for the smaller one.
 4. Tap **Add**, then **Install**. Obtainium will notify you when a new release is out.
 
@@ -55,7 +55,7 @@ Not sure which translation to pick? These are good starting points, and you can 
 
 Double-tap a verse to bring up its actions, or long-press a verse to copy or share it. Notes are saved as you type.
 
-Hundreds of other translations can be downloaded in the app from [eBible.org](https://ebible.org/download.php), or from download sites you add yourself. See the [full list](docs/TRANSLATIONS.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/Joshua/issues).
+Hundreds of other translations can be downloaded in the app from [eBible.org](https://ebible.org/download.php), or from download sites you add yourself. See the [full list](docs/TRANSLATIONS.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/eBible/issues).
 
 ## About this project
 
