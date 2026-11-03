@@ -16,10 +16,14 @@
 
 package me.xizzhu.android.joshua.translations
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.text.InputType
 import android.view.MotionEvent
 import android.widget.EditText
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
@@ -32,6 +36,7 @@ import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.TranslationInfo
 import me.xizzhu.android.joshua.core.provider.CoroutineDispatcherProvider
 import me.xizzhu.android.joshua.databinding.ActivityTranslationsBinding
+import me.xizzhu.android.joshua.databinding.DialogUploadTranslationBinding
 import me.xizzhu.android.joshua.infra.BaseActivity
 import me.xizzhu.android.joshua.ui.ProgressDialog
 import me.xizzhu.android.joshua.ui.dialog
@@ -50,6 +55,10 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
     lateinit var coroutineDispatcherProvider: CoroutineDispatcherProvider
 
     private lateinit var adapter: TranslationsAdapter
+
+    private val selectFileForUploadLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) result.data?.data?.let { showUploadTranslationDialog(it) }
+    }
 
     private var downloadTranslationDialog: ProgressDialog? = null
     private var removeTranslationDialog: AlertDialog? = null
@@ -93,6 +102,13 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
                         showDownloadSitesDialog()
                         true
                     }
+                    R.id.action_upload_translation -> {
+                        selectFileForUploadLauncher.launch(Intent.createChooser(
+                            Intent(Intent.ACTION_GET_CONTENT).setType("*/*").addCategory(Intent.CATEGORY_OPENABLE),
+                            getString(R.string.action_upload_translation)
+                        ))
+                        true
+                    }
                     else -> false
                 }
             }
@@ -125,9 +141,9 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
     }
 
     private fun scrollToLanguage(fraction: Float) {
-        // Only language headers are used for the index; the "Available" section header has hideDivider = false.
+        // Only language headers are used for the index; the "Available" section header and native name sub headings are not languages.
         val headers = adapter.currentList.withIndex()
-            .filter { (it.value as? TranslationsItem.Header)?.hideDivider == true }
+            .filter { (it.value as? TranslationsItem.Header)?.isLanguage == true }
         if (headers.isEmpty()) return
 
         val index = (fraction * headers.size).toInt().coerceIn(0, headers.lastIndex)
@@ -174,6 +190,33 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         }
+    }
+
+    private fun showUploadTranslationDialog(uri: Uri) {
+        val form = DialogUploadTranslationBinding.inflate(layoutInflater)
+        val fileName = contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+            if (it.moveToFirst()) it.getString(0) else null
+        }.orEmpty().substringBeforeLast('.')
+        form.uploadName.setText(fileName)
+        form.uploadShortName.setText(fileName.replace(Regex("[^A-Za-z0-9]"), "_"))
+        form.uploadLanguage.setText(java.util.Locale.getDefault().language)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.dialog_title_upload_translation)
+            .setView(form.root)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val progress = indeterminateProgressDialog(R.string.dialog_title_uploading)
+                viewModel.uploadTranslation(
+                    uri, form.uploadName.text.toString(), form.uploadShortName.text.toString().trim(), form.uploadLanguage.text.toString()
+                ) { successful ->
+                    progress?.dismiss()
+                    if (successful) toast(R.string.toast_uploaded) else dialog(
+                        cancelable = true, title = R.string.dialog_title_error, message = R.string.dialog_message_failed_to_upload, onPositive = { _, _ -> },
+                    )
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     override fun onViewActionEmitted(viewAction: TranslationsViewModel.ViewAction) = when (viewAction) {

@@ -190,21 +190,35 @@ class TranslationRepository(
         downloadTranslation(downloadProgressChannel, translationToDownload)
         downloadProgressChannel.close()
 
+        markAsDownloaded(translationToDownload)
+    }
+
+    private fun markAsDownloaded(translationInfo: TranslationInfo) {
         val (available, downloaded) = synchronized(translationsLock) {
             val available = mutableListOf<TranslationInfo>().apply {
                 _availableTranslations.value?.let { addAll(it) }
-                removeAll { it.shortName == translationToDownload.shortName }
+                removeAll { it.shortName == translationInfo.shortName }
             }
 
             val downloaded = mutableListOf<TranslationInfo>().apply {
                 _downloadedTranslations.value?.let { addAll(it) }
-                removeAll { it.shortName == translationToDownload.shortName }
-                add(translationToDownload.copy(downloaded = true))
+                removeAll { it.shortName == translationInfo.shortName }
+                add(translationInfo.copy(downloaded = true))
             }
 
             return@synchronized Pair(available, downloaded)
         }
         notifyTranslationsUpdated(available, downloaded)
+    }
+
+    /** Installs the translation in [content] (a zip of USFM books), e.g. one the user picked. */
+    suspend fun importTranslation(translationInfo: TranslationInfo, content: ByteArray) {
+        Logger.withTag(TAG).i { "Start importing translation - ${translationInfo.shortName}" }
+        val translation = remoteTranslationService.readTranslation(RemoteTranslationInfo.fromTranslationInfo(translationInfo), content)
+        val installed = translation.translationInfo.toTranslationInfo(true)
+        localTranslationStorage.saveTranslation(installed, translation.bookNames, translation.bookShortNames, translation.verses)
+        markAsDownloaded(installed)
+        Logger.withTag(TAG).i { "Translation imported" }
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

@@ -17,6 +17,7 @@
 package me.xizzhu.android.joshua.translations
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
@@ -219,9 +220,9 @@ class TranslationsViewModel @Inject constructor(
         // Translations are grouped by "Language (English)" from ebible_downloads.tsv, with a sub heading for a different native name.
         groupBy { tsvRows[it.shortName]?.languageEnglish?.ifEmpty { null } ?: languageDisplayNameWithNative(it.language.split("_")[0]) }
             .forEach { (languageEnglish, translations) ->
-                items.add(TranslationsItem.Header(settings, languageEnglish, hideDivider = true))
+                items.add(TranslationsItem.Header(settings, languageEnglish, hideDivider = false, isLanguage = true))
                 translations.groupBy { tsvRows[it.shortName]?.language.orEmpty() }.forEach { (native, group) ->
-                    if (native.isNotEmpty() && native != languageEnglish) items.add(TranslationsItem.Header(settings, native, hideDivider = false))
+                    if (native.isNotEmpty() && native != languageEnglish) items.add(TranslationsItem.Header(settings, native, hideDivider = true))
                     group.forEach { translationInfo ->
                         items.add(TranslationsItem.Translation(
                             settings = settings,
@@ -250,6 +251,30 @@ class TranslationsViewModel @Inject constructor(
             runCatching { withContext(coroutineDispatcherProvider.default) { translationManager.saveDownloadSites(sites) } }
                 .onFailure { e -> Logger.withTag(tag).e(e) { "Failed to save download sites" } }
             loadTranslations(forceRefresh = true)
+        }
+    }
+
+    /**
+     * Installs the Bible in [uri] (a zip of USFM books) as [shortName], listed under [language] (e.g. `en` or `cmn`).
+     * Passes whether it succeeded to [onCompleted] on the main thread.
+     */
+    fun uploadTranslation(uri: Uri, name: String, shortName: String, language: String, onCompleted: (Boolean) -> Unit) {
+        val valid = name.isNotBlank() && language.isNotBlank() && Regex("[A-Za-z0-9_]+").matches(shortName) &&
+                loadedDownloadedTranslations.none { it.shortName == shortName }
+        if (!valid) {
+            onCompleted(false)
+            return
+        }
+
+        viewModelScope.launch {
+            val successful = runCatching {
+                withContext(coroutineDispatcherProvider.default) {
+                    val content = requireNotNull(application.contentResolver.openInputStream(uri)) { "Cannot open $uri" }.use { it.readBytes() }
+                    translationManager.importTranslation(TranslationInfo(shortName, name.trim(), language.trim().lowercase(), content.size.toLong(), true), content)
+                }
+                loadTranslations(forceRefresh = false)
+            }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to upload translation" } }.isSuccess
+            onCompleted(successful)
         }
     }
 

@@ -81,6 +81,9 @@ class HttpTranslationService(private val context: Context) : RemoteTranslationSe
     internal fun toRemoteTranslation(translationInfo: RemoteTranslationInfo, inputStream: InputStream): RemoteTranslation =
             buildRemoteTranslation(translationInfo, readUsfmZip(inputStream))
 
+    override suspend fun readTranslation(translationInfo: RemoteTranslationInfo, content: ByteArray): RemoteTranslation =
+            withContext(Dispatchers.IO) { toRemoteTranslation(translationInfo, content.inputStream()) }
+
     /** Reads `bundled/list.tsv` (`id<TAB>name<TAB>language` per line) and the matching `bundled/translations/<id>.zip` USFM zips. */
     override suspend fun fetchBundledTranslations(): List<RemoteTranslation> = withContext(Dispatchers.IO) {
         val list = try {
