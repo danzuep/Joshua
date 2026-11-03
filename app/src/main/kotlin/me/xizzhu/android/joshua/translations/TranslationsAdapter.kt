@@ -77,6 +77,7 @@ sealed class TranslationsItem(viewType: Int) : VerticalRecyclerViewItem(viewType
         val settings: Settings,
         val translationInfo: TranslationInfo,
         val isCurrentTranslation: Boolean,
+        val title: String = translationInfo.name,
     ) : TranslationsItem(VIEW_TYPE) {
         companion object {
             @JvmField val VIEW_TYPE = R.layout.item_translation
@@ -128,7 +129,7 @@ sealed class TranslationsViewHolder<Item : TranslationsItem, VB : ViewBinding>(v
 
         override fun bind(item: TranslationsItem.Translation, payloads: List<Any>) = with(viewBinding.root) {
             setPrimaryTextSize(item.settings)
-            text = item.translationInfo.name
+            text = item.title
             setCompoundDrawablesWithIntrinsicBounds(0, 0, if (item.isCurrentTranslation) R.drawable.ic_check else 0, 0)
         }
     }
