@@ -47,7 +47,7 @@ class SettingsRepositoryTest : BaseUnitTest() {
 
     @Test
     fun `test observe settings within constructor`() = runTest {
-        val settings = Settings(false, Settings.NIGHT_MODE_FOLLOW_SYSTEM, 2.0F, false, false, true, Highlight.COLOR_PINK)
+        val settings = Settings(false, Settings.NIGHT_MODE_FOLLOW_SYSTEM, 2.0F, false, false, Highlight.COLOR_PINK)
         coEvery { localSettingsStorage.readSettings() } returns settings
 
         settingsRepository = SettingsRepository(localSettingsStorage, testScope)
@@ -65,7 +65,7 @@ class SettingsRepositoryTest : BaseUnitTest() {
 
     @Test
     fun `test saveSettings()`() = runTest {
-        val settings = Settings(false, Settings.NIGHT_MODE_ON, 1.5F, true, true, true, Highlight.COLOR_BLUE)
+        val settings = Settings(false, Settings.NIGHT_MODE_ON, 1.5F, true, true, Highlight.COLOR_BLUE)
         settingsRepository.saveSettings(settings)
         assertEquals(settings, settingsRepository.settings.first())
     }
