@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Modified by eBible, 2026 -->
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
     android:hint="@string/action_search"
     android:label="@string/app_name"
-    android:searchSuggestAuthority="me.xizzhu.android.joshua.debug.search.RecentSearchProvider"
+    android:searchSuggestAuthority="org.ebible.android.bible.debug.search.RecentSearchProvider"
     android:searchSuggestSelection=" ?"
     android:voiceSearchMode="showVoiceSearchButton|launchRecognizer" />

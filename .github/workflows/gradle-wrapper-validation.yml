@@ -1,3 +1,4 @@
+# Modified by eBible, 2026
 name: "Validate Gradle Wrapper"
 on: [push]
 

@@ -1,11 +1,11 @@
 name: Auto Tag
-# Bumps the version tag when a PR is merged into master, based on the prefix of the PR title:
+# Bumps the version tag when a PR is merged into main, based on the prefix of the PR title:
 #   "major: ..." -> X+1.0.0, "minor: ..." -> X.Y+1.0, "patch: ..." -> X.Y.Z+1
 # Any other title (including one with no prefix) does not create a tag or a release.
 on:
   pull_request:
     types: [closed]
-    branches: [master]
+    branches: [main]
 
 permissions:
   contents: write

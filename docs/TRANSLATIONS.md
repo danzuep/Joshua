@@ -1,6 +1,6 @@
 Available Translations
 ======================
-Joshua builds its list of translations from a download site's translation table. The default site is
+eBible builds its list of translations from a download site's translation table. The default site is
 [eBible.org](https://ebible.org/download.php), which offers hundreds of public domain and freely licensed translations
 in many languages. Each translation is downloaded as a USFM zip (`https://ebible.org/Scriptures/<id>_usfm.zip`) and
 parsed on the device. The default site's table ships in the app as `app/src/main/assets/ebible_downloads.tsv`; the
