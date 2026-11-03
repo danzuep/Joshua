@@ -25,7 +25,6 @@ import android.widget.AbsListView
 import android.widget.ExpandableListView
 import androidx.annotation.IntDef
 import androidx.constraintlayout.widget.ConstraintLayout
-import me.xizzhu.android.joshua.R
 import me.xizzhu.android.joshua.core.Bible
 import me.xizzhu.android.joshua.databinding.InnerChapterSelectionViewBinding
 
@@ -38,7 +37,7 @@ class ChapterSelectionView : ConstraintLayout {
         @Retention(AnnotationRetention.SOURCE)
         private annotation class Selection
 
-        /** A testament tab is only shown when at least one valid book of that testament is available. */
+        /** The testament tabs are only useful when both testaments have at least one valid book. */
         internal fun testamentTabVisibility(bookIndices: Collection<Int>): TestamentTabVisibility {
             val validBookIndices = bookIndices.filter { it in 0 until Bible.BOOK_COUNT }
             return TestamentTabVisibility(
@@ -112,25 +111,10 @@ class ChapterSelectionView : ConstraintLayout {
     }
 
     private fun updateTestamentTabs(visibility: TestamentTabVisibility) {
-        val oldTab = viewBinding.chapterSelectionOldTestament
-        val newTab = viewBinding.chapterSelectionNewTestament
-        oldTab.visibility = if (visibility.showOldTestament) View.VISIBLE else View.GONE
-        newTab.visibility = if (visibility.showNewTestament) View.VISIBLE else View.GONE
-
-        val bothShown = visibility.showOldTestament && visibility.showNewTestament
-        // Reassigning the params makes ConstraintLayout re-resolve its start/end constraints; in-place edits can be ignored.
-        oldTab.layoutParams = (oldTab.layoutParams as ConstraintLayout.LayoutParams).apply {
-            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
-            startToEnd = ConstraintLayout.LayoutParams.UNSET
-            endToStart = if (bothShown) R.id.chapter_selection_new_testament else ConstraintLayout.LayoutParams.UNSET
-            endToEnd = if (bothShown) ConstraintLayout.LayoutParams.UNSET else ConstraintLayout.LayoutParams.PARENT_ID
-        }
-        newTab.layoutParams = (newTab.layoutParams as ConstraintLayout.LayoutParams).apply {
-            endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
-            endToStart = ConstraintLayout.LayoutParams.UNSET
-            startToEnd = if (bothShown) R.id.chapter_selection_old_testament else ConstraintLayout.LayoutParams.UNSET
-            startToStart = if (bothShown) ConstraintLayout.LayoutParams.UNSET else ConstraintLayout.LayoutParams.PARENT_ID
-        }
+        val showTabs = visibility.showOldTestament && visibility.showNewTestament
+        val tabVisibility = if (showTabs) View.VISIBLE else View.GONE
+        viewBinding.chapterSelectionOldTestament.visibility = tabVisibility
+        viewBinding.chapterSelectionNewTestament.visibility = tabVisibility
     }
 
     fun expandCurrentBook() {
