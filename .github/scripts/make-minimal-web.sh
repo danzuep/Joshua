@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds a World English Bible zip containing only John 1, for the smoke test.
+# Builds a World English Bible zip containing only John 1 and Hebrews 1, for the smoke test.
 # Usage: make-minimal-web.sh <full engwebu_usfm.zip> <output zip>
 set -euo pipefail
 
@@ -10,15 +10,18 @@ trap 'rm -rf "$work"' EXIT
 
 unzip -q "$src" -d "$work/full"
 john="$(find "$work/full" -type f \( -name '*.usfm' -o -name '*.sfm' \) | grep -E 'JHN|-43-' | head -n 1)"
-if [ -z "$john" ]; then
-  echo "John USFM file not found in $src" >&2
+hebrews="$(find "$work/full" -type f \( -name '*.usfm' -o -name '*.sfm' \) | grep -E 'HEB|-58-' | head -n 1)"
+if [ -z "$john" ] || [ -z "$hebrews" ]; then
+  echo "John or Hebrews USFM file not found in $src" >&2
   exit 1
 fi
 
 mkdir -p "$work/minimal"
 # Keep the file header and chapter 1 only, dropping everything from chapter 2 onward.
-awk '/^\\c 2([[:space:]]|$)/ { exit } { print }' "$john" > "$work/minimal/$(basename "$john")"
-grep -q '^\\c 1' "$work/minimal/$(basename "$john")"
+for book in "$john" "$hebrews"; do
+  awk '/^\\c 2([[:space:]]|$)/ { exit } { print }' "$book" > "$work/minimal/$(basename "$book")"
+  grep -q '^\\c 1' "$work/minimal/$(basename "$book")"
+done
 
 # Split verse 1 across two paragraphs, like a verse with a quote in it, to check its icons go at the end of the verse.
 sed -i -E '/^\\v 1 /s/(.*\*,) (\\w and[|])/\1\n\\p\n\2/' "$work/minimal/$(basename "$john")"

@@ -101,6 +101,68 @@ else
   echo "FAIL: could not find a verse to long-press"
   status=1
 fi
+# Hebrews 1:1-4 are bookmarked one at a time; each must show its own heart (verse 3 once saved without one).
+adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK 57
+sleep 5
+for verse in 1 2 3 4; do
+  dump_ui
+  verse_xy=$(VERSE="$verse" python3 - << 'PY'
+import os, re, html
+xml = open("ui.xml", encoding="utf-8").read()
+for node in re.finditer(r'<node[^>]*text="([^"]*)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml):
+    text = html.unescape(node.group(1))
+    if "God, having in the past spoken" not in text:
+        continue
+    x1, y1, x2, y2 = map(int, node.groups()[1:])
+    verse = int(os.environ["VERSE"])
+    start = text.find(f"{verse}\u00a0")
+    end = text.find(f"{verse + 1}\u00a0", start)
+    if end < 0:
+        end = len(text)
+    # Aim at the middle of the verse, assuming evenly spaced lines.
+    y = y1 + (y2 - y1) * ((start + end) / 2) / len(text)
+    print((x1 + x2) // 2, int(y))
+    break
+PY
+)
+  if [ -z "$verse_xy" ]; then
+    echo "FAIL: could not find Hebrews 1:$verse"
+    status=1
+    continue
+  fi
+  adb shell input swipe $verse_xy $verse_xy 1500
+  sleep 2
+  dump_ui
+  tap_desc "Bookmark" || { echo "FAIL: no Bookmark icon for Hebrews 1:$verse"; status=1; }
+  sleep 2
+done
+adb exec-out screencap -p > screen-hebrews.png
+# Every bookmarked verse must show its red heart, so there are four separate red blobs.
+pip install --quiet pillow > /dev/null 2>&1
+hearts=$(python3 - << 'PY'
+from PIL import Image
+img = Image.open("screen-hebrews.png").convert("RGB")
+w, h = img.size
+px = img.load()
+red = {(x, y) for y in range(h) for x in range(w) if px[x, y][0] > 200 and px[x, y][1] < 60 and px[x, y][2] < 60}
+blobs = 0
+while red:
+    stack = [red.pop()]
+    while stack:
+        x, y = stack.pop()
+        for n in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if n in red:
+                red.remove(n)
+                stack.append(n)
+    blobs += 1
+print(blobs)
+PY
+)
+echo "Hebrews 1 bookmark hearts shown: ${hearts:-0}"
+if [ "${hearts:-0}" -lt 4 ]; then
+  echo "FAIL: expected a heart for each of Hebrews 1:1-4 (see screen-hebrews.png)"
+  status=1
+fi
 # Regression test: submitting "jhn1" used to relaunch SearchActivity in an endless loop, freezing the screen after the results showed.
 adb shell am start -W -n org.ebible.android.bible/.search.SearchActivity > /dev/null
 sleep 3

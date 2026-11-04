@@ -369,6 +369,8 @@ private class Page(
             if (position == chapterPosition) {
                 chapterItems.forEachIndexed { index, item ->
                     if (item is ParagraphItem && item.containsVerse(verseUpdate.verseIndex.verseIndex)) {
+                        // Applied here as well as on bind, so the state is right even if the payload never reaches a bind.
+                        item.update(verseUpdate)
                         adapter.notifyItemChanged(itemPosition + index + 1, verseUpdate)
                     }
                 }
