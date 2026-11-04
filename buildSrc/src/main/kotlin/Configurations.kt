@@ -70,6 +70,7 @@ object Versions {
         object Test {
             const val core = "1.5.0"
             const val junit = "1.1.4"
+            const val runner = "1.5.2"
         }
     }
 
@@ -133,6 +134,7 @@ object Dependencies {
         object Test {
             const val core = "androidx.test:core:${Versions.AndroidX.Test.core}"
             const val junit = "androidx.test.ext:junit:${Versions.AndroidX.Test.junit}"
+            const val runner = "androidx.test:runner:${Versions.AndroidX.Test.runner}"
         }
     }
 

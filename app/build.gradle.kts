@@ -180,4 +180,5 @@ dependencies {
     androidTestImplementation(Dependencies.Kotlin.test)
     androidTestImplementation(Dependencies.AndroidX.Test.core)
     androidTestImplementation(Dependencies.AndroidX.Test.junit)
+    androidTestImplementation(Dependencies.AndroidX.Test.runner)
 }
