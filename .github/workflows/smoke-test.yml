@@ -40,6 +40,8 @@ jobs:
           screen-bookmarked.png
           screen-unbookmarked.png
           screen-hebrews.png
+          screen-hebrews-verse3.png
+          screen-hebrews-last.png
           ui-actionmode.xml
           ui.xml
           ui-search.xml

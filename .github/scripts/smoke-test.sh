@@ -102,46 +102,15 @@ else
   status=1
 fi
 # Hebrews 1:1-4 are bookmarked one at a time; each must show its own heart (verse 3 once saved without one).
-adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK 57
-sleep 5
-for verse in 1 2 3 4; do
-  dump_ui
-  verse_xy=$(VERSE="$verse" python3 - << 'PY'
-import os, re, html
-xml = open("ui.xml", encoding="utf-8").read()
-for node in re.finditer(r'<node[^>]*text="([^"]*)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml):
-    text = html.unescape(node.group(1))
-    if "God, having in the past spoken" not in text:
-        continue
-    x1, y1, x2, y2 = map(int, node.groups()[1:])
-    verse = int(os.environ["VERSE"])
-    start = text.find(f"{verse}\u00a0")
-    end = text.find(f"{verse + 1}\u00a0", start)
-    if end < 0:
-        end = len(text)
-    # Aim at the middle of the verse, assuming evenly spaced lines.
-    y = y1 + (y2 - y1) * ((start + end) / 2) / len(text)
-    print((x1 + x2) // 2, int(y))
-    break
-PY
-)
-  if [ -z "$verse_xy" ]; then
-    echo "FAIL: could not find Hebrews 1:$verse"
-    status=1
-    continue
-  fi
-  adb shell input swipe $verse_xy $verse_xy 1500
-  sleep 2
-  dump_ui
-  tap_desc "Bookmark" || { echo "FAIL: no Bookmark icon for Hebrews 1:$verse"; status=1; }
-  sleep 2
-done
-adb exec-out screencap -p > screen-hebrews.png
-# Every bookmarked verse must show its red heart, so there are four separate red blobs.
 pip install --quiet pillow > /dev/null 2>&1
-hearts=$(python3 - << 'PY'
+
+# Number of separate red blobs (bookmark hearts) in the current screen, which is also saved as $1.
+count_hearts() {
+  adb exec-out screencap -p > "$1"
+  python3 - "$1" << 'PY'
+import sys
 from PIL import Image
-img = Image.open("screen-hebrews.png").convert("RGB")
+img = Image.open(sys.argv[1]).convert("RGB")
 w, h = img.size
 px = img.load()
 red = {(x, y) for y in range(h) for x in range(w) if px[x, y][0] > 200 and px[x, y][1] < 60 and px[x, y][2] < 60}
@@ -157,7 +126,62 @@ while red:
     blobs += 1
 print(blobs)
 PY
+}
+
+# Long-presses Hebrews 1:$1 and taps Bookmark, aiming at several places in the verse since line positions are estimated.
+# Stops once one more heart is shown; $2 is the heart count before.
+bookmark_hebrews_verse() {
+  local verse="$1" before="$2" fraction xy
+  for fraction in 0.5 0.3 0.7 0.15 0.85; do
+    dump_ui
+    xy=$(VERSE="$verse" FRACTION="$fraction" python3 - << 'PY'
+import os, re, html
+xml = open("ui.xml", encoding="utf-8").read()
+for node in re.finditer(r'<node[^>]*text="([^"]*)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', xml):
+    text = html.unescape(node.group(1))
+    if "God, having in the past spoken" not in text:
+        continue
+    x1, y1, x2, y2 = map(int, node.groups()[1:])
+    verse = int(os.environ["VERSE"])
+    start = text.find(f"{verse}\u00a0")
+    end = text.find(f"{verse + 1}\u00a0", start)
+    if end < 0:
+        end = len(text)
+    y = y1 + (y2 - y1) * (start + (end - start) * float(os.environ["FRACTION"])) / len(text)
+    print((x1 + x2) // 2, int(y))
+    break
+PY
 )
+    [ -z "$xy" ] && return 1
+    adb shell input swipe $xy $xy 1500
+    sleep 2
+    dump_ui
+    tap_desc "Bookmark" || return 1
+    sleep 2
+    [ "$(count_hearts screen-hebrews-last.png)" -gt "$before" ] && return 0
+  done
+  return 1
+}
+
+adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK 57
+sleep 5
+# Verse 3 alone first: it must show exactly one heart (see screen-hebrews-verse3.png).
+if bookmark_hebrews_verse 3 0; then
+  cp screen-hebrews-last.png screen-hebrews-verse3.png
+else
+  echo "FAIL: bookmarking Hebrews 1:3 did not show a heart (see screen-hebrews-last.png)"
+  status=1
+fi
+hearts=1
+for verse in 1 2 4; do
+  if bookmark_hebrews_verse "$verse" "$hearts"; then
+    hearts=$((hearts + 1))
+  else
+    echo "FAIL: bookmarking Hebrews 1:$verse did not show a heart"
+    status=1
+  fi
+done
+hearts=$(count_hearts screen-hebrews.png)
 echo "Hebrews 1 bookmark hearts shown: ${hearts:-0}"
 if [ "${hearts:-0}" -lt 4 ]; then
   echo "FAIL: expected a heart for each of Hebrews 1:1-4 (see screen-hebrews.png)"
