@@ -18,7 +18,12 @@ package org.ebible.android.bible.reading.verse
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.drawable.Drawable
+import android.text.style.ReplacementSpan
+import kotlin.math.roundToInt
 import android.graphics.ColorFilter
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -58,7 +63,7 @@ class ParagraphItem(
 ) : BaseItem(R.layout.item_paragraph, { inflater, parent -> ParagraphViewHolder(inflater, parent) }) {
     /** The part of [verse] that is in this paragraph; [label] (e.g. "2" or "3-4") is only set where the verse starts. */
     class Segment(val verse: Verse, val text: String, val label: String?) {
-        /** Whether this is the last part of [verse], where its bookmark, note and footnote icons go. */
+        /** Whether this is the last part of [verse], where its note and footnote icons go. */
         var endsVerse = true
     }
 
@@ -115,9 +120,15 @@ class ParagraphItem(
             val start = builder.length
             segment.label?.let { label ->
                 builder.append(label)
-                builder.setSpan(SuperscriptSpan(), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                builder.setSpan(RelativeSizeSpan(0.7F), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                builder.setSpan(StyleSpan(Typeface.BOLD), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                val bookmark = if (bookmarks.contains(verseIndex)) ContextCompat.getDrawable(context, R.drawable.ic_bookmark) else null
+                if (bookmark != null) {
+                    bookmark.mutate().colorFilter = ICON_COLOR_FILTER
+                    builder.setSpan(LabelWithIconSpan(label, bookmark), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                } else {
+                    builder.setSpan(SuperscriptSpan(), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    builder.setSpan(RelativeSizeSpan(0.7F), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    builder.setSpan(StyleSpan(Typeface.BOLD), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
                 builder.append('\u00A0')
             }
 
@@ -126,7 +137,6 @@ class ParagraphItem(
             highlights[verseIndex]?.let { builder.setSpans(createHighlightSpans(it), textStart, builder.length) }
 
             if (segment.endsVerse) {
-                if (bookmarks.contains(verseIndex)) builder.appendDrawable(R.drawable.ic_bookmark)
                 if (notes.contains(verseIndex)) builder.appendDrawable(R.drawable.ic_note)
                 if (footnotes.contains(verseIndex)) builder.appendDrawable(R.drawable.ic_note, FOOTNOTE_COLOR_FILTER)
             }
@@ -150,6 +160,40 @@ class ParagraphItem(
             append('\u00A0')
             setSpan(span, length - 1, length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
+    }
+}
+
+/**
+ * Draws a verse label as superscript with a small [icon] stacked under it, resting on the text baseline.
+ * Both stay within the line's ascent, so the line height and the body text alignment are unchanged.
+ */
+private class LabelWithIconSpan(private val label: String, private val icon: Drawable) : ReplacementSpan() {
+    private fun labelPaint(paint: Paint) = Paint(paint).apply {
+        textSize = paint.textSize * LABEL_SCALE
+        typeface = Typeface.create(paint.typeface, Typeface.BOLD)
+    }
+
+    private fun iconSize(paint: Paint) = (paint.textSize * ICON_SCALE).roundToInt()
+
+    override fun getSize(paint: Paint, text: CharSequence?, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int =
+            maxOf(labelPaint(paint).measureText(label).roundToInt(), iconSize(paint))
+
+    override fun draw(
+            canvas: Canvas, text: CharSequence?, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint
+    ) {
+        val width = getSize(paint, text, start, end, null)
+        val labelPaint = labelPaint(paint)
+        val size = iconSize(paint)
+        canvas.drawText(label, x + (width - labelPaint.measureText(label)) / 2, y - paint.textSize * LABEL_BASELINE, labelPaint)
+        val left = (x + (width - size) / 2).roundToInt()
+        icon.setBounds(left, y - size, left + size, y)
+        icon.draw(canvas)
+    }
+
+    private companion object {
+        const val LABEL_SCALE = 0.6F
+        const val ICON_SCALE = 0.4F
+        const val LABEL_BASELINE = 0.5F
     }
 }
 

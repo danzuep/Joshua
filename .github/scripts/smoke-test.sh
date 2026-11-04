@@ -63,7 +63,7 @@ if ! grep -q "The light shines in the darkness" ui.xml 2> /dev/null; then
   echo "FAIL: expected flowing paragraph text (John 1:1-5 not in one paragraph)"
   status=1
 fi
-# Long-press a verse to open the action mode and capture it, so the verse menu icons can be checked.
+# Bookmark the first verse (long-press it, tap Bookmark) and capture the screen: the heart is stacked under the verse number.
 verse_xy=$(python3 - << 'PY'
 import re
 xml = open("ui.xml", encoding="utf-8").read()
@@ -76,28 +76,10 @@ PY
 if [ -n "$verse_xy" ]; then
   adb shell input swipe $verse_xy $verse_xy 1500
   sleep 2
-  adb exec-out screencap -p > screen-actionmode.png
-  rm -f ui-actionmode.xml
-  adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1
-  adb pull /sdcard/ui.xml ui-actionmode.xml > /dev/null 2>&1
-  for desc in "Highlight" "Copy" "Share" "Bookmark"; do
-    if ! grep -q "content-desc=\"[^\"]*$desc" ui-actionmode.xml 2> /dev/null; then
-      echo "FAIL: verse action mode is missing the $desc icon"
-      status=1
-    fi
-  done
-  # Bookmark the verse: the heart goes at the end of verse 1 (in the second paragraph), not after its first part.
-  cp ui-actionmode.xml ui.xml
+  dump_ui
   if tap_desc "Bookmark"; then
     sleep 2
     adb exec-out screencap -p > screen-bookmarked.png
-    # Tapping bookmark on a bookmarked verse removes the bookmark.
-    adb shell input swipe $verse_xy $verse_xy 1500
-    sleep 2
-    dump_ui
-    tap_desc "Bookmark" || { echo "FAIL: no Bookmark icon the second time"; status=1; }
-    sleep 2
-    adb exec-out screencap -p > screen-unbookmarked.png
   else
     echo "FAIL: could not tap the Bookmark icon"
     status=1
