@@ -46,8 +46,11 @@ class ParagraphItemTest : BaseUnitTest() {
 
     private fun iconCount(item: ParagraphItem): Int {
         val text = item.textForDisplay() as Spanned
-        return text.getSpans(0, text.length, ImageSpan::class.java).size
+        return text.getSpans(0, text.length, ImageSpan::class.java).size + bookmarkSpans(text).size
     }
+
+    /** The bookmark icon is stacked under the verse number by [LabelWithIconSpan], not appended as an [ImageSpan]. */
+    private fun bookmarkSpans(text: Spanned) = text.getSpans(0, text.length, LabelWithIconSpan::class.java)
 
     @Test
     fun `test bookmark and note icons render after being saved on a highlighted verse`() {
@@ -96,7 +99,7 @@ class ParagraphItemTest : BaseUnitTest() {
 
     /** Bookmarks only Hebrews 1:3 with the shared fluent builder, then loads the chapter like the reader does. */
     @Test
-    fun `test only Hebrews 1_3 shows a bookmark icon, right after its text`() = runTest {
+    fun `test only Hebrews 1_3 shows a bookmark icon, under its verse number`() = runTest {
         val bookmarks = InMemoryAnnotations<Bookmark>()
         CoreVerse(
                 VerseIndex(57, 0, 2),
@@ -111,12 +114,13 @@ class ParagraphItemTest : BaseUnitTest() {
         )
         val item = verses.toParagraphItems(context, bookmarks.read(57, 0), emptyList(), emptyList()).single() as ParagraphItem
         val text = item.textForDisplay() as Spanned
-        val icons = text.getSpans(0, text.length, ImageSpan::class.java)
+        val icons = bookmarkSpans(text)
 
         assertEquals(1, icons.size)
-        val iconStart = text.getSpanStart(icons.single())
-        assertTrue(iconStart > text.indexOf("glory."), "icon should follow verse 3's text")
-        assertTrue(iconStart < text.indexOf("Having"), "icon should come before verse 4")
+        val icon = icons.single()
+        assertEquals("3", text.substring(text.getSpanStart(icon), text.getSpanEnd(icon)), "icon should be under verse 3's number")
+        assertTrue(text.getSpanStart(icon) < text.indexOf("His Son is"), "icon should come before verse 3's text")
+        assertEquals(0, text.getSpans(0, text.length, ImageSpan::class.java).size)
     }
 
     @Test
