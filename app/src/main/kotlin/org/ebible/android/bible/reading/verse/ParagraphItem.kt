@@ -167,7 +167,7 @@ class ParagraphItem(
  * Draws a verse label as superscript with a small [icon] stacked under it, resting on the text baseline.
  * Both stay within the line's ascent, so the line height and the body text alignment are unchanged.
  */
-private class LabelWithIconSpan(private val label: String, private val icon: Drawable) : ReplacementSpan() {
+internal class LabelWithIconSpan(private val label: String, private val icon: Drawable) : ReplacementSpan() {
     private fun labelPaint(paint: Paint) = Paint(paint).apply {
         textSize = paint.textSize * LABEL_SCALE
         typeface = Typeface.create(paint.typeface, Typeface.BOLD)
