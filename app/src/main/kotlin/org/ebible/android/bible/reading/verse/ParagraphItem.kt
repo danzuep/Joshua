@@ -145,8 +145,9 @@ class ParagraphItem(
             @DrawableRes drawableId: Int, colorFilter: ColorFilter = ICON_COLOR_FILTER
     ) {
         createDrawableSpan(context, drawableId, DynamicDrawableSpan.ALIGN_BASELINE, colorFilter, 0.67F)?.let { span ->
-            append(' ')
-            append(' ')
+            // Non-breaking, so the icon can't land on a wrapped line's hanging trailing whitespace, where it is not drawn.
+            append('\u00A0')
+            append('\u00A0')
             setSpan(span, length - 1, length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
     }
