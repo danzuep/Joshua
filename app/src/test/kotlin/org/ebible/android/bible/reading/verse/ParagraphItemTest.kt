@@ -20,16 +20,23 @@ import android.text.Spanned
 import android.text.style.ImageSpan
 import org.ebible.android.bible.core.Bookmark
 import org.ebible.android.bible.core.Highlight
+import org.ebible.android.bible.core.Constants
 import org.ebible.android.bible.core.Note
 import org.ebible.android.bible.core.Verse
+import org.ebible.android.bible.core.VerseAnnotation
 import org.ebible.android.bible.core.VerseIndex
+import org.ebible.android.bible.core.repository.VerseAnnotationRepository
+import org.ebible.android.bible.core.repository.local.LocalVerseAnnotationStorage
 import org.ebible.android.bible.reading.VerseUpdate
+import org.ebible.android.bible.testing.CoreVerse
 import org.ebible.android.bible.tests.BaseUnitTest
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
 class ParagraphItemTest : BaseUnitTest() {
@@ -69,5 +76,55 @@ class ParagraphItemTest : BaseUnitTest() {
                 listOf(Note(verseIndex, "note", 0L))
         ).single() as ParagraphItem
         assertEquals(2, iconCount(item))
+    }
+
+    private class InMemoryAnnotations<T : VerseAnnotation> : LocalVerseAnnotationStorage<T> {
+        val items = linkedMapOf<VerseIndex, T>()
+        override suspend fun readSortOrder(): Int = Constants.DEFAULT_SORT_ORDER
+        override suspend fun saveSortOrder(sortOrder: Int) {}
+        override suspend fun read(sortOrder: Int): List<T> = items.values.toList()
+        override suspend fun read(bookIndex: Int, chapterIndex: Int): List<T> =
+                items.values.filter { it.verseIndex.bookIndex == bookIndex && it.verseIndex.chapterIndex == chapterIndex }
+        override suspend fun read(verseIndex: VerseIndex): T = items.getValue(verseIndex)
+        override suspend fun search(query: String): List<T> = emptyList()
+        override suspend fun save(verseAnnotation: T) { items[verseAnnotation.verseIndex] = verseAnnotation }
+        override suspend fun save(verseAnnotations: List<T>) = verseAnnotations.forEach { save(it) }
+        override suspend fun remove(verseIndex: VerseIndex) { items.remove(verseIndex) }
+    }
+
+    private fun hebrews(index: Int, text: String) = Verse(VerseIndex(57, 0, index), Verse.Text("T", text), emptyList())
+
+    /** Bookmarks only Hebrews 1:3 with the shared fluent builder, then loads the chapter like the reader does. */
+    @Test
+    fun `test only Hebrews 1_3 shows a bookmark icon, right after its text`() = runTest {
+        val bookmarks = InMemoryAnnotations<Bookmark>()
+        CoreVerse(
+                VerseIndex(57, 0, 2),
+                VerseAnnotationRepository(bookmarks, this),
+                VerseAnnotationRepository(InMemoryAnnotations<Highlight>(), this),
+                VerseAnnotationRepository(InMemoryAnnotations<Note>(), this)
+        ).bookmark()
+
+        val verses = listOf(
+                hebrews(0, "God spoke long ago."), hebrews(1, "He has spoken by his Son."),
+                hebrews(2, "His Son is the radiance of his glory."), hebrews(3, "Having become better than the angels.")
+        )
+        val item = verses.toParagraphItems(context, bookmarks.read(57, 0), emptyList(), emptyList()).single() as ParagraphItem
+        val text = item.textForDisplay() as Spanned
+        val icons = text.getSpans(0, text.length, ImageSpan::class.java)
+
+        assertEquals(1, icons.size)
+        val iconStart = text.getSpanStart(icons.single())
+        assertTrue(iconStart > text.indexOf("glory."), "icon should follow verse 3's text")
+        assertTrue(iconStart < text.indexOf("Having"), "icon should come before verse 4")
+    }
+
+    @Test
+    fun `test bookmarking a middle verse updates the icons live`() {
+        val verses = listOf(hebrews(0, "One"), hebrews(1, "Two"), hebrews(2, "Three"), hebrews(3, "Four"))
+        val item = verses.toParagraphItems(context, emptyList(), emptyList(), emptyList()).single() as ParagraphItem
+
+        item.update(VerseUpdate(VerseIndex(57, 0, 2), VerseUpdate.BOOKMARK_ADDED))
+        assertEquals(1, iconCount(item))
     }
 }
