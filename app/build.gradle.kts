@@ -66,6 +66,7 @@ android {
         androidResources.localeFilters.addAll(Configurations.supportedLocales)
         manifestPlaceholders["appName"] = appName
         buildConfigField("int", "DEFAULT_BOOK_INDEX", defaultBookIndex.toString())
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     // F-Droid forbids the signing-block dependency metadata that AGP embeds by default.
@@ -88,6 +89,7 @@ android {
         getByName("debug") { java.setSrcDirs(setOf("src/debug/kotlin")) }
         getByName("release") { java.setSrcDirs(setOf("src/release/kotlin")) }
         getByName("test") { java.setSrcDirs(setOf("src/test/kotlin")) }
+        getByName("androidTest") { java.setSrcDirs(setOf("src/androidTest/kotlin")) }
     }
 
     signingConfigs {
@@ -174,4 +176,8 @@ dependencies {
     testImplementation(Dependencies.Hilt.test)
     testImplementation(Dependencies.mockk)
     testImplementation(Dependencies.robolectric)
+
+    androidTestImplementation(Dependencies.Kotlin.test)
+    androidTestImplementation(Dependencies.AndroidX.Test.core)
+    androidTestImplementation(Dependencies.AndroidX.Test.junit)
 }
