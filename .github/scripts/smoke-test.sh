@@ -33,18 +33,25 @@ sleep 20
 # Open straight to the requested book (0-based index, default 42 = John) instead of navigating the UI.
 adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK "${SMOKE_BOOK_INDEX:-42}"
 
-# The bundled translation is imported on first launch, so give it time to appear.
-sleep 10
-dump_ui
+# The bundled translation is imported on first launch, so poll for the text instead of sleeping a fixed time.
 found=0
-if grep -q "In the beginning was the Word" ui.xml 2> /dev/null; then
-  found=1
-fi
+for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+  dump_ui
+  if grep -q "In the beginning was the Word" ui.xml 2> /dev/null; then
+    found=1
+    break
+  fi
+  sleep 2
+done
 
 status=0
 if [ "$found" -ne 1 ]; then
   echo "FAIL: John 1 text was not shown"
-  status=1
+  # Nothing else can work without the chapter, so stop here instead of waiting through the remaining steps.
+  adb logcat -d > logcat.txt
+  adb exec-out screencap -p > screen.png
+  grep -A 20 "FATAL EXCEPTION" logcat.txt | head -40
+  exit 1
 fi
 # The paragraph / heading markers must never leak into the UI.
 if grep -qP '\x{2028}|\x{2029}' ui.xml 2> /dev/null; then
