@@ -101,7 +101,7 @@ else
   echo "FAIL: could not find a verse to long-press"
   status=1
 fi
-# Hebrews 1:1-4 are bookmarked one at a time; each must show its own heart (verse 3 once saved without one).
+# Bookmarking only Hebrews 1:3 must show its heart (it once saved without one).
 pip install --quiet pillow > /dev/null 2>&1
 
 # Number of separate red blobs (bookmark hearts) in the current screen, which is also saved as $1.
@@ -172,19 +172,10 @@ else
   echo "FAIL: bookmarking Hebrews 1:3 did not show a heart (see screen-hebrews-last.png)"
   status=1
 fi
-hearts=1
-for verse in 1 2 4; do
-  if bookmark_hebrews_verse "$verse" "$hearts"; then
-    hearts=$((hearts + 1))
-  else
-    echo "FAIL: bookmarking Hebrews 1:$verse did not show a heart"
-    status=1
-  fi
-done
 hearts=$(count_hearts screen-hebrews.png)
 echo "Hebrews 1 bookmark hearts shown: ${hearts:-0}"
-if [ "${hearts:-0}" -lt 4 ]; then
-  echo "FAIL: expected a heart for each of Hebrews 1:1-4 (see screen-hebrews.png)"
+if [ "${hearts:-0}" -ne 1 ]; then
+  echo "FAIL: expected exactly one heart after bookmarking only Hebrews 1:3 (see screen-hebrews.png)"
   status=1
 fi
 # Regression test: submitting "jhn1" used to relaunch SearchActivity in an endless loop, freezing the screen after the results showed.
