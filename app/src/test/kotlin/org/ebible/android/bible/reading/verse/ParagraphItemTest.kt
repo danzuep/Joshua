@@ -66,7 +66,7 @@ class ParagraphItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test bookmark does not add an end of verse icon`() {
+    fun `test note icon is an end of verse image span but the bookmark is not`() {
         val item = paragraph(listOf(Bookmark(VerseIndex(57, 0, 2), 0L)))
         assertEquals(0, noteCount(item))
         item.update(VerseUpdate(VerseIndex(57, 0, 2), VerseUpdate.NOTE_ADDED))
