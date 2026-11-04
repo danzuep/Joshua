@@ -1,10 +1,11 @@
-name: Release APK smoke test
+name: APK smoke test
 on:
   workflow_dispatch:
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
     - uses: actions/checkout@v7
     - uses: actions/setup-java@v6
@@ -46,6 +47,7 @@ jobs:
   # Instrumented tests (app/src/androidTest) run in the app's own process, so they can use the shared fluent builders.
   instrumented:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
     - uses: actions/checkout@v7
     - uses: actions/setup-java@v6

@@ -120,6 +120,27 @@ class ParagraphItemTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test John 1_29 with a mid-verse footnote shows footnote and bookmark icons`() {
+        fun john(index: Int, text: String) = Verse(VerseIndex(42, 0, index), Verse.Text("T", text), emptyList())
+        val verses = listOf(
+                john(27, "These things were done in Bethany beyond the Jordan.\u2029"),
+                john(28, "\u2029The next day, he saw Jesus coming to him, and said, \u201cBehold,\u2027f1:29 \u201cBehold\u201d, means look.\u2027 the Lamb of God, who takes away the sin of the world!"),
+                john(29, "\u2029The next day John saw Jesus.")
+        )
+        val bookmarked = VerseIndex(42, 0, 28)
+        val items = verses.toParagraphItems(context, emptyList(), emptyList(), emptyList()).filterIsInstance<ParagraphItem>()
+        val item = items.first { it.containsVerse(28) }
+
+        assertEquals(1, iconCount(item))
+        item.update(VerseUpdate(bookmarked, VerseUpdate.BOOKMARK_ADDED))
+        assertEquals(2, iconCount(item))
+
+        val loaded = verses.toParagraphItems(context, listOf(Bookmark(bookmarked, 0L)), emptyList(), emptyList())
+                .filterIsInstance<ParagraphItem>().first { it.containsVerse(28) }
+        assertEquals(2, iconCount(loaded))
+    }
+
+    @Test
     fun `test bookmarking a middle verse updates the icons live`() {
         val verses = listOf(hebrews(0, "One"), hebrews(1, "Two"), hebrews(2, "Three"), hebrews(3, "Four"))
         val item = verses.toParagraphItems(context, emptyList(), emptyList(), emptyList()).single() as ParagraphItem
