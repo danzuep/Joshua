@@ -98,6 +98,9 @@ class CoreSettings(private val repository: SettingsRepository, private var curre
  * ```
  * CoreReader(storage).toTranslation("WEBU").toBook(42).toChapter(0).toVerse(4).expectVerseIndex(VerseIndex(42, 0, 4))
  * ```
+ *
+ * To drive the running app, pass a storage whose saves go through the app's own `BibleReadingRepository`: the app
+ * caches the position in memory, so writes made through a separate database instance are not seen.
  */
 class CoreReader(private val storage: LocalReadingStorage, private var position: VerseIndex = VerseIndex(0, 0, 0)) {
     private suspend fun moveTo(verseIndex: VerseIndex): CoreReader {
