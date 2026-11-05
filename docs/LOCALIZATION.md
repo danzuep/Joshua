@@ -34,6 +34,8 @@ The default file `values/strings.xml` is icon-first: navigation, actions and sta
 
 Each `values-<code>/strings.xml` therefore has about ten entries. Do not translate the icon strings; they inherit from the default file.
 
+`values-en/` is the exception: it spells out every icon string in English ("Bookmarks", "Download", "Night mode"), so English devices read as words while all other languages without a full translation keep the symbols. When you add or change an icon string in `values/`, update `values-en/` to match.
+
 - Shared glyphs are defined once and reused with whole-value references (for example `action_bookmarks` is `@string/title_bookmarks`). Android cannot embed a `@string` reference inside a longer string, so compound labels such as "download translations" are written as `⬇ 🌐`.
 - Dates are not stored as strings. `AnnotatedVerseViewModel.formatDate` uses the system's best date pattern for the device locale, so months, order and numerals follow the OS.
 - Use positional placeholders (such as `%1$d`) so numbers are formatted for the locale.
