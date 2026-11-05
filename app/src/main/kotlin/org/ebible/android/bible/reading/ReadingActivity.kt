@@ -58,6 +58,7 @@ import org.ebible.android.bible.reading.verse.toPagePosition
 import org.ebible.android.bible.reading.verse.toStringForCopy
 import org.ebible.android.bible.reading.verse.toStringForSharing
 import org.ebible.android.bible.translations.TranslationsActivity
+import org.ebible.android.bible.ui.highlightSwatch
 import org.ebible.android.bible.ui.dialog
 import org.ebible.android.bible.ui.indeterminateProgressDialog
 import org.ebible.android.bible.ui.listDialog
@@ -518,7 +519,7 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
         if (Highlight.COLOR_NONE == defaultHighlightColor) {
             listDialog(
                 title = R.string.text_pick_highlight_color,
-                items = resources.getStringArray(R.array.text_highlight_colors),
+                items = Highlight.AVAILABLE_COLORS.map { highlightSwatch(it) }.toTypedArray(),
                 selected = 0,
                 onSelected = { which -> verseIndexes.forEach { viewModel.saveHighlight(it, Highlight.AVAILABLE_COLORS[which]) } }
             )

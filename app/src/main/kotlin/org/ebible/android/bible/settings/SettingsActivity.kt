@@ -31,6 +31,8 @@ import org.ebible.android.bible.databinding.ActivitySettingsBinding
 import org.ebible.android.bible.ui.toast
 import org.ebible.android.bible.infra.BaseActivity
 import org.ebible.android.bible.ui.AppLanguage
+import org.ebible.android.bible.ui.highlightSwatch
+import org.ebible.android.bible.ui.highlightSwatchFor
 import org.ebible.android.bible.ui.indeterminateProgressDialog
 import org.ebible.android.bible.ui.listDialog
 import org.ebible.android.bible.ui.seekBarDialog
@@ -99,7 +101,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
 
         nightMode.setDescription(viewState.nightModeStringRes)
         language.setDescription(AppLanguage.selectedCode()?.let(AppLanguage::nativeName) ?: getString(R.string.settings_text_language_system))
-        defaultHighlightColor.setDescription(viewState.defaultHighlightColorStringRes)
+        defaultHighlightColor.setDescription(highlightSwatchFor(viewState.defaultHighlightColorStringRes))
         version.setDescription(viewState.version)
 
         viewState.backupState.handle(isBackup = true)
@@ -201,7 +203,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
     private fun SettingsViewModel.ViewState.HighlightColorSelection.handle() {
         listDialog(
             title = R.string.text_pick_highlight_color,
-            items = availableColors.map { getString(it.stringRes) }.toTypedArray(),
+            items = availableColors.map { highlightSwatch(it.color) }.toTypedArray(),
             selected = currentPosition,
             onSelected = { which -> viewModel.saveDefaultHighlightColor(availableColors[which].color) },
             onDismiss = viewModel::markHighlightColorSelectionAsDismissed
