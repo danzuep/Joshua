@@ -42,6 +42,8 @@ class BibleReadingManagerTest : BaseUnitTest() {
 
         translationRepository = mockk()
         every { translationRepository.downloadedTranslations } returns emptyFlow()
+        coEvery { bibleReadingRepository.readBookIndicesWithVerses(any()) } returns setOf(0)
+        every { bibleReadingRepository.currentVerseIndex } returns flowOf(VerseIndex(0, 0, 0))
     }
 
     @Test
@@ -68,6 +70,8 @@ class BibleReadingManagerTest : BaseUnitTest() {
         coVerifySequence {
             bibleReadingRepository.currentTranslation
             bibleReadingRepository.saveCurrentTranslation(MockContents.cuvShortName)
+            bibleReadingRepository.readBookIndicesWithVerses(MockContents.cuvShortName)
+            bibleReadingRepository.currentVerseIndex
             bibleReadingRepository.parallelTranslations
         }
     }
@@ -95,6 +99,8 @@ class BibleReadingManagerTest : BaseUnitTest() {
 
         coVerifySequence {
             bibleReadingRepository.saveCurrentTranslation(MockContents.cuvShortName)
+            bibleReadingRepository.readBookIndicesWithVerses(MockContents.cuvShortName)
+            bibleReadingRepository.currentVerseIndex
             bibleReadingRepository.saveParallelTranslations(listOf(MockContents.kjvShortName))
         }
     }
@@ -139,6 +145,8 @@ class BibleReadingManagerTest : BaseUnitTest() {
             // Two more translations are downloaded. The new one becomes current, the previous current moves to parallel.
             bibleReadingRepository.currentTranslation
             bibleReadingRepository.saveCurrentTranslation(MockContents.bbeShortName)
+            bibleReadingRepository.readBookIndicesWithVerses(MockContents.bbeShortName)
+            bibleReadingRepository.currentVerseIndex
             bibleReadingRepository.parallelTranslations
             bibleReadingRepository.saveParallelTranslations(listOf(MockContents.kjvShortName, MockContents.cuvShortName))
 
@@ -154,6 +162,8 @@ class BibleReadingManagerTest : BaseUnitTest() {
             // One more translation installed, and current translation removed. Should update the current.
             bibleReadingRepository.currentTranslation
             bibleReadingRepository.saveCurrentTranslation(MockContents.msgShortName)
+            bibleReadingRepository.readBookIndicesWithVerses(MockContents.msgShortName)
+            bibleReadingRepository.currentVerseIndex
             bibleReadingRepository.parallelTranslations
         }
     }

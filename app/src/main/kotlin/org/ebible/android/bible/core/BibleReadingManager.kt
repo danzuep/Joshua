@@ -62,6 +62,7 @@ class BibleReadingManager(
                 }
                 if (currentTranslation != previousCurrentTranslation) {
                     bibleReadingRepository.saveCurrentTranslation(currentTranslation)
+                    moveToFirstBookWithVerses(currentTranslation)
                 }
 
                 parallelTranslations().first().let { current ->
@@ -91,6 +92,20 @@ class BibleReadingManager(
 
     suspend fun saveCurrentTranslation(translationShortName: String) {
         bibleReadingRepository.saveCurrentTranslation(translationShortName)
+        moveToFirstBookWithVerses(translationShortName)
+    }
+
+    /** A partial translation, such as a New Testament, doesn't have the book that was open, so open its first book instead. */
+    private suspend fun moveToFirstBookWithVerses(translationShortName: String) {
+        try {
+            val books = bibleReadingRepository.readBookIndicesWithVerses(translationShortName)
+            val current = bibleReadingRepository.currentVerseIndex.first()
+            if (books.isNotEmpty() && (!current.isValid() || current.bookIndex !in books)) {
+                bibleReadingRepository.saveCurrentVerseIndex(VerseIndex(books.min(), 0, 0))
+            }
+        } catch (e: Exception) {
+            Logger.e(e) { "Failed to open a book that is in the translation" }
+        }
     }
 
     fun parallelTranslations(): Flow<List<String>> = bibleReadingRepository.parallelTranslations
@@ -107,6 +122,7 @@ class BibleReadingManager(
         val distinctShortNames = translationShortNames.distinct()
         if (distinctShortNames.isEmpty()) return
         bibleReadingRepository.saveCurrentTranslation(distinctShortNames.first())
+        moveToFirstBookWithVerses(distinctShortNames.first())
         bibleReadingRepository.saveParallelTranslations(distinctShortNames.drop(1))
     }
 

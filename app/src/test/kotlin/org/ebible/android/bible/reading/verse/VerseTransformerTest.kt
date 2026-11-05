@@ -157,13 +157,22 @@ class VerseTransformerTest : BaseUnitTest() {
     fun `test toStringForCopy adds the chapter mark only across chapters`() {
         fun isaiah(chapter: Int, verse: Int, text: String) = Verse(VerseIndex(22, chapter - 1, verse - 1), Verse.Text("T", text), emptyList())
         assertEquals(
-                "Isaiah 52:13-15, 53:1 (World English Bible)\n> 13 A 14 B 15 C \u00B653:1 D",
+                "Isaiah 52:13-53:1 (World English Bible)\n> 13 A 14 B 15 C \u00B653:1 D",
                 listOf(isaiah(52, 13, "A"), isaiah(52, 14, "B"), isaiah(52, 15, "C"), isaiah(53, 1, "D"))
                         .toStringForCopy("Isaiah", "World English Bible")
         )
         assertEquals(
                 "Isaiah 53:1-2 (World English Bible)\n> 1 D 2 E",
                 listOf(isaiah(53, 1, "D"), isaiah(53, 2, "E")).toStringForCopy("Isaiah", "World English Bible")
+        )
+    }
+
+    @Test
+    fun `test toStringForCopy isolates the chapter and reference in right to left text`() {
+        fun matthew(chapter: Int, verse: Int, text: String) = Verse(VerseIndex(39, chapter - 1, verse - 1), Verse.Text("T", text), emptyList())
+        assertEquals(
+                "Matthew \u20661:25-2:1\u2069 (Arabic)\n> 25 \u0628\u0635\u062D \u00B6\u20662:1\u2069 \u0628\u0639\u062F",
+                listOf(matthew(1, 25, "\u0628\u0635\u062D"), matthew(2, 1, "\u0628\u0639\u062F")).toStringForCopy("Matthew", "Arabic")
         )
     }
 

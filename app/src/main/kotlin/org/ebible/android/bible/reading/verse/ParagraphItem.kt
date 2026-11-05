@@ -73,6 +73,20 @@ class ParagraphItem(
 
     companion object {
         const val CHAPTER_MARK = '¶'
+        const val LEFT_TO_RIGHT_ISOLATE = '\u2066'
+        const val POP_DIRECTIONAL_ISOLATE = '\u2069'
+
+        /** Whether the first letter of [text] is from a right to left script. */
+        fun isRightToLeft(text: CharSequence): Boolean {
+            for (c in text) {
+                when (Character.getDirectionality(c)) {
+                    Character.DIRECTIONALITY_LEFT_TO_RIGHT -> return false
+                    Character.DIRECTIONALITY_RIGHT_TO_LEFT, Character.DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC -> return true
+                }
+            }
+            return false
+        }
+
         private const val NO_BREAK_SPACE = '\u00A0'
         private val ICON_COLOR_FILTER = PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY)
         private val FOOTNOTE_COLOR_FILTER = PorterDuffColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY)
@@ -126,7 +140,12 @@ class ParagraphItem(
             val start = builder.length
             segment.chapterNumber?.let { chapter ->
                 val chapterStart = builder.length
-                builder.append(CHAPTER_MARK).append(chapter.toString())
+                builder.append(CHAPTER_MARK)
+                // Isolated, so in right to left text the chapter stays next to the mark instead of merging with the verse number.
+                val rightToLeft = isRightToLeft(segment.text)
+                if (rightToLeft) builder.append(LEFT_TO_RIGHT_ISOLATE)
+                builder.append(chapter.toString())
+                if (rightToLeft) builder.append(POP_DIRECTIONAL_ISOLATE)
                 builder.setSpan(StyleSpan(Typeface.BOLD), chapterStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 // Non-breaking, so the chapter mark stays with the verse number and text that follow.
                 builder.append(NO_BREAK_SPACE)
