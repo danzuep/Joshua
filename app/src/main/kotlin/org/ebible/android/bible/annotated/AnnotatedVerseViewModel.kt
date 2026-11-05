@@ -18,6 +18,7 @@
 package org.ebible.android.bible.annotated
 
 import android.app.Application
+import android.text.format.DateFormat
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.viewModelScope
@@ -41,7 +42,9 @@ import org.ebible.android.bible.core.provider.TimeProvider
 import org.ebible.android.bible.infra.BaseViewModel
 import org.ebible.android.bible.utils.firstNotEmpty
 import co.touchlab.kermit.Logger
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import kotlin.collections.ArrayList
 import org.ebible.android.bible.preview.Preview
 import org.ebible.android.bible.preview.buildPreviewVerseItems
@@ -170,21 +173,15 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
         return items
     }
 
-    private fun formatDate(calendar: Calendar, timestamp: Long): String {
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    internal open fun formatDate(calendar: Calendar, timestamp: Long): String {
         calendar.timeInMillis = timeProvider.currentTimeMillis
         val currentYear = calendar.get(Calendar.YEAR)
 
         calendar.timeInMillis = timestamp
-        val year = calendar.get(Calendar.YEAR)
-        return if (year == currentYear) {
-            application.getString(R.string.text_date_without_year,
-                application.resources.getStringArray(R.array.text_months)[calendar.get(Calendar.MONTH)],
-                calendar.get(Calendar.DATE))
-        } else {
-            application.getString(R.string.text_date,
-                application.resources.getStringArray(R.array.text_months)[calendar.get(Calendar.MONTH)],
-                calendar.get(Calendar.DATE), year)
-        }
+        val skeleton = if (calendar.get(Calendar.YEAR) == currentYear) "MMMd" else "yMMMd"
+        val locale = Locale.getDefault()
+        return SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, skeleton), locale).format(calendar.time)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)

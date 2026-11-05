@@ -4,58 +4,16 @@
     <string name="text_bible">बाइबल</string>
     <string name="text_old_testament">पुराना नियम</string>
     <string name="text_new_testament">नया नियम</string>
-    <string name="text_old_testament_abbr">पु.</string>
-    <string name="text_new_testament_abbr">न.</string>
-
-    <string name="title_bookmarks">बुकमार्क</string>
-    <string name="title_highlights">हाइलाइट</string>
-    <string name="title_notes">नोट्स</string>
-    <string name="title_reading_progress">प्रगति</string>
-    <string name="title_settings">सेटिंग</string>
-    <string name="title_translation_management">अनुवाद</string>
     <string name="content_description_back">वापस</string>
     <string name="content_description_drag_handle">क्रम बदलने के लिए खींचें</string>
-
-    <string name="header_available_translations">उपलब्ध</string>
-
-    <string name="action_more_translation">और</string>
-    <string name="action_copy">कॉपी</string>
-    <string name="action_share">शेयर</string>
-    <string name="action_reading_progress">प्रगति</string>
-    <string name="action_bookmarks">बुकमार्क</string>
-    <string name="action_highlights">हाइलाइट</string>
-    <string name="action_notes">नोट्स</string>
-    <string name="action_search">खोजें</string>
-    <string name="action_search_by_reference">संदर्भ से</string>
-    <string name="action_search_include_bookmarks">बुकमार्क</string>
-    <string name="action_search_include_highlights">हाइलाइट</string>
-    <string name="action_search_include_notes">नोट्स</string>
     <string name="action_search_whole_words">पूरे शब्द</string>
-    <string name="action_clear_search_history">इतिहास हटाएँ</string>
-    <string name="action_bookmark_verse">बुकमार्क</string>
-    <string name="action_highlight_verse">हाइलाइट</string>
-    <string name="action_settings">सेटिंग</string>
-
-    <string name="dialog_title_no_translation_downloaded">कोई अनुवाद नहीं</string>
-    <string name="action_download_sites">साइटें</string>
-    <string name="action_upload_translation">अपलोड</string>
-    <string name="dialog_title_upload_translation">बाइबल अपलोड करें</string>
     <string name="hint_upload_name">नाम, जैसे हिंदी बाइबल</string>
     <string name="hint_upload_short_name">संक्षेप, जैसे HIN (अक्षर और अंक)</string>
     <string name="hint_upload_language">भाषा कोड, जैसे en, cmn या es</string>
     <string name="dialog_message_failed_to_upload">फ़ाइल से बाइबल नहीं पढ़ी जा सकी। यह USFM पुस्तकों (.usfm या .sfm) की zip होनी चाहिए और संक्षेप पहले से उपयोग में नहीं होना चाहिए।</string>
-    <string name="action_download">डाउनलोड</string>
-    <string name="hint_filter_translations">नाम, संक्षेप या भाषा</string>
-    <string name="text_all_languages">सभी भाषाएँ</string>
-    <string name="translation_detail_id">ID</string>
-    <string name="translation_detail_territory">क्षेत्र</string>
-    <string name="translation_detail_language">भाषा</string>
-    <string name="translation_detail_language_english">भाषा (अंग्रेज़ी)</string>
     <string name="translation_detail_vernacular_title">स्थानीय शीर्षक</string>
     <string name="translation_detail_english_title">अंग्रेज़ी शीर्षक</string>
-    <string name="dialog_title_download_sites">डाउनलोड साइटें</string>
     <string name="dialog_message_download_sites">प्रति पंक्ति एक वेब पता, जैसे https://ebible.org/download.php। डिफ़ॉल्ट के लिए खाली छोड़ें।</string>
-
     <string name="dialog_message_failed_to_load_translation_list">सूची लोड नहीं हुई। नेटवर्क जाँचें और फिर प्रयास करें।</string>
     <string name="dialog_message_failed_to_download">डाउनलोड विफल। नेटवर्क जाँचें और फिर प्रयास करें।</string>
     <string name="dialog_message_failed_to_delete">हटाना विफल, पुनः प्रयास?</string>
@@ -69,76 +27,6 @@
     <string name="dialog_message_failed_to_load_reading_progress">प्रगति लोड नहीं हुई, पुनः प्रयास?</string>
     <string name="dialog_message_failed_to_load_annotated_verses">लोड विफल, पुनः प्रयास?</string>
     <string name="dialog_message_failed_to_load_verse_detail">पद विवरण लोड नहीं हुआ, पुनः प्रयास?</string>
-
-    <string name="toast_unknown_error">अज्ञात त्रुटि</string>
-
-    <string name="text_date">%2$d %1$s %3$d</string>
-    <string name="text_date_without_year">%2$d %1$s</string>
-
-    <string name="text_pick_highlight_color">हाइलाइट रंग</string>
-    <string name="text_highlight_color_none">कोई नहीं</string>
-    <string name="text_highlight_color_yellow">पीला</string>
-    <string name="text_highlight_color_pink">गुलाबी</string>
-    <string name="text_highlight_color_orange">नारंगी</string>
-    <string name="text_highlight_color_purple">बैंगनी</string>
-    <string name="text_highlight_color_red">लाल</string>
-    <string name="text_highlight_color_green">हरा</string>
-    <string name="text_highlight_color_blue">नीला</string>
-
-    <string name="text_restore_from">यहाँ से रीस्टोर करें</string>
-    <string name="text_share_with">इसके साथ शेयर करें</string>
-
-    <string name="text_parallel">समानांतर</string>
-    <string name="text_notes">नोट्स</string>
-    <string name="text_paratext">पैराटेक्स्ट</string>
-    <string name="text_footnotes">पाद-टिप्पणियाँ</string>
-    <string name="text_cross_references">संदर्भ-सूची</string>
-
-    <string name="text_no_bookmarks">कोई बुकमार्क नहीं।</string>
-    <string name="text_no_highlights">कोई हाइलाइट नहीं।</string>
-    <string name="text_no_notes">कोई नोट नहीं।</string>
-
-    <string name="text_continuous_reading">लगातार दिन</string>
-    <string name="text_chapters_read">पढ़े अध्याय</string>
-    <string name="text_finished_books">पूरी पुस्तकें</string>
-
-    <string name="settings_header_display">डिस्प्ले</string>
-    <string name="settings_title_font_size">अक्षर आकार</string>
-    <string name="settings_title_keep_screen_on">स्क्रीन चालू रखें</string>
-    <string name="settings_title_night_mode">नाइट मोड</string>
-    <string name="settings_header_reading">पढ़ना</string>
-    <string name="settings_title_hide_search_button">खोज बटन छिपाएँ</string>
-    <string name="settings_title_default_highlight_color">डिफ़ॉल्ट हाइलाइट रंग</string>
-    <string name="settings_header_backup_restore">बैकअप और रीस्टोर</string>
-    <string name="settings_title_backup">मेरा डेटा बैकअप करें</string>
-    <string name="settings_title_restore">रीस्टोर</string>
-    <string name="action_copyright_permissions">कॉपीराइट और अनुमतियाँ</string>
-    <string name="settings_header_about">परिचय</string>
-    <string name="settings_title_rate">Google Play पर रेट करें</string>
-    <string name="settings_title_website">वेबसाइट</string>
-    <string name="settings_title_version">संस्करण</string>
-
-    <string name="settings_title_pick_night_mode">नाइट मोड</string>
     <string name="settings_text_night_mode_on">चालू</string>
     <string name="settings_text_night_mode_off">बंद</string>
-    <string name="settings_text_night_mode_system">सिस्टम</string>
-
-    <string-array name="text_months">
-        <item>जन.</item>
-        <item>फ़र.</item>
-        <item>मार्च</item>
-        <item>अप्रै.</item>
-        <item>मई</item>
-        <item>जून</item>
-        <item>जुल.</item>
-        <item>अग.</item>
-        <item>सित.</item>
-        <item>अक्टू.</item>
-        <item>नव.</item>
-        <item>दिस.</item>
-    </string-array>
-    <string-array name="text_sort_order">
-        <item>तारीख़ से</item>
-        <item>पुस्तक से</item>
-    </string-array>
 </resources>

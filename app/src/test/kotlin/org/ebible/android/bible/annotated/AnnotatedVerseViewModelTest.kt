@@ -18,7 +18,7 @@
 package org.ebible.android.bible.annotated
 
 import android.app.Application
-import android.content.res.Resources
+
 import android.text.format.DateUtils
 import io.mockk.coEvery
 import io.mockk.every
@@ -58,11 +58,20 @@ class AnnotatedVerseViewModelTest : BaseUnitTest() {
         verseAnnotationManager: VerseAnnotationManager<TestVerseAnnotation>,
         settingsManager: SettingsManager,
         coroutineDispatcherProvider: CoroutineDispatcherProvider,
-        timeProvider: TimeProvider,
+        private val timeProvider: TimeProvider,
         application: Application
     ) : AnnotatedVerseViewModel<TestVerseAnnotation>(
         bibleReadingManager, verseAnnotationManager, R.string.text_no_bookmarks, settingsManager, coroutineDispatcherProvider, timeProvider, application
     ) {
+        override fun formatDate(calendar: Calendar, timestamp: Long): String {
+            calendar.timeInMillis = timeProvider.currentTimeMillis
+            val currentYear = calendar.get(Calendar.YEAR)
+            calendar.timeInMillis = timestamp
+            val monthAndDay = "${calendar.get(Calendar.MONTH) + 1}-${calendar.get(Calendar.DATE)}"
+            val year = calendar.get(Calendar.YEAR)
+            return if (year == currentYear) monthAndDay else "$year-$monthAndDay"
+        }
+
         override fun buildAnnotatedVerseItem(
             settings: Settings, verseAnnotation: TestVerseAnnotation, bookName: String, bookShortName: String, verseText: String, sortOrder: Int
         ): AnnotatedVerseItem = AnnotatedVerseItem.Bookmark(settings, verseAnnotation.verseIndex, bookName, bookShortName, verseText, sortOrder)
@@ -71,7 +80,6 @@ class AnnotatedVerseViewModelTest : BaseUnitTest() {
     private lateinit var bibleReadingManager: BibleReadingManager
     private lateinit var verseAnnotationManager: VerseAnnotationManager<TestVerseAnnotation>
     private lateinit var settingsManager: SettingsManager
-    private lateinit var resources: Resources
     private lateinit var application: Application
     private lateinit var annotatedVerseViewModel: AnnotatedVerseViewModel<TestVerseAnnotation>
 
@@ -82,20 +90,8 @@ class AnnotatedVerseViewModelTest : BaseUnitTest() {
         bibleReadingManager = mockk<BibleReadingManager>().apply { every { currentTranslation() } returns emptyFlow() }
         verseAnnotationManager = mockk<VerseAnnotationManager<TestVerseAnnotation>>().apply { every { sortOrder() } returns emptyFlow() }
         settingsManager = mockk<SettingsManager>().apply { every { settings() } returns emptyFlow() }
-        resources = mockk<Resources>().apply {
-            every { getStringArray(R.array.text_months) } returns arrayOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
-        }
         application = mockk<Application>().apply {
-            every { getString(R.string.text_date_without_year, any(), any()) } answers { call ->
-                val params = call.invocation.args[1] as Array<Any>
-                "${params[0]}-${params[1]}"
-            }
-            every { getString(R.string.text_date, any(), any(), any()) } answers { call ->
-                val params = call.invocation.args[1] as Array<Any>
-                "${params[2]}-${params[0]}-${params[1]}"
-            }
             every { getString(R.string.text_no_bookmarks) } returns "NO ANNOTATED VERSES"
-            every { resources } returns this@AnnotatedVerseViewModelTest.resources
         }
 
         annotatedVerseViewModel = TestAnnotatedVerseViewModel(

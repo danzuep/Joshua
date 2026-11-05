@@ -4,58 +4,16 @@
     <string name="text_bible">Bible</string>
     <string name="text_old_testament">Ancien Testament</string>
     <string name="text_new_testament">Nouveau Testament</string>
-    <string name="text_old_testament_abbr">AT</string>
-    <string name="text_new_testament_abbr">NT</string>
-
-    <string name="title_bookmarks">Signets</string>
-    <string name="title_highlights">Surlignages</string>
-    <string name="title_notes">Notes</string>
-    <string name="title_reading_progress">Progression</string>
-    <string name="title_settings">Réglages</string>
-    <string name="title_translation_management">Traductions</string>
     <string name="content_description_back">Retour</string>
     <string name="content_description_drag_handle">Glisser pour réordonner</string>
-
-    <string name="header_available_translations">Disponibles</string>
-
-    <string name="action_more_translation">Plus</string>
-    <string name="action_copy">Copier</string>
-    <string name="action_share">Partager</string>
-    <string name="action_reading_progress">Progression</string>
-    <string name="action_bookmarks">Signets</string>
-    <string name="action_highlights">Surlignages</string>
-    <string name="action_notes">Notes</string>
-    <string name="action_search">Rechercher</string>
-    <string name="action_search_by_reference">Par référence</string>
-    <string name="action_search_include_bookmarks">Signets</string>
-    <string name="action_search_include_highlights">Surlignages</string>
-    <string name="action_search_include_notes">Notes</string>
     <string name="action_search_whole_words">Mots entiers</string>
-    <string name="action_clear_search_history">Effacer l\'historique</string>
-    <string name="action_bookmark_verse">Signet</string>
-    <string name="action_highlight_verse">Surligner</string>
-    <string name="action_settings">Réglages</string>
-
-    <string name="dialog_title_no_translation_downloaded">Aucune traduction</string>
-    <string name="action_download_sites">Sites</string>
-    <string name="action_upload_translation">Importer</string>
-    <string name="dialog_title_upload_translation">Importer une Bible</string>
     <string name="hint_upload_name">Nom, p. ex. Louis Segond</string>
     <string name="hint_upload_short_name">Abréviation, p. ex. LSG (lettres et chiffres)</string>
     <string name="hint_upload_language">Code de langue, p. ex. en, cmn ou es</string>
     <string name="dialog_message_failed_to_upload">Impossible de lire une Bible dans le fichier. Il doit s\'agir d\'un zip de livres USFM (.usfm ou .sfm) et l\'abréviation ne doit pas être déjà utilisée.</string>
-    <string name="action_download">Télécharger</string>
-    <string name="hint_filter_translations">Nom, abréviation ou langue</string>
-    <string name="text_all_languages">Toutes les langues</string>
-    <string name="translation_detail_id">ID</string>
-    <string name="translation_detail_territory">Territoire</string>
-    <string name="translation_detail_language">Langue</string>
-    <string name="translation_detail_language_english">Langue (anglais)</string>
     <string name="translation_detail_vernacular_title">Titre local</string>
     <string name="translation_detail_english_title">Titre anglais</string>
-    <string name="dialog_title_download_sites">Sites de téléchargement</string>
     <string name="dialog_message_download_sites">Une adresse web par ligne, par exemple https://ebible.org/download.php. Laissez vide pour la valeur par défaut.</string>
-
     <string name="dialog_message_failed_to_load_translation_list">Échec du chargement de la liste. Vérifiez le réseau et réessayez.</string>
     <string name="dialog_message_failed_to_download">Échec du téléchargement. Vérifiez le réseau et réessayez.</string>
     <string name="dialog_message_failed_to_delete">Échec de la suppression. Réessayer ?</string>
@@ -69,76 +27,6 @@
     <string name="dialog_message_failed_to_load_reading_progress">Échec du chargement de la progression. Réessayer ?</string>
     <string name="dialog_message_failed_to_load_annotated_verses">Échec du chargement. Réessayer ?</string>
     <string name="dialog_message_failed_to_load_verse_detail">Échec du chargement du verset. Réessayer ?</string>
-
-    <string name="toast_unknown_error">Erreur inconnue</string>
-
-    <string name="text_date">%2$d %1$s %3$d</string>
-    <string name="text_date_without_year">%2$d %1$s</string>
-
-    <string name="text_pick_highlight_color">Couleur de surlignage</string>
-    <string name="text_highlight_color_none">Aucune</string>
-    <string name="text_highlight_color_yellow">Jaune</string>
-    <string name="text_highlight_color_pink">Rose</string>
-    <string name="text_highlight_color_orange">Orange</string>
-    <string name="text_highlight_color_purple">Violet</string>
-    <string name="text_highlight_color_red">Rouge</string>
-    <string name="text_highlight_color_green">Vert</string>
-    <string name="text_highlight_color_blue">Bleu</string>
-
-    <string name="text_restore_from">Restaurer depuis</string>
-    <string name="text_share_with">Partager avec</string>
-
-    <string name="text_parallel">Parallèle</string>
-    <string name="text_notes">Notes</string>
-    <string name="text_paratext">Paratexte</string>
-    <string name="text_footnotes">Notes de bas de page</string>
-    <string name="text_cross_references">Renvois</string>
-
-    <string name="text_no_bookmarks">Aucun signet.</string>
-    <string name="text_no_highlights">Aucun surlignage.</string>
-    <string name="text_no_notes">Aucune note.</string>
-
-    <string name="text_continuous_reading">Jours consécutifs</string>
-    <string name="text_chapters_read">Chapitres lus</string>
-    <string name="text_finished_books">Livres terminés</string>
-
-    <string name="settings_header_display">Affichage</string>
-    <string name="settings_title_font_size">Taille du texte</string>
-    <string name="settings_title_keep_screen_on">Écran toujours allumé</string>
-    <string name="settings_title_night_mode">Mode nuit</string>
-    <string name="settings_header_reading">Lecture</string>
-    <string name="settings_title_hide_search_button">Masquer le bouton de recherche</string>
-    <string name="settings_title_default_highlight_color">Couleur de surlignage</string>
-    <string name="settings_header_backup_restore">Sauvegarde et restauration</string>
-    <string name="settings_title_backup">Sauvegarder mes données</string>
-    <string name="settings_title_restore">Restaurer</string>
-    <string name="action_copyright_permissions">Droits et autorisations</string>
-    <string name="settings_header_about">À propos</string>
-    <string name="settings_title_rate">Noter sur Google Play</string>
-    <string name="settings_title_website">Site web</string>
-    <string name="settings_title_version">Version</string>
-
-    <string name="settings_title_pick_night_mode">Mode nuit</string>
     <string name="settings_text_night_mode_on">Oui</string>
     <string name="settings_text_night_mode_off">Non</string>
-    <string name="settings_text_night_mode_system">Système</string>
-
-    <string-array name="text_months">
-        <item>janv.</item>
-        <item>févr.</item>
-        <item>mars</item>
-        <item>avr.</item>
-        <item>mai</item>
-        <item>juin</item>
-        <item>juil.</item>
-        <item>août</item>
-        <item>sept.</item>
-        <item>oct.</item>
-        <item>nov.</item>
-        <item>déc.</item>
-    </string-array>
-    <string-array name="text_sort_order">
-        <item>Par date</item>
-        <item>Par livre</item>
-    </string-array>
 </resources>
