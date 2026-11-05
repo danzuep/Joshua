@@ -8,7 +8,7 @@
 
 A simple, free and open source software Bible reader for Android with a minimalist design. Read offline, compare translations side by side, search every verse, and keep your notes, bookmarks and highlights, all in a tiny install of less than 4 MB.
 
-The default Bible is the **World English Bible (WEB)**, a modern-English public domain translation, so it is free to read, share and redistribute.
+The default Bible is the **World English Bible (WEB)**, a modern-English public domain translation (with a trademark restriction on the name), so it is free to read, share and redistribute.
 
 ## Download
 

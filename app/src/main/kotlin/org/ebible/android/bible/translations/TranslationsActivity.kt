@@ -169,6 +169,9 @@ class TranslationsActivity : BaseActivity<ActivityTranslationsBinding, Translati
                 .setView(content)
                 .setPositiveButton(R.string.action_download) { _, _ -> viewModel.downloadTranslation(translation) }
                 .setNegativeButton(android.R.string.cancel, null)
+                .setNeutralButton(R.string.action_copyright_permissions) { _, _ ->
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://ebible.org/${translation.shortName}/copr.htm")))
+                }
                 .show()
         }
     }
