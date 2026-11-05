@@ -20,6 +20,8 @@ package org.ebible.android.bible.infra
 import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.flow.launchIn
@@ -50,6 +52,14 @@ abstract class BaseActivity<VB : ViewBinding, ViewAction, ViewState, VM : BaseVi
         Logger.withTag(tag).i { "onCreate()" }
 
         setContentView(viewBinding.root)
+        // Edge-to-edge is enforced on Android 15+, so keep content out of the status bar and cutout.
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.root) { view, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            WindowInsetsCompat.CONSUMED
+        }
         initializeView()
 
         viewModel.viewAction().onEach(::onViewActionEmitted).launchIn(lifecycleScope)
