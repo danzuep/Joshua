@@ -3,9 +3,13 @@ Available Translations
 eBible builds its list of translations from a download site's translation table. The default site is
 [eBible.org](https://ebible.org/download.php). Each translation is downloaded as a USFM zip
 (`https://ebible.org/Scriptures/<id>_usfm.zip`) and parsed on the device. The default catalog ships in the app as
-`app/src/main/assets/ebible_translations.csv`; the app only offers translations marked redistributable and downloadable.
+`app/src/main/assets/translations.csv`; the app only offers translations marked redistributable and downloadable.
 The "Update eBible translation catalog" workflow downloads the CSV monthly (or on demand) with
 `./gradlew updateEbibleTranslations`.
+
+Most translations are open access: copyrighted with an open licence (typically noncommercial, unchanged text). Only a few
+are public domain, and some of those carry restrictions (for example the WEB trademark). The translation details dialog
+has a **Copyright and permissions** button linking to the translation's `copr.htm` page on eBible.org.
 
 Adding download sites
 ---------------------

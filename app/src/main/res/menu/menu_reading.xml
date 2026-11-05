@@ -9,6 +9,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_translation_copyright"
+        android:icon="@drawable/ic_info"
+        android:title="@string/action_copyright_permissions"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_reading_progress"
         android:title="@string/action_reading_progress"
         app:showAsAction="never" />

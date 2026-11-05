@@ -27,6 +27,7 @@ import org.ebible.android.bible.R
 
 class ReadingToolbar : MaterialToolbar {
     sealed class ViewEvent {
+        data class OpenCopyright(val translationShortName: String) : ViewEvent()
         object OpenBookmarks : ViewEvent()
         object OpenHighlights : ViewEvent()
         object OpenNotes : ViewEvent()
@@ -41,6 +42,7 @@ class ReadingToolbar : MaterialToolbar {
     }
 
     private var spinnerPosition = -1
+    private var currentTranslationShortName: String? = null
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -80,6 +82,10 @@ class ReadingToolbar : MaterialToolbar {
         setOnClickListener { onViewEvent(ViewEvent.TitleClicked) }
         setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.action_translation_copyright -> {
+                    currentTranslationShortName?.let { onViewEvent(ViewEvent.OpenCopyright(it)) }
+                    true
+                }
                 R.id.action_reading_progress -> {
                     onViewEvent(ViewEvent.OpenReadingProgress)
                     true
@@ -119,6 +125,7 @@ class ReadingToolbar : MaterialToolbar {
         val currentTranslationPosition = items.indexOfFirst { (it as? TranslationItem.Translation)?.isCurrentTranslation == true }
         if (currentTranslationPosition >= 0) {
             spinnerPosition = currentTranslationPosition
+            currentTranslationShortName = (items[currentTranslationPosition] as TranslationItem.Translation).translationShortName
             spinner().setSelection(currentTranslationPosition)
         }
     }

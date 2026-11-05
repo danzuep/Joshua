@@ -39,11 +39,11 @@ allprojects {
     }
 }
 
-// Downloads app/src/main/assets/ebible_translations.csv from https://ebible.org/Scriptures/translations.csv.
+// Downloads app/src/main/assets/translations.csv from https://ebible.org/Scriptures/translations.csv.
 tasks.register("updateEbibleTranslations") {
     group = "translations"
     description = "Downloads the eBible.org translations.csv catalog"
-    val output = file("app/src/main/assets/ebible_translations.csv")
+    val output = file("app/src/main/assets/translations.csv")
     doLast {
         val csv = java.net.URL("https://eBible.org/Scriptures/translations.csv").readText()
         val header = csv.lineSequence().firstOrNull().orEmpty().removePrefix("\uFEFF").split(',').map { it.trim().trim('"') }

@@ -57,7 +57,7 @@ class HttpTranslationService(private val context: Context) : RemoteTranslationSe
 
     // The default site is read from the bundled CSV, other sites are scraped.
     private fun readTable(site: String) = if (site == DEFAULT_DOWNLOAD_SITE) {
-        parseTranslationCsv(context.assets.open("ebible_translations.csv").use { it.readBytes().toString(Charsets.UTF_8) }, site)
+        parseTranslationCsv(context.assets.open("translations.csv").use { it.readBytes().toString(Charsets.UTF_8) }, site)
     } else {
         parseTranslationTable(fetchText(site), site)
     }

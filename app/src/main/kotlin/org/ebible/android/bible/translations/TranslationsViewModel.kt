@@ -109,7 +109,7 @@ class TranslationsViewModel @Inject constructor(
 
     private val translationRows: Map<String, TranslationTableRow> by lazy {
         runCatching {
-            val csv = application.assets.open("ebible_translations.csv").use { it.readBytes().toString(Charsets.UTF_8) }
+            val csv = application.assets.open("translations.csv").use { it.readBytes().toString(Charsets.UTF_8) }
             parseTranslationCsv(csv, "https://ebible.org/").associateBy { it.id.replace(Regex("[^A-Za-z0-9]"), "_") }
         }.getOrDefault(emptyMap())
     }
@@ -183,7 +183,7 @@ class TranslationsViewModel @Inject constructor(
         viewModelScope.launch {
             val details = runCatching {
                 withContext(coroutineDispatcherProvider.default) {
-                    val csv = application.assets.open("ebible_translations.csv").use { it.readBytes().toString(Charsets.UTF_8) }
+                    val csv = application.assets.open("translations.csv").use { it.readBytes().toString(Charsets.UTF_8) }
                     parseTranslationCsv(csv, "https://ebible.org/")
                         .firstOrNull { it.id == translation.shortName }
                         ?.let { row ->
@@ -218,7 +218,7 @@ class TranslationsViewModel @Inject constructor(
 
     private fun List<TranslationInfo>.toItems(settings: Settings, currentTranslation: String): List<TranslationsItem> {
         val items: ArrayList<TranslationsItem> = ArrayList()
-        // Translations are grouped by "Language (English)" from ebible_translations.csv, with a sub heading for a different native name.
+        // Translations are grouped by "Language (English)" from translations.csv, with a sub heading for a different native name.
         groupBy { translationRows[it.shortName]?.languageEnglish?.ifEmpty { null } ?: languageDisplayNameWithNative(it.language.split("_")[0]) }
             .forEach { (languageEnglish, translations) ->
                 items.add(TranslationsItem.Header(settings, languageEnglish, hideDivider = false, isLanguage = true))

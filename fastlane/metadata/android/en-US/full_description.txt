@@ -10,4 +10,4 @@ A simple, free and open source Bible reader for Android with a minimalist design
 <li>Tiny install, no ads, no tracking, no analytics</li>
 </ul>
 
-Translations come from eBible.org as USFM files, including the public domain World English Bible (WEB). You can also add your own download sites.
+Translations come from eBible.org as USFM files, including the public domain World English Bible (WEB). Most other translations are copyrighted with an open licence, so check each one's copyright and permissions. You can also add your own download sites.

@@ -145,6 +145,7 @@
     <string name="settings_header_backup_restore">Backup &amp; restore</string>
     <string name="settings_title_backup">Backup all my data</string>
     <string name="settings_title_restore">Restore</string>
+    <string name="action_copyright_permissions">Copyright and permissions</string>
     <string name="settings_header_about">About</string>
     <string name="settings_title_rate">Rate me on Google Play</string>
     <string name="settings_title_website">Visit website</string>
