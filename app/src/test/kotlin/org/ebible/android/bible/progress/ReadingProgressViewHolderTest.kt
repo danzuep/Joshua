@@ -56,15 +56,15 @@ class ReadingProgressViewHolderTest : BaseUnitTest() {
             inflater = LayoutInflater.from(context),
             parent = FrameLayout(context)
         )
-        assertEquals("Consecutive Reading", viewHolder.itemView.findViewById<TextView>(R.id.continuous_reading_days_title).text.toString())
+        assertEquals(context.getString(R.string.text_continuous_reading), viewHolder.itemView.findViewById<TextView>(R.id.continuous_reading_days_title).text.toString())
         assertTrue(viewHolder.itemView.findViewById<TextView>(R.id.continuous_reading_days_value).text.isEmpty())
-        assertEquals("Chapters Read", viewHolder.itemView.findViewById<TextView>(R.id.chapters_read_title).text.toString())
+        assertEquals(context.getString(R.string.text_chapters_read), viewHolder.itemView.findViewById<TextView>(R.id.chapters_read_title).text.toString())
         assertTrue(viewHolder.itemView.findViewById<TextView>(R.id.chapters_read_value).text.isEmpty())
-        assertEquals("Books Finished", viewHolder.itemView.findViewById<TextView>(R.id.finished_books_title).text.toString())
+        assertEquals(context.getString(R.string.text_finished_books), viewHolder.itemView.findViewById<TextView>(R.id.finished_books_title).text.toString())
         assertTrue(viewHolder.itemView.findViewById<TextView>(R.id.finished_books_value).text.isEmpty())
-        assertEquals("Old Testament", viewHolder.itemView.findViewById<TextView>(R.id.finished_old_testament_title).text.toString())
+        assertEquals(context.getString(R.string.text_finished_old_testament), viewHolder.itemView.findViewById<TextView>(R.id.finished_old_testament_title).text.toString())
         assertTrue(viewHolder.itemView.findViewById<TextView>(R.id.finished_old_testament_value).text.isEmpty())
-        assertEquals("New Testament", viewHolder.itemView.findViewById<TextView>(R.id.finished_new_testament_title).text.toString())
+        assertEquals(context.getString(R.string.text_finished_new_testament), viewHolder.itemView.findViewById<TextView>(R.id.finished_new_testament_title).text.toString())
         assertTrue(viewHolder.itemView.findViewById<TextView>(R.id.finished_new_testament_value).text.isEmpty())
 
         viewHolder.bindData(
@@ -77,15 +77,15 @@ class ReadingProgressViewHolderTest : BaseUnitTest() {
                 finishedNewTestament = 4,
             )
         )
-        assertEquals("Consecutive Reading", viewHolder.itemView.findViewById<TextView>(R.id.continuous_reading_days_title).text.toString())
-        assertEquals("1 day(s)", viewHolder.itemView.findViewById<TextView>(R.id.continuous_reading_days_value).text.toString())
-        assertEquals("Chapters Read", viewHolder.itemView.findViewById<TextView>(R.id.chapters_read_title).text.toString())
+        assertEquals(context.getString(R.string.text_continuous_reading), viewHolder.itemView.findViewById<TextView>(R.id.continuous_reading_days_title).text.toString())
+        assertEquals(context.getString(R.string.text_continuous_reading_count, 1), viewHolder.itemView.findViewById<TextView>(R.id.continuous_reading_days_value).text.toString())
+        assertEquals(context.getString(R.string.text_chapters_read), viewHolder.itemView.findViewById<TextView>(R.id.chapters_read_title).text.toString())
         assertEquals("2", viewHolder.itemView.findViewById<TextView>(R.id.chapters_read_value).text.toString())
-        assertEquals("Books Finished", viewHolder.itemView.findViewById<TextView>(R.id.finished_books_title).text.toString())
+        assertEquals(context.getString(R.string.text_finished_books), viewHolder.itemView.findViewById<TextView>(R.id.finished_books_title).text.toString())
         assertEquals("7", viewHolder.itemView.findViewById<TextView>(R.id.finished_books_value).text.toString())
-        assertEquals("Old Testament", viewHolder.itemView.findViewById<TextView>(R.id.finished_old_testament_title).text.toString())
+        assertEquals(context.getString(R.string.text_finished_old_testament), viewHolder.itemView.findViewById<TextView>(R.id.finished_old_testament_title).text.toString())
         assertEquals("3", viewHolder.itemView.findViewById<TextView>(R.id.finished_old_testament_value).text.toString())
-        assertEquals("New Testament", viewHolder.itemView.findViewById<TextView>(R.id.finished_new_testament_title).text.toString())
+        assertEquals(context.getString(R.string.text_finished_new_testament), viewHolder.itemView.findViewById<TextView>(R.id.finished_new_testament_title).text.toString())
         assertEquals("4", viewHolder.itemView.findViewById<TextView>(R.id.finished_new_testament_value).text.toString())
     }
 

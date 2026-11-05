@@ -45,6 +45,12 @@
                 android:layout_height="wrap_content"
                 app:settingButtonTitle="@string/settings_title_night_mode" />
 
+            <org.ebible.android.bible.settings.widgets.SettingButton
+                android:id="@+id/language"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:settingButtonTitle="@string/settings_title_language" />
+
             <org.ebible.android.bible.settings.widgets.SettingSectionHeader
                 android:id="@+id/reading"
                 android:layout_width="match_parent"

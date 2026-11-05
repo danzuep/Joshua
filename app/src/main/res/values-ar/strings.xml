@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">الكتاب المقدس</string>
+    <string name="text_old_testament">العهد القديم</string>
+    <string name="text_new_testament">العهد الجديد</string>
+    <string name="content_description_back">رجوع</string>
+    <string name="content_description_drag_handle">اسحب لإعادة الترتيب</string>
+    <string name="hint_upload_name">الاسم، مثل فان دايك</string>
+    <string name="hint_upload_short_name">الاختصار، مثل SVD (حروف وأرقام)</string>
+    <string name="hint_upload_language">رمز اللغة، مثل en أو cmn أو es</string>
+    <string name="dialog_message_failed_to_upload">تعذّرت قراءة كتاب مقدس من الملف. يجب أن يكون ملف zip لأسفار USFM (‏.usfm أو .sfm) وألا يكون الاختصار مستخدمًا.</string>
+    <string name="dialog_message_download_sites">عنوان ويب واحد في كل سطر، مثل https://ebible.org/download.php. اتركه فارغًا لاستخدام الافتراضي.</string>
+</resources>

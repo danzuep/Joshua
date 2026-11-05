@@ -26,6 +26,7 @@ import org.ebible.android.bible.core.VerseIndex
 import org.ebible.android.bible.ui.recyclerview.BaseItem
 import org.ebible.android.bible.utils.firstNotEmpty
 import java.util.ArrayList
+import org.ebible.android.bible.utils.localized
 
 data class PreviewViewData(val settings: Settings, val title: String, val items: List<BaseItem>, val currentPosition: Int)
 
@@ -42,7 +43,7 @@ suspend fun loadPreview(
     val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
     return PreviewViewData(
         settings = settingsManager.settings().first(),
-        title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseIndex.bookIndex]} ${verseIndex.chapterIndex + 1}",
+        title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseIndex.bookIndex]} ${(verseIndex.chapterIndex + 1).localized()}",
         items = converter(bibleReadingManager.readVerses(currentTranslation, verseIndex.bookIndex, verseIndex.chapterIndex)),
         currentPosition = verseIndex.verseIndex
     )

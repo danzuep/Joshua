@@ -53,6 +53,7 @@ import co.touchlab.kermit.Logger
 import javax.inject.Inject
 import org.ebible.android.bible.preview.Preview
 import org.ebible.android.bible.preview.buildPreviewVerseWithQueryItems
+import org.ebible.android.bible.utils.localized
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -347,7 +348,7 @@ class SearchViewModel @Inject constructor(
             runCatching {
                 val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
                 val preview = Preview(
-                    title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseToPreview.bookIndex]} ${verseToPreview.chapterIndex + 1}",
+                    title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseToPreview.bookIndex]} ${(verseToPreview.chapterIndex + 1).localized()}",
                     items = buildPreviewVerseWithQueryItems(
                         settings = settingsManager.settings().first(),
                         query = searchRequest.value?.query.orEmpty(),

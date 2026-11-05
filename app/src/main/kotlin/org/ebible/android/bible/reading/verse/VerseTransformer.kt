@@ -29,6 +29,7 @@ import org.ebible.android.bible.core.toDisplayedVerse
 import org.ebible.android.bible.core.Verse
 import org.ebible.android.bible.core.VerseIndex
 import org.ebible.android.bible.ui.recyclerview.BaseItem
+import org.ebible.android.bible.utils.localized
 
 private val STRUCTURE = Regex("$HEADING([^$HEADING]*)$HEADING|$PARAGRAPH")
 
@@ -70,7 +71,7 @@ fun List<Verse>.toParagraphItems(
         if (index + followingEmptyVerseCount + 1 >= size) followingEmptyVerseCount = 0
 
         val verseNumber = verse.verseIndex.verseIndex + 1
-        var label: String? = if (followingEmptyVerseCount > 0) "$verseNumber-${verseNumber + followingEmptyVerseCount}" else verseNumber.toString()
+        var label: String? = if (followingEmptyVerseCount > 0) "${verseNumber.localized()}-${(verseNumber + followingEmptyVerseCount).localized()}" else verseNumber.localized()
         fun addSegment(part: String) {
             val trimmed = (if (segments.isEmpty()) part.trimStart('\n') else part).removeNotes()
             if (trimmed.isNotBlank()) {
@@ -158,7 +159,7 @@ fun Collection<Verse>.toStringForSharing(bookName: String, markdown: Boolean = f
             if (stringBuilder.isNotEmpty()) stringBuilder.append("\n\n")
 
             stringBuilder.append(bookName).append(' ')
-                    .append(verse.verseIndex.chapterIndex + 1).append(':').append(verse.verseIndex.verseIndex + 1)
+                    .append((verse.verseIndex.chapterIndex + 1).localized()).append(':').append((verse.verseIndex.verseIndex + 1).localized())
             if (currentVerseGroup.first < currentVerseGroup.second) {
                 stringBuilder.append('-').append(currentVerseGroup.second + 1)
             }
@@ -180,7 +181,7 @@ fun Collection<Verse>.toStringForSharing(bookName: String, markdown: Boolean = f
 
         // multi-verse groups get a plain text verse number with a space either side before each verse
         val isRange = currentVerseGroup.first < currentVerseGroup.second
-        val numberPrefix = if (isRange) "${verse.verseIndex.verseIndex + 1} " else ""
+        val numberPrefix = if (isRange) "${(verse.verseIndex.verseIndex + 1).localized()} " else ""
         val isGroupStart = verse.verseIndex.verseIndex == currentVerseGroup.first
         if (!isGroupStart) stringBuilder.append(' ')
         stringBuilder.append(numberPrefix).append(verse.text.text)
@@ -230,10 +231,10 @@ private fun List<Verse>.toStringAcrossChapters(bookName: String, markdown: Boole
     var previousChapter = -1
     val header = runs.joinToString("") { (start, end) ->
         val separator = when (previousChapter) { -1 -> ""; start.chapterIndex -> ","; else -> ", " }
-        val first = if (previousChapter == start.chapterIndex) "${start.verseIndex + 1}" else "${start.chapterIndex + 1}:${start.verseIndex + 1}"
+        val first = if (previousChapter == start.chapterIndex) "${(start.verseIndex + 1).localized()}" else "${(start.chapterIndex + 1).localized()}:${(start.verseIndex + 1).localized()}"
         val last = when {
-            end.chapterIndex != start.chapterIndex -> "-${end.chapterIndex + 1}:${end.verseIndex + 1}"
-            end.verseIndex != start.verseIndex -> "-${end.verseIndex + 1}"
+            end.chapterIndex != start.chapterIndex -> "-${(end.chapterIndex + 1).localized()}:${(end.verseIndex + 1).localized()}"
+            end.verseIndex != start.verseIndex -> "-${(end.verseIndex + 1).localized()}"
             else -> ""
         }
         previousChapter = end.chapterIndex
@@ -241,9 +242,9 @@ private fun List<Verse>.toStringAcrossChapters(bookName: String, markdown: Boole
     }.isolated()
 
     fun body(text: (Verse) -> String): String = mapIndexed { index, verse ->
-        val number = verse.verseIndex.verseIndex + 1
+        val number = (verse.verseIndex.verseIndex + 1).localized()
         val chapterStarts = index > 0 && verse.verseIndex.chapterIndex != this[index - 1].verseIndex.chapterIndex
-        val label = if (chapterStarts) "${ParagraphItem.CHAPTER_MARK}${"${verse.verseIndex.chapterIndex + 1}:$number".isolated()}" else "$number"
+        val label = if (chapterStarts) "${ParagraphItem.CHAPTER_MARK}${"${(verse.verseIndex.chapterIndex + 1).localized()}:$number".isolated()}" else "$number"
         "$label ${text(verse)}"
     }.joinToString(" ")
 
@@ -270,7 +271,7 @@ private fun StringBuilder.append(verse: Verse, bookName: String, markdown: Boole
         // > <verse text>
         // or, with parallel translations, one "> <translation>: <verse text>" line per translation
         append(bookName).append(' ')
-                .append(verse.verseIndex.chapterIndex + 1).append(':').append(verse.verseIndex.verseIndex + 1)
+                .append((verse.verseIndex.chapterIndex + 1).localized()).append(':').append((verse.verseIndex.verseIndex + 1).localized())
         translationName?.let { append(" (").append(it).append(')') }
         append('\n')
         val body = if (verse.parallel.isEmpty()) verse.text.text else {
@@ -280,7 +281,7 @@ private fun StringBuilder.append(verse: Verse, bookName: String, markdown: Boole
     } else if (verse.parallel.isEmpty()) {
         // format: <book name> <chapter index>:<verse index> <text>
         append(bookName).append(' ')
-                .append(verse.verseIndex.chapterIndex + 1).append(':').append(verse.verseIndex.verseIndex + 1).append(' ')
+                .append((verse.verseIndex.chapterIndex + 1).localized()).append(':').append((verse.verseIndex.verseIndex + 1).localized()).append(' ')
                 .append(verse.text.text)
     } else {
         // format:
@@ -289,7 +290,7 @@ private fun StringBuilder.append(verse: Verse, bookName: String, markdown: Boole
         // <parallel translation 1>: <verse text>
         // <parallel translation 2>: <verse text>
         append(bookName).append(' ')
-                .append(verse.verseIndex.chapterIndex + 1).append(':').append(verse.verseIndex.verseIndex + 1).append('\n')
+                .append((verse.verseIndex.chapterIndex + 1).localized()).append(':').append((verse.verseIndex.verseIndex + 1).localized()).append('\n')
                 .append(verse.text.translationShortName).append(": ").append(verse.text.text).append('\n')
         verse.parallel.forEach { text -> append(text.translationShortName).append(": ").append(text.text).append('\n') }
         setLength(length - 1) // remove the appended space

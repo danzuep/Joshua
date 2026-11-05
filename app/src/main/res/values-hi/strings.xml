@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">बाइबल</string>
+    <string name="text_old_testament">पुराना नियम</string>
+    <string name="text_new_testament">नया नियम</string>
+    <string name="content_description_back">वापस</string>
+    <string name="content_description_drag_handle">क्रम बदलने के लिए खींचें</string>
+    <string name="hint_upload_name">नाम, जैसे हिंदी बाइबल</string>
+    <string name="hint_upload_short_name">संक्षेप, जैसे HIN (अक्षर और अंक)</string>
+    <string name="hint_upload_language">भाषा कोड, जैसे en, cmn या es</string>
+    <string name="dialog_message_failed_to_upload">फ़ाइल से बाइबल नहीं पढ़ी जा सकी। यह USFM पुस्तकों (.usfm या .sfm) की zip होनी चाहिए और संक्षेप पहले से उपयोग में नहीं होना चाहिए।</string>
+    <string name="dialog_message_download_sites">प्रति पंक्ति एक वेब पता, जैसे https://ebible.org/download.php। डिफ़ॉल्ट के लिए खाली छोड़ें।</string>
+</resources>

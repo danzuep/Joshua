@@ -135,7 +135,7 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
         }
 
         with(adapter.getDropDownView(2, firstDropDownView, FrameLayout(ApplicationProvider.getApplicationContext()))) {
-            assertEquals("More", findViewById<TextView>(R.id.title).text.toString())
+            assertEquals(context.getString(R.string.action_more_translation), findViewById<TextView>(R.id.title).text.toString())
             assertFalse(findViewById<CheckBox>(R.id.checkbox).isVisible)
             assertFalse(findViewById<CheckBox>(R.id.checkbox).isEnabled)
             assertFalse(findViewById<CheckBox>(R.id.checkbox).isChecked)
@@ -206,7 +206,7 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
         }
 
         with(adapter.getDropDownView(2, firstDropDownView, FrameLayout(ApplicationProvider.getApplicationContext()))) {
-            assertEquals("More", findViewById<TextView>(R.id.title).text.toString())
+            assertEquals(context.getString(R.string.action_more_translation), findViewById<TextView>(R.id.title).text.toString())
             assertFalse(findViewById<CheckBox>(R.id.checkbox).isVisible)
             assertFalse(findViewById<CheckBox>(R.id.checkbox).isEnabled)
             assertFalse(findViewById<CheckBox>(R.id.checkbox).isChecked)

@@ -30,6 +30,8 @@ import org.ebible.android.bible.R
 import org.ebible.android.bible.databinding.ActivitySettingsBinding
 import org.ebible.android.bible.ui.toast
 import org.ebible.android.bible.infra.BaseActivity
+import org.ebible.android.bible.ui.AppLanguage
+import org.ebible.android.bible.ui.highlightSwatch
 import org.ebible.android.bible.ui.indeterminateProgressDialog
 import org.ebible.android.bible.ui.listDialog
 import org.ebible.android.bible.ui.seekBarDialog
@@ -58,6 +60,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         hideSearchButton.setOnCheckedChangeByUserListener(viewModel::saveHideSearchButton)
         fontSize.setOnSingleClickListener(viewModel::selectFontSizeScale)
         nightMode.setOnSingleClickListener(viewModel::selectNightMode)
+        language.setOnSingleClickListener(::selectLanguage)
         defaultHighlightColor.setOnSingleClickListener(viewModel::selectHighlightColor)
         backup.setOnSingleClickListener(viewModel::backup)
         restore.setOnSingleClickListener(viewModel::restore)
@@ -96,7 +99,8 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         hideSearchButton.isChecked = viewState.hideSearchButton
 
         nightMode.setDescription(viewState.nightModeStringRes)
-        defaultHighlightColor.setDescription(viewState.defaultHighlightColorStringRes)
+        language.setDescription(AppLanguage.selectedCode()?.let(AppLanguage::nativeName) ?: getString(R.string.settings_text_language_system))
+        defaultHighlightColor.setDescription(highlightSwatch(viewState.defaultHighlightColor))
         version.setDescription(viewState.version)
 
         viewState.backupState.handle(isBackup = true)
@@ -112,6 +116,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         fontSize.setTextSize(bodyTextSizePx, captionTextSizePx)
         keepScreenOn.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         nightMode.setTextSize(bodyTextSizePx, captionTextSizePx)
+        language.setTextSize(bodyTextSizePx, captionTextSizePx)
         reading.setTextSize(bodyTextSizePx)
         hideSearchButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         defaultHighlightColor.setTextSize(bodyTextSizePx, captionTextSizePx)
@@ -174,6 +179,16 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         )
     }
 
+    private fun selectLanguage() {
+        val codes = listOf<String?>(null) + AppLanguage.CODES
+        listDialog(
+            title = R.string.settings_title_language,
+            items = codes.map { it?.let(AppLanguage::nativeName) ?: getString(R.string.settings_text_language_system) }.toTypedArray(),
+            selected = codes.indexOf(AppLanguage.selectedCode()),
+            onSelected = { which -> AppLanguage.select(codes[which]) },
+        )
+    }
+
     private fun SettingsViewModel.ViewState.NightModeSelection.handle() {
         listDialog(
             title = R.string.settings_title_pick_night_mode,
@@ -187,7 +202,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
     private fun SettingsViewModel.ViewState.HighlightColorSelection.handle() {
         listDialog(
             title = R.string.text_pick_highlight_color,
-            items = availableColors.map { getString(it.stringRes) }.toTypedArray(),
+            items = availableColors.map { highlightSwatch(it.color) }.toTypedArray(),
             selected = currentPosition,
             onSelected = { which -> viewModel.saveDefaultHighlightColor(availableColors[which].color) },
             onDismiss = viewModel::markHighlightColorSelectionAsDismissed

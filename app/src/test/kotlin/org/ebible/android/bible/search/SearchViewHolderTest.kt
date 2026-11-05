@@ -61,7 +61,7 @@ class SearchViewHolderTest : BaseUnitTest() {
                 text = context.getString(R.string.title_bookmarks)
             )
         )
-        assertEquals("Bookmarks", viewHolder.itemView.findViewById<TextView>(R.id.title).text.toString())
+        assertEquals(context.getString(R.string.title_bookmarks), viewHolder.itemView.findViewById<TextView>(R.id.title).text.toString())
     }
 
     @Test

@@ -201,7 +201,7 @@ fun Activity.listDialog(
 
 fun Activity.listDialog(
     @StringRes title: Int,
-    items: Array<String>,
+    items: Array<out CharSequence>,
     selected: Int,
     onSelected: (which: Int) -> Unit,
     onDismiss: (() -> Unit)? = null,

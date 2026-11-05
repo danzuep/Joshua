@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">圣经</string>
+    <string name="text_old_testament">旧约</string>
+    <string name="text_new_testament">新约</string>
+    <string name="content_description_back">返回</string>
+    <string name="content_description_drag_handle">拖动以排序</string>
+    <string name="hint_upload_name">名称，如 和合本</string>
+    <string name="hint_upload_short_name">缩写，如 CUV（字母和数字）</string>
+    <string name="hint_upload_language">语言代码，如 en、cmn 或 es</string>
+    <string name="dialog_message_failed_to_upload">无法从文件读取圣经。文件须为 USFM 书卷（.usfm 或 .sfm）的 zip，且缩写不能与已安装译本重复。</string>
+    <string name="dialog_message_download_sites">每行一个网址，例如 https://ebible.org/download.php。留空则使用默认值。</string>
+</resources>

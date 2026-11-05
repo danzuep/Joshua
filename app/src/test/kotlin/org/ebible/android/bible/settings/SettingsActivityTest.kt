@@ -39,6 +39,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.flowOf
 import org.ebible.android.bible.R
+import org.ebible.android.bible.core.Highlight
 import org.ebible.android.bible.NavigationModule
 import org.ebible.android.bible.Navigator
 import org.ebible.android.bible.databinding.ActivitySettingsBinding
@@ -161,7 +162,7 @@ class SettingsActivityTest : BaseActivityTest() {
             nightModeStringRes = R.string.settings_text_night_mode_off,
             simpleReadingModeOn = true,
             hideSearchButton = true,
-            defaultHighlightColorStringRes = R.string.text_highlight_color_none,
+            defaultHighlightColor = Highlight.COLOR_NONE,
             backupState = SettingsViewModel.ViewState.BackupRestoreState.Completed(successful = true),
             restoreState = SettingsViewModel.ViewState.BackupRestoreState.Idle,
             version = "app_version",
@@ -176,8 +177,8 @@ class SettingsActivityTest : BaseActivityTest() {
             assertEquals("1.0x", viewBinding.fontSize.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertTrue(viewBinding.keepScreenOn.isChecked)
             assertTrue(viewBinding.hideSearchButton.isChecked)
-            assertEquals("Off", viewBinding.nightMode.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
-            assertEquals("None", viewBinding.defaultHighlightColor.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
+            assertEquals(activity.getString(R.string.settings_text_night_mode_off), viewBinding.nightMode.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
+            assertEquals(activity.getString(R.string.text_highlight_color_none), viewBinding.defaultHighlightColor.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertEquals("app_version", viewBinding.version.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             verify(exactly = 1) { viewModel.markBackupStateAsIdle() }
         }
@@ -193,7 +194,7 @@ class SettingsActivityTest : BaseActivityTest() {
             nightModeStringRes = R.string.settings_text_night_mode_off,
             simpleReadingModeOn = true,
             hideSearchButton = true,
-            defaultHighlightColorStringRes = R.string.text_highlight_color_none,
+            defaultHighlightColor = Highlight.COLOR_NONE,
             backupState = SettingsViewModel.ViewState.BackupRestoreState.Idle,
             restoreState = SettingsViewModel.ViewState.BackupRestoreState.Completed(successful = false),
             version = "app_version",
@@ -208,8 +209,8 @@ class SettingsActivityTest : BaseActivityTest() {
             assertEquals("1.0x", viewBinding.fontSize.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertTrue(viewBinding.keepScreenOn.isChecked)
             assertTrue(viewBinding.hideSearchButton.isChecked)
-            assertEquals("Off", viewBinding.nightMode.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
-            assertEquals("None", viewBinding.defaultHighlightColor.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
+            assertEquals(activity.getString(R.string.settings_text_night_mode_off), viewBinding.nightMode.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
+            assertEquals(activity.getString(R.string.text_highlight_color_none), viewBinding.defaultHighlightColor.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             assertEquals("app_version", viewBinding.version.getProperty<SettingButton, InnerSettingButtonBinding>("viewBinding").description.text)
             verify(exactly = 1) { viewModel.markRestoreStateAsIdle() }
         }
