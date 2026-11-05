@@ -57,7 +57,7 @@ F-Droid packaging metadata is in `fastlane/` and [docs/RELEASING.md](docs/RELEAS
 
 Double-tap a verse to bring up its actions, or long-press a verse to copy or share it. Notes are saved as you type.
 
-Hundreds of other translations can be downloaded in the app from [eBible.org](https://ebible.org/download.php), or from download sites you add yourself. See the [full list](docs/TRANSLATIONS.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/Yeshua/issues).
+Hundreds of other translations can be downloaded in the app from [eBible.org](https://ebible.org/download.php), or from download sites you add yourself. See the [full list](docs/TRANSLATIONS.md). The app interface is available in several languages, see [localization](docs/LOCALIZATION.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/Yeshua/issues).
 
 ## About this project
 
