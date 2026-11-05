@@ -1,4 +1,4 @@
-# Quickstart: eBible Reader
+# Quickstart: Yeshua Reader
 
 ## Prerequisites
 - Visual Studio Code with Dev Containers extension

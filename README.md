@@ -4,7 +4,7 @@
 [![API](https://img.shields.io/badge/API-23%2B-blue.svg?style=flat)](https://www.android.com/versions/marshmallow/)
 [![Apache License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
 
-# eBible
+# Yeshua
 
 A simple, free and open source software Bible reader for Android with a minimalist design. Read offline, compare translations side by side, search every verse, and keep your notes, bookmarks and highlights, all in a tiny install of less than 4 MB.
 
@@ -16,8 +16,8 @@ Get the latest APK from **[GitHub Releases](https://github.com/danzuep/eBible/re
 
 | File | What it is |
 |------|------------|
-| `eBible-vX.Y.Z-with-WEB.apk` | **Recommended.** Includes the WEB Bible, so it works offline from the first launch. 3.33 MB as of v0.21.2 |
-| `eBible-vX.Y.Z.apk` | Download translations from inside the app. 1.67 MB as of v0.21.2 |
+| `Yeshua-vX.Y.Z-with-WEB.apk` | **Recommended.** Includes the WEB Bible, so it works offline from the first launch. 3.33 MB as of v0.21.2 |
+| `Yeshua-vX.Y.Z.apk` | Download translations from inside the app. 1.67 MB as of v0.21.2 |
 
 Open the APK on your device and allow installs from your browser or file manager when asked.
 

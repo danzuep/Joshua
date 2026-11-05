@@ -23,14 +23,8 @@ plugins {
     id(Dependencies.Hilt.plugin)
 }
 
-// Launcher label: -PappName, else the repository name (GITHUB_REPOSITORY in CI, the git origin remote locally), else "eBible".
-val appName = (findProperty("appName") as String?)?.takeIf { it.isNotBlank() }
-    ?: System.getenv("GITHUB_REPOSITORY")?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
-    ?: runCatching {
-        providers.exec { commandLine("git", "config", "--get", "remote.origin.url"); isIgnoreExitValue = true }
-            .standardOutput.asText.get().trim().removeSuffix(".git").substringAfterLast('/').substringAfterLast(':')
-    }.getOrNull()?.takeIf { it.isNotBlank() }
-    ?: "eBible"
+// Launcher label: -PappName, else "Yeshua".
+val appName = (findProperty("appName") as String?)?.takeIf { it.isNotBlank() } ?: "Yeshua"
 val defaultBookIndex = (findProperty("defaultBookIndex") as String?)?.toIntOrNull() ?: 0
 require(defaultBookIndex in 0 until 66) { "defaultBookIndex must be a valid 0-based Bible book index" }
 
