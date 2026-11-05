@@ -73,6 +73,7 @@ class ParagraphItem(
 
     companion object {
         const val CHAPTER_MARK = '¶'
+        private const val NO_BREAK_SPACE = '\u00A0'
         private val ICON_COLOR_FILTER = PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY)
         private val FOOTNOTE_COLOR_FILTER = PorterDuffColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY)
     }
@@ -128,7 +129,7 @@ class ParagraphItem(
                 builder.append(CHAPTER_MARK).append(chapter.toString())
                 builder.setSpan(StyleSpan(Typeface.BOLD), chapterStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 // Non-breaking, so the chapter mark stays with the verse number and text that follow.
-                builder.append('\u00A0')
+                builder.append(NO_BREAK_SPACE)
             }
             segment.label?.let { label ->
                 val labelStart = builder.length
@@ -142,7 +143,7 @@ class ParagraphItem(
                     builder.setSpan(RelativeSizeSpan(0.7F), labelStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                     builder.setSpan(StyleSpan(Typeface.BOLD), labelStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
-                builder.append('\u00A0')
+                builder.append(NO_BREAK_SPACE)
             }
 
             val textStart = builder.length
@@ -169,8 +170,8 @@ class ParagraphItem(
     ) {
         createDrawableSpan(context, drawableId, DynamicDrawableSpan.ALIGN_BASELINE, colorFilter, 0.67F)?.let { span ->
             // Non-breaking, so the icon can't land on a wrapped line's hanging trailing whitespace, where it is not drawn.
-            append('\u00A0')
-            append('\u00A0')
+            append(NO_BREAK_SPACE)
+            append(NO_BREAK_SPACE)
             setSpan(span, length - 1, length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
     }
