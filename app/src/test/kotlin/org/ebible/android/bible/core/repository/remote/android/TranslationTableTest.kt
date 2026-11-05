@@ -18,7 +18,7 @@ package org.ebible.android.bible.core.repository.remote.android
 
 import org.ebible.android.bible.core.repository.remote.RemoteTranslationInfo
 import org.ebible.android.bible.core.repository.remote.parseTranslationTable
-import org.ebible.android.bible.core.repository.remote.parseTranslationTsv
+import org.ebible.android.bible.core.repository.remote.parseTranslationCsv
 import org.ebible.android.bible.core.repository.remote.siteOrigin
 import org.ebible.android.bible.core.repository.remote.toRemoteTranslationInfo
 import org.ebible.android.bible.core.repository.remote.usfmZipUrl
@@ -60,27 +60,35 @@ class TranslationTableTest {
     }
 
     @Test
-    fun `test parseTranslationTsv()`() {
-        val rows = parseTranslationTsv(
-            "Territory\tLanguage\tLanguage (English)\tVernacular Title\tEnglish Title\tHome\n" +
-                "United States\tEnglish\tEnglish\tWEB\tWorld English Bible Updated\tengwebu\n\nbad\tline\n",
-            "https://ebible.org/download.php"
-        )
-        assertEquals(listOf("engwebu"), rows.map { it.id })
-        assertEquals("World English Bible Updated", rows[0].englishTitle)
+    fun `test parseTranslationCsv() handles quoted values and filters unavailable translations`() {
+        val csv = "\uFEFFlanguageCode,translationId,languageName,languageNameInEnglish,dialect,homeDomain,title,description,Redistributable,downloadable,shortTitle,textDirection\r\n" +
+            "eng,eng-web,English,English,,ebible.org,\"World English Bible, Expanded\",\"Description, with \"\"quotes\"\"\nand another line\",True,True,\"WEB, Expanded\",ltr\r\n" +
+            "eng,eng-private,English,English,,ebible.org,Private Bible,,False,True,Private Bible,ltr\r\n" +
+            "eng,eng-unavailable,English,English,,ebible.org,Unavailable Bible,,True,False,Unavailable Bible,ltr\r\n"
+
+        val rows = parseTranslationCsv(csv, "https://ebible.org/download.php")
+        assertEquals(listOf("eng-web"), rows.map { it.id })
+        assertEquals("World English Bible, Expanded", rows[0].vernacularTitle)
+        assertEquals("WEB, Expanded", rows[0].englishTitle)
+        assertEquals("ltr", rows[0].textDirection)
+        assertEquals("https://ebible.org/details.php?id=eng-web", rows[0].detailsHref)
     }
 
     @Test
     fun `test toRemoteTranslationInfo()`() {
-        val rows = parseTranslationTable(html, "https://ebible.org/download.php")
+        val rows = parseTranslationCsv(
+            "translationId,languageName,languageNameInEnglish,title,shortTitle,Redistributable\n" +
+                "eng-web,English,English,World English Bible,World English Bible & more,True\n",
+            "https://ebible.org/download.php"
+        )
         assertEquals(RemoteTranslationInfo("eng_web", "World English Bible & more", "eng", 0L), rows[0].toRemoteTranslationInfo())
     }
 
     @Test
     fun `test toRemoteTranslationInfo() keeps the native name for languages unknown to the JVM`() {
-        val rows = parseTranslationTsv(
-            "Territory\tLanguage\tLanguage (English)\tVernacular Title\tEnglish Title\tHome\n" +
-                "Greece\t\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac\tGreek, Ancient\tx\tSBL Greek NT\tzzzsbl\n",
+        val rows = parseTranslationCsv(
+            "translationId,languageName,languageNameInEnglish,dialect,title,shortTitle,Redistributable\n" +
+                "zzzsbl,\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac,Greek,Ancient,x,SBL Greek NT,True\n",
             "https://ebible.org/download.php"
         )
         assertEquals("Greek, Ancient (\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac)", rows[0].toRemoteTranslationInfo().language)

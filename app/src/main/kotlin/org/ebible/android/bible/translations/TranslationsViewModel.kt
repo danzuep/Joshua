@@ -30,7 +30,7 @@ import org.ebible.android.bible.core.TranslationInfo
 import org.ebible.android.bible.core.TranslationManager
 import org.ebible.android.bible.core.containsAnyKeyword
 import org.ebible.android.bible.core.repository.remote.TranslationTableRow
-import org.ebible.android.bible.core.repository.remote.parseTranslationTsv
+import org.ebible.android.bible.core.repository.remote.parseTranslationCsv
 import org.ebible.android.bible.core.toKeywords
 import org.ebible.android.bible.ui.TranslationInfoComparator
 import org.ebible.android.bible.ui.languageDisplayName
@@ -107,10 +107,10 @@ class TranslationsViewModel @Inject constructor(
         private set
     private var pendingDownloadShortName: String? = null
 
-    private val tsvRows: Map<String, TranslationTableRow> by lazy {
+    private val translationRows: Map<String, TranslationTableRow> by lazy {
         runCatching {
-            val tsv = application.assets.open("ebible_downloads.tsv").use { it.readBytes().toString(Charsets.UTF_8) }
-            parseTranslationTsv(tsv, "https://ebible.org/").associateBy { it.id.replace(Regex("[^A-Za-z0-9]"), "_") }
+            val csv = application.assets.open("ebible_translations.csv").use { it.readBytes().toString(Charsets.UTF_8) }
+            parseTranslationCsv(csv, "https://ebible.org/").associateBy { it.id.replace(Regex("[^A-Za-z0-9]"), "_") }
         }.getOrDefault(emptyMap())
     }
 
@@ -165,7 +165,7 @@ class TranslationsViewModel @Inject constructor(
         val keywords = keywordFilter.toKeywords()
         if (keywords.isEmpty()) return true
         // Every keyword must match, like a web search.
-        val haystack = "$shortName $name $language ${languageDisplayName(languageCode)} ${tsvRows[shortName]?.let { "${it.language} ${it.languageEnglish} ${it.vernacularTitle}" }.orEmpty()}"
+        val haystack = "$shortName $name $language ${languageDisplayName(languageCode)} ${translationRows[shortName]?.let { "${it.language} ${it.languageEnglish} ${it.vernacularTitle}" }.orEmpty()}"
         return keywords.all { haystack.containsAnyKeyword(listOf(it), wholeWords = false) }
     }
 
@@ -183,18 +183,18 @@ class TranslationsViewModel @Inject constructor(
         viewModelScope.launch {
             val details = runCatching {
                 withContext(coroutineDispatcherProvider.default) {
-                    val tsv = application.assets.open("ebible_downloads.tsv").use { it.readBytes().toString(Charsets.UTF_8) }
-                    parseTranslationTsv(tsv, "https://ebible.org/")
+                    val csv = application.assets.open("ebible_translations.csv").use { it.readBytes().toString(Charsets.UTF_8) }
+                    parseTranslationCsv(csv, "https://ebible.org/")
                         .firstOrNull { it.id == translation.shortName }
                         ?.let { row ->
-                            listOf(
-                                application.getString(R.string.translation_detail_id) to row.id,
-                                application.getString(R.string.translation_detail_territory) to row.territory,
-                                application.getString(R.string.translation_detail_language) to row.language,
-                                application.getString(R.string.translation_detail_language_english) to row.languageEnglish,
-                                application.getString(R.string.translation_detail_vernacular_title) to row.vernacularTitle,
-                                application.getString(R.string.translation_detail_english_title) to row.englishTitle,
-                            )
+                            buildList {
+                                add(application.getString(R.string.translation_detail_id) to row.id)
+                                if (row.territory.isNotEmpty()) add(application.getString(R.string.translation_detail_territory) to row.territory)
+                                add(application.getString(R.string.translation_detail_language) to row.language)
+                                add(application.getString(R.string.translation_detail_language_english) to row.languageEnglish)
+                                add(application.getString(R.string.translation_detail_vernacular_title) to row.vernacularTitle)
+                                add(application.getString(R.string.translation_detail_english_title) to row.englishTitle)
+                            }
                         }
                 }
             }.onFailure { e -> Logger.withTag(tag).e(e) { "Failed to read translation details" } }
@@ -218,18 +218,18 @@ class TranslationsViewModel @Inject constructor(
 
     private fun List<TranslationInfo>.toItems(settings: Settings, currentTranslation: String): List<TranslationsItem> {
         val items: ArrayList<TranslationsItem> = ArrayList()
-        // Translations are grouped by "Language (English)" from ebible_downloads.tsv, with a sub heading for a different native name.
-        groupBy { tsvRows[it.shortName]?.languageEnglish?.ifEmpty { null } ?: languageDisplayNameWithNative(it.language.split("_")[0]) }
+        // Translations are grouped by "Language (English)" from ebible_translations.csv, with a sub heading for a different native name.
+        groupBy { translationRows[it.shortName]?.languageEnglish?.ifEmpty { null } ?: languageDisplayNameWithNative(it.language.split("_")[0]) }
             .forEach { (languageEnglish, translations) ->
                 items.add(TranslationsItem.Header(settings, languageEnglish, hideDivider = false, isLanguage = true))
-                translations.groupBy { tsvRows[it.shortName]?.language.orEmpty() }.forEach { (native, group) ->
+                translations.groupBy { translationRows[it.shortName]?.language.orEmpty() }.forEach { (native, group) ->
                     if (native.isNotEmpty() && native != languageEnglish) items.add(TranslationsItem.Header(settings, native, hideDivider = true))
                     group.forEach { translationInfo ->
                         items.add(TranslationsItem.Translation(
                             settings = settings,
                             translationInfo = translationInfo,
                             isCurrentTranslation = translationInfo.downloaded && translationInfo.shortName == currentTranslation,
-                            title = tsvRows[translationInfo.shortName]?.displayTitle() ?: translationInfo.name,
+                            title = translationRows[translationInfo.shortName]?.displayTitle() ?: translationInfo.name,
                         ))
                     }
                 }

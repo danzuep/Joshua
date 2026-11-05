@@ -27,7 +27,7 @@ Before pushing, review Kotlin changes carefully (unresolved references, imports,
 - `app/` is the single Android module (Kotlin, Hilt, Room-less SQLite, coroutines). Source is under `app/src/main/kotlin/org/ebible/android/bible/`:
   - `core/` holds managers and repositories (`repository/local` for SQLite, `repository/remote` for downloads and USFM parsing).
   - Feature packages (`reading`, `search`, `translations`, `settings`, `annotated`, `progress`, `preview`) each have an Activity plus a `ViewModel` with a single `ViewState`, one-shot `ViewAction`s and a typed `Error`, on `infra/BaseViewModel` and `infra/BaseActivity`.
-  - Strong's Numbers, cross references and the old JSON download flow were removed; translations now come from eBible.org USFM zips (`app/src/main/assets/ebible_downloads.tsv`, refreshed monthly by `update-ebible-downloads.yml`).
+  - Strong's Numbers, cross references and the old JSON download flow were removed; translations now come from eBible.org USFM zips, with a redistributable catalog in `app/src/main/assets/ebible_translations.csv` refreshed monthly by `update-ebible-downloads.yml`.
 - `buildSrc/src/main/kotlin/Configurations.kt` pins plugin and library versions. The app version comes from the release tag (`-PappVersion`), not from this file.
 - `docs/RELEASING.md` covers releases and signing; `.github/scripts/` holds the smoke-test helpers; `shared/src/commonMain/.../testing` has fluent builders (`CoreVerse`, `CoreSettings`) for JVM tests.
 

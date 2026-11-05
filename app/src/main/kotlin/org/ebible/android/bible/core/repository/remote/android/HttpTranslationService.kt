@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
 import org.ebible.android.bible.core.repository.remote.RemoteTranslation
 import org.ebible.android.bible.core.repository.remote.DEFAULT_DOWNLOAD_SITE
 import org.ebible.android.bible.core.repository.remote.RemoteTranslationInfo
-import org.ebible.android.bible.core.repository.remote.parseTranslationTsv
+import org.ebible.android.bible.core.repository.remote.parseTranslationCsv
 import org.ebible.android.bible.core.repository.remote.RemoteTranslationService
 import org.ebible.android.bible.core.repository.remote.parseTranslationTable
 import org.ebible.android.bible.core.repository.remote.readUsfmZip
@@ -55,9 +55,9 @@ class HttpTranslationService(private val context: Context) : RemoteTranslationSe
         }.distinctBy { it.shortName }
     }
 
-    // The default site is read from the bundled copy of its table, other sites are scraped.
+    // The default site is read from the bundled CSV, other sites are scraped.
     private fun readTable(site: String) = if (site == DEFAULT_DOWNLOAD_SITE) {
-        parseTranslationTsv(context.assets.open("ebible_downloads.tsv").use { it.readBytes().toString(Charsets.UTF_8) }, site)
+        parseTranslationCsv(context.assets.open("ebible_translations.csv").use { it.readBytes().toString(Charsets.UTF_8) }, site)
     } else {
         parseTranslationTable(fetchText(site), site)
     }
