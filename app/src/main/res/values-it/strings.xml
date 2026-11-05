@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">Bibbia</string>
+    <string name="text_old_testament">Antico Testamento</string>
+    <string name="text_new_testament">Nuovo Testamento</string>
+    <string name="content_description_back">Indietro</string>
+    <string name="content_description_drag_handle">Trascina per riordinare</string>
+    <string name="hint_upload_name">Nome, ad es. Riveduta</string>
+    <string name="hint_upload_short_name">Abbreviazione, ad es. RIV (lettere e numeri)</string>
+    <string name="hint_upload_language">Codice lingua, ad es. en, cmn o es</string>
+    <string name="dialog_message_failed_to_upload">Impossibile leggere una Bibbia dal file. Deve essere uno zip di libri USFM (.usfm o .sfm) e l\'abbreviazione non deve essere già usata da una traduzione installata.</string>
+    <string name="dialog_message_download_sites">Un indirizzo web per riga, ad es. https://ebible.org/download.php. Lascia vuoto per usare quello predefinito.</string>
+</resources>

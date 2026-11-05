@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">성경</string>
+    <string name="text_old_testament">구약</string>
+    <string name="text_new_testament">신약</string>
+    <string name="content_description_back">뒤로</string>
+    <string name="content_description_drag_handle">끌어서 순서 변경</string>
+    <string name="hint_upload_name">이름, 예: 개역개정</string>
+    <string name="hint_upload_short_name">약어, 예: KRV (영문자와 숫자)</string>
+    <string name="hint_upload_language">언어 코드, 예: en, cmn 또는 es</string>
+    <string name="dialog_message_failed_to_upload">파일에서 성경을 읽을 수 없습니다. USFM 책(.usfm 또는 .sfm)의 zip 파일이어야 하며 약어가 설치된 번역본과 겹치면 안 됩니다.</string>
+    <string name="dialog_message_download_sites">한 줄에 웹 주소 하나, 예: https://ebible.org/download.php. 비워 두면 기본값을 사용합니다.</string>
+</resources>

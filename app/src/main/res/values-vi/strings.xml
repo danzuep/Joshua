@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">Kinh Thánh</string>
+    <string name="text_old_testament">Cựu Ước</string>
+    <string name="text_new_testament">Tân Ước</string>
+    <string name="content_description_back">Quay lại</string>
+    <string name="content_description_drag_handle">Kéo để sắp xếp lại</string>
+    <string name="hint_upload_name">Tên, ví dụ Bản Truyền Thống</string>
+    <string name="hint_upload_short_name">Viết tắt, ví dụ VCB (chữ và số)</string>
+    <string name="hint_upload_language">Mã ngôn ngữ, ví dụ en, cmn hoặc es</string>
+    <string name="dialog_message_failed_to_upload">Không đọc được Kinh Thánh từ tệp. Tệp phải là zip chứa các sách USFM (.usfm hoặc .sfm) và tên viết tắt không được trùng với bản dịch đã cài.</string>
+    <string name="dialog_message_download_sites">Mỗi dòng một địa chỉ web, ví dụ https://ebible.org/download.php. Để trống để dùng mặc định.</string>
+</resources>

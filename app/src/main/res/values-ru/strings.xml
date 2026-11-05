@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">Библия</string>
+    <string name="text_old_testament">Ветхий Завет</string>
+    <string name="text_new_testament">Новый Завет</string>
+    <string name="content_description_back">Назад</string>
+    <string name="content_description_drag_handle">Перетащите, чтобы изменить порядок</string>
+    <string name="hint_upload_name">Название, например Синодальный перевод</string>
+    <string name="hint_upload_short_name">Сокращение, например RST (буквы и цифры)</string>
+    <string name="hint_upload_language">Код языка, например en, cmn или es</string>
+    <string name="dialog_message_failed_to_upload">Не удалось прочитать Библию из файла. Нужен zip-архив книг USFM (.usfm или .sfm), а сокращение не должно совпадать с установленным переводом.</string>
+    <string name="dialog_message_download_sites">Один веб-адрес в строке, например https://ebible.org/download.php. Оставьте пустым, чтобы использовать адрес по умолчанию.</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">Alkitab</string>
+    <string name="text_old_testament">Perjanjian Lama</string>
+    <string name="text_new_testament">Perjanjian Baru</string>
+    <string name="content_description_back">Kembali</string>
+    <string name="content_description_drag_handle">Seret untuk mengurutkan ulang</string>
+    <string name="hint_upload_name">Nama, mis. Terjemahan Baru</string>
+    <string name="hint_upload_short_name">Singkatan, mis. TB (huruf dan angka)</string>
+    <string name="hint_upload_language">Kode bahasa, mis. en, cmn atau es</string>
+    <string name="dialog_message_failed_to_upload">Tidak dapat membaca Alkitab dari berkas. Berkas harus berupa zip kitab USFM (.usfm atau .sfm), dan singkatannya tidak boleh dipakai oleh terjemahan yang terpasang.</string>
+    <string name="dialog_message_download_sites">Satu alamat web per baris, mis. https://ebible.org/download.php. Kosongkan untuk memakai bawaan.</string>
+</resources>

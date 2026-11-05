@@ -21,12 +21,14 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import java.util.Locale
 
-/** UI languages, which must match res/xml/locales_config.xml and Configurations.supportedLocales. */
+/** UI languages, which must match res/xml/locales_config.xml and Configurations.supportedLocales (as a resource filter, e.g. `b+zh+Hant`). */
 object AppLanguage {
-    val CODES = listOf("en", "zh", "es", "hi", "ar", "fr", "pt")
+    val CODES = listOf("en", "zh", "zh-Hant", "es", "hi", "ar", "fr", "pt", "bn", "ru", "ur", "id", "de", "ja", "tr", "vi", "ko", "it", "th")
 
     /** The explicitly chosen language code, or null to follow the system. */
-    fun selectedCode(): String? = AppCompatDelegate.getApplicationLocales()[0]?.language?.takeIf { it in CODES }
+    fun selectedCode(): String? = AppCompatDelegate.getApplicationLocales()[0]?.let { locale ->
+        CODES.firstOrNull { it == locale.toLanguageTag() } ?: CODES.firstOrNull { it == locale.language }
+    }
 
     fun select(code: String?) = AppCompatDelegate.setApplicationLocales(
         if (code == null) LocaleListCompat.getEmptyLocaleList() else LocaleListCompat.forLanguageTags(code)
