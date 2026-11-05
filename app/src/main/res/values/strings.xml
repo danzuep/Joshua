@@ -98,13 +98,6 @@
 
     <string name="text_pick_highlight_color">🎨</string>
     <string name="text_highlight_color_none">🚫</string>
-    <string name="text_highlight_color_yellow">🟨</string>
-    <string name="text_highlight_color_pink">🩷</string>
-    <string name="text_highlight_color_orange">🟧</string>
-    <string name="text_highlight_color_purple">🟪</string>
-    <string name="text_highlight_color_red">🟥</string>
-    <string name="text_highlight_color_green">🟩</string>
-    <string name="text_highlight_color_blue">🟦</string>
 
     <string name="text_chapter_selection_old_testament">@string/text_old_testament_abbr</string>
     <string name="text_chapter_selection_new_testament">@string/text_new_testament_abbr</string>

@@ -58,7 +58,7 @@ class SettingsViewModel @Inject constructor(
         nightModeStringRes = nightModeStringResource(Settings.DEFAULT.nightMode),
         simpleReadingModeOn = Settings.DEFAULT.simpleReadingModeOn,
         hideSearchButton = Settings.DEFAULT.hideSearchButton,
-        defaultHighlightColorStringRes = highlightColorStringResource(Settings.DEFAULT.defaultHighlightColor),
+        defaultHighlightColor = Settings.DEFAULT.defaultHighlightColor,
         backupState = ViewState.BackupRestoreState.Idle,
         restoreState = ViewState.BackupRestoreState.Idle,
         version = "",
@@ -83,7 +83,7 @@ class SettingsViewModel @Inject constructor(
         @StringRes val nightModeStringRes: Int,
         val simpleReadingModeOn: Boolean,
         val hideSearchButton: Boolean,
-        @StringRes val defaultHighlightColorStringRes: Int,
+        @Highlight.Companion.AvailableColor val defaultHighlightColor: Int,
         val backupState: BackupRestoreState,
         val restoreState: BackupRestoreState,
         val version: String,
@@ -111,7 +111,7 @@ class SettingsViewModel @Inject constructor(
         }
 
         data class HighlightColorSelection(val currentPosition: Int, val availableColors: List<HighlightColor>) {
-            data class HighlightColor(@Highlight.Companion.AvailableColor val color: Int, @StringRes val stringRes: Int)
+            data class HighlightColor(@Highlight.Companion.AvailableColor val color: Int)
         }
 
         sealed class Error {
@@ -134,7 +134,7 @@ class SettingsViewModel @Inject constructor(
                     nightModeStringRes = nightModeStringResource(settings.nightMode),
                     simpleReadingModeOn = settings.simpleReadingModeOn,
                     hideSearchButton = settings.hideSearchButton,
-                    defaultHighlightColorStringRes = highlightColorStringResource(settings.defaultHighlightColor),
+                    defaultHighlightColor = settings.defaultHighlightColor,
                 )
             }
         }.launchIn(viewModelScope)
@@ -245,14 +245,14 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val currentDefaultHighlightColor = settingsManager.settings().first().defaultHighlightColor
             val availableColors = listOf(
-                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_NONE, R.string.text_highlight_color_none),
-                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_YELLOW, R.string.text_highlight_color_yellow),
-                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_PINK, R.string.text_highlight_color_pink),
-                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_ORANGE, R.string.text_highlight_color_orange),
-                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_PURPLE, R.string.text_highlight_color_purple),
-                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_RED, R.string.text_highlight_color_red),
-                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_GREEN, R.string.text_highlight_color_green),
-                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_BLUE, R.string.text_highlight_color_blue),
+                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_NONE),
+                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_YELLOW),
+                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_PINK),
+                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_ORANGE),
+                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_PURPLE),
+                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_RED),
+                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_GREEN),
+                ViewState.HighlightColorSelection.HighlightColor(Highlight.COLOR_BLUE),
             )
             val currentPosition = availableColors.indexOfFirst { it.color == currentDefaultHighlightColor }
             updateViewState { it.copy(highlightColorSelection = ViewState.HighlightColorSelection(currentPosition, availableColors)) }
@@ -356,17 +356,4 @@ private fun nightModeStringResource(@Settings.Companion.NightMode nightMode: Int
     Settings.NIGHT_MODE_OFF -> R.string.settings_text_night_mode_off
     Settings.NIGHT_MODE_FOLLOW_SYSTEM -> R.string.settings_text_night_mode_system
     else -> throw IllegalArgumentException("Unknown night mode - $nightMode")
-}
-
-@StringRes
-private fun highlightColorStringResource(@Highlight.Companion.AvailableColor highlightColor: Int): Int = when (highlightColor) {
-    Highlight.COLOR_NONE -> R.string.text_highlight_color_none
-    Highlight.COLOR_YELLOW -> R.string.text_highlight_color_yellow
-    Highlight.COLOR_PINK -> R.string.text_highlight_color_pink
-    Highlight.COLOR_ORANGE -> R.string.text_highlight_color_orange
-    Highlight.COLOR_PURPLE -> R.string.text_highlight_color_purple
-    Highlight.COLOR_RED -> R.string.text_highlight_color_red
-    Highlight.COLOR_GREEN -> R.string.text_highlight_color_green
-    Highlight.COLOR_BLUE -> R.string.text_highlight_color_blue
-    else -> throw IllegalArgumentException("Unknown highlight color - $highlightColor")
 }

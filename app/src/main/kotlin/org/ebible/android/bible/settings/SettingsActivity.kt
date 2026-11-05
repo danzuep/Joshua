@@ -32,7 +32,6 @@ import org.ebible.android.bible.ui.toast
 import org.ebible.android.bible.infra.BaseActivity
 import org.ebible.android.bible.ui.AppLanguage
 import org.ebible.android.bible.ui.highlightSwatch
-import org.ebible.android.bible.ui.highlightSwatchFor
 import org.ebible.android.bible.ui.indeterminateProgressDialog
 import org.ebible.android.bible.ui.listDialog
 import org.ebible.android.bible.ui.seekBarDialog
@@ -101,7 +100,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
 
         nightMode.setDescription(viewState.nightModeStringRes)
         language.setDescription(AppLanguage.selectedCode()?.let(AppLanguage::nativeName) ?: getString(R.string.settings_text_language_system))
-        defaultHighlightColor.setDescription(highlightSwatchFor(viewState.defaultHighlightColorStringRes))
+        defaultHighlightColor.setDescription(highlightSwatch(viewState.defaultHighlightColor))
         version.setDescription(viewState.version)
 
         viewState.backupState.handle(isBackup = true)
