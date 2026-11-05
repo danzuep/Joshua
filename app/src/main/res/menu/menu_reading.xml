@@ -3,15 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_translations"
-        android:title="@null"
-        app:actionViewClass="androidx.appcompat.widget.AppCompatSpinner"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/action_translation_copyright"
         android:icon="@drawable/ic_info"
         android:title="@string/action_copyright_permissions"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_translations"
+        android:title="@null"
+        app:actionViewClass="androidx.appcompat.widget.AppCompatSpinner"
         app:showAsAction="always" />
 
     <item
