@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">الكتاب المقدس</string>
+    <string name="text_old_testament">العهد القديم</string>
+    <string name="text_new_testament">العهد الجديد</string>
+    <string name="text_old_testament_abbr">ع.ق</string>
+    <string name="text_new_testament_abbr">ع.ج</string>
+
+    <string name="title_bookmarks">العلامات</string>
+    <string name="title_highlights">التمييز</string>
+    <string name="title_notes">الملاحظات</string>
+    <string name="title_reading_progress">التقدم</string>
+    <string name="title_settings">الإعدادات</string>
+    <string name="title_translation_management">الترجمات</string>
+    <string name="content_description_back">رجوع</string>
+    <string name="content_description_drag_handle">اسحب لإعادة الترتيب</string>
+
+    <string name="header_available_translations">متاحة</string>
+
+    <string name="action_more_translation">المزيد</string>
+    <string name="action_copy">نسخ</string>
+    <string name="action_share">مشاركة</string>
+    <string name="action_reading_progress">التقدم</string>
+    <string name="action_bookmarks">العلامات</string>
+    <string name="action_highlights">التمييز</string>
+    <string name="action_notes">الملاحظات</string>
+    <string name="action_search">بحث</string>
+    <string name="action_search_by_reference">بالمرجع</string>
+    <string name="action_search_include_bookmarks">العلامات</string>
+    <string name="action_search_include_highlights">التمييز</string>
+    <string name="action_search_include_notes">الملاحظات</string>
+    <string name="action_search_whole_words">كلمات كاملة</string>
+    <string name="action_clear_search_history">مسح السجل</string>
+    <string name="action_bookmark_verse">علامة</string>
+    <string name="action_highlight_verse">تمييز</string>
+    <string name="action_settings">الإعدادات</string>
+
+    <string name="dialog_title_no_translation_downloaded">لا ترجمة</string>
+    <string name="action_download_sites">المواقع</string>
+    <string name="action_upload_translation">رفع</string>
+    <string name="dialog_title_upload_translation">رفع كتاب مقدس</string>
+    <string name="hint_upload_name">الاسم، مثل فان دايك</string>
+    <string name="hint_upload_short_name">الاختصار، مثل SVD (حروف وأرقام)</string>
+    <string name="hint_upload_language">رمز اللغة، مثل en أو cmn أو es</string>
+    <string name="dialog_message_failed_to_upload">تعذّرت قراءة كتاب مقدس من الملف. يجب أن يكون ملف zip لأسفار USFM (‏.usfm أو .sfm) وألا يكون الاختصار مستخدمًا.</string>
+    <string name="action_download">تنزيل</string>
+    <string name="hint_filter_translations">الاسم أو الاختصار أو اللغة</string>
+    <string name="text_all_languages">كل اللغات</string>
+    <string name="translation_detail_id">ID</string>
+    <string name="translation_detail_territory">المنطقة</string>
+    <string name="translation_detail_language">اللغة</string>
+    <string name="translation_detail_language_english">اللغة (بالإنجليزية)</string>
+    <string name="translation_detail_vernacular_title">العنوان المحلي</string>
+    <string name="translation_detail_english_title">العنوان بالإنجليزية</string>
+    <string name="dialog_title_download_sites">مواقع التنزيل</string>
+    <string name="dialog_message_download_sites">عنوان ويب واحد في كل سطر، مثل https://ebible.org/download.php. اتركه فارغًا لاستخدام الافتراضي.</string>
+
+    <string name="dialog_message_failed_to_load_translation_list">تعذّر تحميل القائمة. تحقق من الشبكة وحاول مجددًا.</string>
+    <string name="dialog_message_failed_to_download">فشل التنزيل. تحقق من الشبكة وحاول مجددًا.</string>
+    <string name="dialog_message_failed_to_delete">فشل الحذف. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_select_translation">فشل اختيار الترجمة. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_select_chapter">فشل اختيار الأصحاح. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_load_verses">فشل تحميل الآيات. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_search">حدث خطأ في البحث. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_select_verse">فشل اختيار الآية. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_navigate">فشل الانتقال. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_save_sort_order">فشل حفظ الترتيب. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_load_reading_progress">فشل تحميل التقدم. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_load_annotated_verses">فشل التحميل. إعادة المحاولة؟</string>
+    <string name="dialog_message_failed_to_load_verse_detail">فشل تحميل تفاصيل الآية. إعادة المحاولة؟</string>
+
+    <string name="toast_unknown_error">خطأ غير معروف</string>
+
+    <string name="text_date">%2$d %1$s %3$d</string>
+    <string name="text_date_without_year">%2$d %1$s</string>
+
+    <string name="text_pick_highlight_color">لون التمييز</string>
+    <string name="text_highlight_color_none">بلا</string>
+    <string name="text_highlight_color_yellow">أصفر</string>
+    <string name="text_highlight_color_pink">وردي</string>
+    <string name="text_highlight_color_orange">برتقالي</string>
+    <string name="text_highlight_color_purple">بنفسجي</string>
+    <string name="text_highlight_color_red">أحمر</string>
+    <string name="text_highlight_color_green">أخضر</string>
+    <string name="text_highlight_color_blue">أزرق</string>
+
+    <string name="text_restore_from">استعادة من</string>
+    <string name="text_share_with">مشاركة مع</string>
+
+    <string name="text_parallel">متوازي</string>
+    <string name="text_notes">الملاحظات</string>
+    <string name="text_paratext">نص مرافق</string>
+    <string name="text_footnotes">الحواشي</string>
+    <string name="text_cross_references">إحالات</string>
+
+    <string name="text_no_bookmarks">لا علامات.</string>
+    <string name="text_no_highlights">لا تمييز.</string>
+    <string name="text_no_notes">لا ملاحظات.</string>
+
+    <string name="text_continuous_reading">أيام متتالية</string>
+    <string name="text_chapters_read">الأصحاحات المقروءة</string>
+    <string name="text_finished_books">الأسفار المنتهية</string>
+
+    <string name="settings_header_display">العرض</string>
+    <string name="settings_title_font_size">حجم الخط</string>
+    <string name="settings_title_keep_screen_on">إبقاء الشاشة مضاءة</string>
+    <string name="settings_title_night_mode">الوضع الليلي</string>
+    <string name="settings_header_reading">القراءة</string>
+    <string name="settings_title_hide_search_button">إخفاء زر البحث</string>
+    <string name="settings_title_default_highlight_color">لون التمييز الافتراضي</string>
+    <string name="settings_header_backup_restore">النسخ والاستعادة</string>
+    <string name="settings_title_backup">نسخ بياناتي احتياطيًا</string>
+    <string name="settings_title_restore">استعادة</string>
+    <string name="action_copyright_permissions">الحقوق والأذونات</string>
+    <string name="settings_header_about">حول</string>
+    <string name="settings_title_rate">قيّمنا على Google Play</string>
+    <string name="settings_title_website">الموقع</string>
+    <string name="settings_title_version">الإصدار</string>
+
+    <string name="settings_title_pick_night_mode">الوضع الليلي</string>
+    <string name="settings_text_night_mode_on">تشغيل</string>
+    <string name="settings_text_night_mode_off">إيقاف</string>
+    <string name="settings_text_night_mode_system">النظام</string>
+
+    <string-array name="text_months">
+        <item>يناير</item>
+        <item>فبراير</item>
+        <item>مارس</item>
+        <item>أبريل</item>
+        <item>مايو</item>
+        <item>يونيو</item>
+        <item>يوليو</item>
+        <item>أغسطس</item>
+        <item>سبتمبر</item>
+        <item>أكتوبر</item>
+        <item>نوفمبر</item>
+        <item>ديسمبر</item>
+    </string-array>
+    <string-array name="text_sort_order">
+        <item>حسب التاريخ</item>
+        <item>حسب السفر</item>
+    </string-array>
+</resources>

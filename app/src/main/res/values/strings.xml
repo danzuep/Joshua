@@ -21,11 +21,11 @@
 
     <string name="header_available_translations">Available for download</string>
 
-    <string name="toast_downloaded">Successfully downloaded</string>
-    <string name="toast_deleted">Translation deleted</string>
-    <string name="toast_verses_copied">Copied to clipboard.</string>
-    <string name="toast_search_result">%1$d result(s) found.</string>
-    <string name="toast_backup_restore_succeeded">Successfully finished.</string>
+    <string name="toast_downloaded">✓</string>
+    <string name="toast_deleted">✓</string>
+    <string name="toast_verses_copied">✓</string>
+    <string name="toast_search_result">🔍 %1$d</string>
+    <string name="toast_backup_restore_succeeded">✓</string>
     <string name="toast_unknown_error">Unknown error</string>
 
     <string name="action_more_translation">More</string>
@@ -55,9 +55,9 @@
     <string name="hint_upload_name">Name, e.g. King James Version</string>
     <string name="hint_upload_short_name">Abbreviation, e.g. KJV (letters and digits)</string>
     <string name="hint_upload_language">Language code, e.g. en, cmn or es</string>
-    <string name="dialog_title_uploading">Uploading…</string>
+    <string name="dialog_title_uploading">⬆ …</string>
     <string name="dialog_message_failed_to_upload">Could not read a Bible from the file. It must be a zip of USFM books (.usfm or .sfm), and the abbreviation must not be used by an installed translation.</string>
-    <string name="toast_uploaded">Successfully uploaded</string>
+    <string name="toast_uploaded">✓</string>
     <string name="action_download">Download</string>
     <string name="action_download_engbsb">Berean Standard Bible</string>
     <string name="action_download_engwebp">World English Bible</string>
@@ -72,14 +72,14 @@
     <string name="translation_detail_english_title">English title</string>
     <string name="dialog_title_download_sites">Download sites</string>
     <string name="dialog_message_download_sites">One web address per line, for example https://ebible.org/download.php. Leave empty to use the default.</string>
-    <string name="dialog_title_error">Error</string>
-    <string name="dialog_title_downloading">Downloading…</string>
-    <string name="dialog_title_installing">Installing…</string>
-    <string name="dialog_title_deleting">Deleting…</string>
-    <string name="dialog_title_wait">Please wait…</string>
+    <string name="dialog_title_error">⚠</string>
+    <string name="dialog_title_downloading">⬇ …</string>
+    <string name="dialog_title_installing">⚙ …</string>
+    <string name="dialog_title_deleting">🗑 …</string>
+    <string name="dialog_title_wait">⏳</string>
 
-    <string name="dialog_message_download_translation_confirmation">Download now?</string>
-    <string name="dialog_message_delete_translation_confirmation">Delete now?</string>
+    <string name="dialog_message_download_translation_confirmation">⬇ ?</string>
+    <string name="dialog_message_delete_translation_confirmation">🗑 ?</string>
     <string name="dialog_message_failed_to_load_translation_list">Failed to load translation list. Please check the network connection and try again.</string>
     <string name="dialog_message_failed_to_download">Failed to download. Please check the network connection and try again.</string>
     <string name="dialog_message_failed_to_delete">Failed to delete, retry?</string>
@@ -118,8 +118,8 @@
 
     <string name="text_parallel">Parallel</string>
     <string name="text_notes">Notes</string>
-    <string name="text_notes_typing">Notes ...</string>
-    <string name="text_notes_saved">Notes ✓</string>
+    <string name="text_notes_typing">✎ …</string>
+    <string name="text_notes_saved">✎ ✓</string>
     <string name="text_paratext">Paratext</string>
     <string name="text_footnotes">Footnotes</string>
     <string name="text_cross_references">Cross-references</string>
@@ -129,7 +129,7 @@
     <string name="text_no_notes">No notes yet.</string>
 
     <string name="text_continuous_reading">Consecutive Reading</string>
-    <string name="text_continuous_reading_count">%1$d day(s)</string>
+    <string name="text_continuous_reading_count">🔥 %1$d</string>
     <string name="text_chapters_read">Chapters Read</string>
     <string name="text_finished_books">Books Finished</string>
     <string name="text_finished_old_testament">@string/text_old_testament</string>

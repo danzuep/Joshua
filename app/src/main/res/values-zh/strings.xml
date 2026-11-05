@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">圣经</string>
+    <string name="text_old_testament">旧约</string>
+    <string name="text_new_testament">新约</string>
+    <string name="text_old_testament_abbr">旧</string>
+    <string name="text_new_testament_abbr">新</string>
+
+    <string name="title_bookmarks">书签</string>
+    <string name="title_highlights">标记</string>
+    <string name="title_notes">笔记</string>
+    <string name="title_reading_progress">进度</string>
+    <string name="title_settings">设置</string>
+    <string name="title_translation_management">译本</string>
+    <string name="content_description_back">返回</string>
+    <string name="content_description_drag_handle">拖动以排序</string>
+
+    <string name="header_available_translations">可下载</string>
+
+    <string name="action_more_translation">更多</string>
+    <string name="action_copy">复制</string>
+    <string name="action_share">分享</string>
+    <string name="action_reading_progress">进度</string>
+    <string name="action_bookmarks">书签</string>
+    <string name="action_highlights">标记</string>
+    <string name="action_notes">笔记</string>
+    <string name="action_search">搜索</string>
+    <string name="action_search_by_reference">按经文</string>
+    <string name="action_search_include_bookmarks">书签</string>
+    <string name="action_search_include_highlights">标记</string>
+    <string name="action_search_include_notes">笔记</string>
+    <string name="action_search_whole_words">全词匹配</string>
+    <string name="action_clear_search_history">清除历史</string>
+    <string name="action_bookmark_verse">书签</string>
+    <string name="action_highlight_verse">标记</string>
+    <string name="action_settings">设置</string>
+
+    <string name="dialog_title_no_translation_downloaded">无译本</string>
+    <string name="action_download_sites">站点</string>
+    <string name="action_upload_translation">上传</string>
+    <string name="dialog_title_upload_translation">上传圣经</string>
+    <string name="hint_upload_name">名称，如 和合本</string>
+    <string name="hint_upload_short_name">缩写，如 CUV（字母和数字）</string>
+    <string name="hint_upload_language">语言代码，如 en、cmn 或 es</string>
+    <string name="dialog_message_failed_to_upload">无法从文件读取圣经。文件须为 USFM 书卷（.usfm 或 .sfm）的 zip，且缩写不能与已安装译本重复。</string>
+    <string name="action_download">下载</string>
+    <string name="hint_filter_translations">名称、缩写或语言</string>
+    <string name="text_all_languages">所有语言</string>
+    <string name="translation_detail_id">ID</string>
+    <string name="translation_detail_territory">地区</string>
+    <string name="translation_detail_language">语言</string>
+    <string name="translation_detail_language_english">语言（英文）</string>
+    <string name="translation_detail_vernacular_title">本地名称</string>
+    <string name="translation_detail_english_title">英文名称</string>
+    <string name="dialog_title_download_sites">下载站点</string>
+    <string name="dialog_message_download_sites">每行一个网址，例如 https://ebible.org/download.php。留空则使用默认值。</string>
+
+    <string name="dialog_message_failed_to_load_translation_list">加载列表失败。请检查网络后重试。</string>
+    <string name="dialog_message_failed_to_download">下载失败。请检查网络后重试。</string>
+    <string name="dialog_message_failed_to_delete">删除失败，重试？</string>
+    <string name="dialog_message_failed_to_select_translation">选择译本失败，重试？</string>
+    <string name="dialog_message_failed_to_select_chapter">选择章节失败，重试？</string>
+    <string name="dialog_message_failed_to_load_verses">加载经文失败，重试？</string>
+    <string name="dialog_message_failed_to_search">搜索出错，重试？</string>
+    <string name="dialog_message_failed_to_select_verse">选择经文失败，重试？</string>
+    <string name="dialog_message_failed_to_navigate">跳转失败，重试？</string>
+    <string name="dialog_message_failed_to_save_sort_order">保存顺序失败，重试？</string>
+    <string name="dialog_message_failed_to_load_reading_progress">加载进度失败，重试？</string>
+    <string name="dialog_message_failed_to_load_annotated_verses">加载失败，重试？</string>
+    <string name="dialog_message_failed_to_load_verse_detail">加载经文详情失败，重试？</string>
+
+    <string name="toast_unknown_error">未知错误</string>
+
+    <string name="text_date">%3$d年%1$s%2$d日</string>
+    <string name="text_date_without_year">%1$s%2$d日</string>
+
+    <string name="text_pick_highlight_color">标记颜色</string>
+    <string name="text_highlight_color_none">无</string>
+    <string name="text_highlight_color_yellow">黄色</string>
+    <string name="text_highlight_color_pink">粉色</string>
+    <string name="text_highlight_color_orange">橙色</string>
+    <string name="text_highlight_color_purple">紫色</string>
+    <string name="text_highlight_color_red">红色</string>
+    <string name="text_highlight_color_green">绿色</string>
+    <string name="text_highlight_color_blue">蓝色</string>
+
+    <string name="text_restore_from">恢复自</string>
+    <string name="text_share_with">分享到</string>
+
+    <string name="text_parallel">对照</string>
+    <string name="text_notes">笔记</string>
+    <string name="text_paratext">副文本</string>
+    <string name="text_footnotes">脚注</string>
+    <string name="text_cross_references">互参</string>
+
+    <string name="text_no_bookmarks">暂无书签。</string>
+    <string name="text_no_highlights">暂无标记。</string>
+    <string name="text_no_notes">暂无笔记。</string>
+
+    <string name="text_continuous_reading">连续天数</string>
+    <string name="text_chapters_read">已读章数</string>
+    <string name="text_finished_books">已读完书卷</string>
+
+    <string name="settings_header_display">显示</string>
+    <string name="settings_title_font_size">字号</string>
+    <string name="settings_title_keep_screen_on">屏幕常亮</string>
+    <string name="settings_title_night_mode">夜间模式</string>
+    <string name="settings_header_reading">阅读</string>
+    <string name="settings_title_hide_search_button">隐藏搜索按钮</string>
+    <string name="settings_title_default_highlight_color">默认标记颜色</string>
+    <string name="settings_header_backup_restore">备份与恢复</string>
+    <string name="settings_title_backup">备份我的数据</string>
+    <string name="settings_title_restore">恢复</string>
+    <string name="action_copyright_permissions">版权与许可</string>
+    <string name="settings_header_about">关于</string>
+    <string name="settings_title_rate">在 Google Play 评分</string>
+    <string name="settings_title_website">网站</string>
+    <string name="settings_title_version">版本</string>
+
+    <string name="settings_title_pick_night_mode">夜间模式</string>
+    <string name="settings_text_night_mode_on">开</string>
+    <string name="settings_text_night_mode_off">关</string>
+    <string name="settings_text_night_mode_system">跟随系统</string>
+
+    <string-array name="text_months">
+        <item>1月</item>
+        <item>2月</item>
+        <item>3月</item>
+        <item>4月</item>
+        <item>5月</item>
+        <item>6月</item>
+        <item>7月</item>
+        <item>8月</item>
+        <item>9月</item>
+        <item>10月</item>
+        <item>11月</item>
+        <item>12月</item>
+    </string-array>
+    <string-array name="text_sort_order">
+        <item>按日期</item>
+        <item>按书卷</item>
+    </string-array>
+</resources>

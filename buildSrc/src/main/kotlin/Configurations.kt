@@ -21,7 +21,7 @@ import org.gradle.api.JavaVersion
 
 object Configurations {
     const val applicationId = "org.ebible.android.bible"
-    val supportedLocales = listOf("en")
+    val supportedLocales = listOf("en", "zh", "es", "hi", "ar", "fr", "pt")
 }
 
 object Versions {

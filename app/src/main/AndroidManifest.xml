@@ -12,6 +12,7 @@
     <application
         android:name=".App"
         android:allowBackup="false"
+        android:supportsRtl="true"
         android:icon="@mipmap/ic_launcher"
         android:label="${appName}"
         android:theme="@style/AppTheme">

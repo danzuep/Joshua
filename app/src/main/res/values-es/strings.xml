@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">Biblia</string>
+    <string name="text_old_testament">Antiguo Testamento</string>
+    <string name="text_new_testament">Nuevo Testamento</string>
+    <string name="text_old_testament_abbr">AT</string>
+    <string name="text_new_testament_abbr">NT</string>
+
+    <string name="title_bookmarks">Marcadores</string>
+    <string name="title_highlights">Resaltados</string>
+    <string name="title_notes">Notas</string>
+    <string name="title_reading_progress">Progreso</string>
+    <string name="title_settings">Ajustes</string>
+    <string name="title_translation_management">Traducciones</string>
+    <string name="content_description_back">Atrás</string>
+    <string name="content_description_drag_handle">Arrastrar para reordenar</string>
+
+    <string name="header_available_translations">Disponibles</string>
+
+    <string name="action_more_translation">Más</string>
+    <string name="action_copy">Copiar</string>
+    <string name="action_share">Compartir</string>
+    <string name="action_reading_progress">Progreso</string>
+    <string name="action_bookmarks">Marcadores</string>
+    <string name="action_highlights">Resaltados</string>
+    <string name="action_notes">Notas</string>
+    <string name="action_search">Buscar</string>
+    <string name="action_search_by_reference">Por referencia</string>
+    <string name="action_search_include_bookmarks">Marcadores</string>
+    <string name="action_search_include_highlights">Resaltados</string>
+    <string name="action_search_include_notes">Notas</string>
+    <string name="action_search_whole_words">Palabras completas</string>
+    <string name="action_clear_search_history">Borrar historial</string>
+    <string name="action_bookmark_verse">Marcador</string>
+    <string name="action_highlight_verse">Resaltar</string>
+    <string name="action_settings">Ajustes</string>
+
+    <string name="dialog_title_no_translation_downloaded">Sin traducción</string>
+    <string name="action_download_sites">Sitios</string>
+    <string name="action_upload_translation">Subir</string>
+    <string name="dialog_title_upload_translation">Subir una Biblia</string>
+    <string name="hint_upload_name">Nombre, p. ej. Reina Valera</string>
+    <string name="hint_upload_short_name">Abreviatura, p. ej. RVR (letras y dígitos)</string>
+    <string name="hint_upload_language">Código de idioma, p. ej. en, cmn o es</string>
+    <string name="dialog_message_failed_to_upload">No se pudo leer una Biblia del archivo. Debe ser un zip de libros USFM (.usfm o .sfm) y la abreviatura no puede estar en uso.</string>
+    <string name="action_download">Descargar</string>
+    <string name="hint_filter_translations">Nombre, abreviatura o idioma</string>
+    <string name="text_all_languages">Todos los idiomas</string>
+    <string name="translation_detail_id">ID</string>
+    <string name="translation_detail_territory">Territorio</string>
+    <string name="translation_detail_language">Idioma</string>
+    <string name="translation_detail_language_english">Idioma (inglés)</string>
+    <string name="translation_detail_vernacular_title">Título local</string>
+    <string name="translation_detail_english_title">Título en inglés</string>
+    <string name="dialog_title_download_sites">Sitios de descarga</string>
+    <string name="dialog_message_download_sites">Una dirección web por línea, por ejemplo https://ebible.org/download.php. Déjelo vacío para usar el valor predeterminado.</string>
+
+    <string name="dialog_message_failed_to_load_translation_list">No se pudo cargar la lista. Compruebe la red e inténtelo de nuevo.</string>
+    <string name="dialog_message_failed_to_download">Error de descarga. Compruebe la red e inténtelo de nuevo.</string>
+    <string name="dialog_message_failed_to_delete">Error al eliminar. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_select_translation">Error al elegir la traducción. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_select_chapter">Error al elegir el capítulo. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_load_verses">Error al cargar los versículos. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_search">Error en la búsqueda. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_select_verse">Error al elegir el versículo. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_navigate">Error al navegar. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_save_sort_order">Error al guardar el orden. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_load_reading_progress">Error al cargar el progreso. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_load_annotated_verses">Error al cargar. ¿Reintentar?</string>
+    <string name="dialog_message_failed_to_load_verse_detail">Error al cargar el versículo. ¿Reintentar?</string>
+
+    <string name="toast_unknown_error">Error desconocido</string>
+
+    <string name="text_date">%2$d %1$s %3$d</string>
+    <string name="text_date_without_year">%2$d %1$s</string>
+
+    <string name="text_pick_highlight_color">Color de resaltado</string>
+    <string name="text_highlight_color_none">Ninguno</string>
+    <string name="text_highlight_color_yellow">Amarillo</string>
+    <string name="text_highlight_color_pink">Rosa</string>
+    <string name="text_highlight_color_orange">Naranja</string>
+    <string name="text_highlight_color_purple">Morado</string>
+    <string name="text_highlight_color_red">Rojo</string>
+    <string name="text_highlight_color_green">Verde</string>
+    <string name="text_highlight_color_blue">Azul</string>
+
+    <string name="text_restore_from">Restaurar desde</string>
+    <string name="text_share_with">Compartir con</string>
+
+    <string name="text_parallel">Paralelo</string>
+    <string name="text_notes">Notas</string>
+    <string name="text_paratext">Paratexto</string>
+    <string name="text_footnotes">Notas al pie</string>
+    <string name="text_cross_references">Referencias cruzadas</string>
+
+    <string name="text_no_bookmarks">Sin marcadores.</string>
+    <string name="text_no_highlights">Sin resaltados.</string>
+    <string name="text_no_notes">Sin notas.</string>
+
+    <string name="text_continuous_reading">Días seguidos</string>
+    <string name="text_chapters_read">Capítulos leídos</string>
+    <string name="text_finished_books">Libros terminados</string>
+
+    <string name="settings_header_display">Pantalla</string>
+    <string name="settings_title_font_size">Tamaño de letra</string>
+    <string name="settings_title_keep_screen_on">Pantalla siempre encendida</string>
+    <string name="settings_title_night_mode">Modo nocturno</string>
+    <string name="settings_header_reading">Lectura</string>
+    <string name="settings_title_hide_search_button">Ocultar botón de búsqueda</string>
+    <string name="settings_title_default_highlight_color">Color de resaltado</string>
+    <string name="settings_header_backup_restore">Copia y restauración</string>
+    <string name="settings_title_backup">Copiar mis datos</string>
+    <string name="settings_title_restore">Restaurar</string>
+    <string name="action_copyright_permissions">Derechos y permisos</string>
+    <string name="settings_header_about">Acerca de</string>
+    <string name="settings_title_rate">Valorar en Google Play</string>
+    <string name="settings_title_website">Sitio web</string>
+    <string name="settings_title_version">Versión</string>
+
+    <string name="settings_title_pick_night_mode">Modo nocturno</string>
+    <string name="settings_text_night_mode_on">Sí</string>
+    <string name="settings_text_night_mode_off">No</string>
+    <string name="settings_text_night_mode_system">Sistema</string>
+
+    <string-array name="text_months">
+        <item>ene</item>
+        <item>feb</item>
+        <item>mar</item>
+        <item>abr</item>
+        <item>may</item>
+        <item>jun</item>
+        <item>jul</item>
+        <item>ago</item>
+        <item>sep</item>
+        <item>oct</item>
+        <item>nov</item>
+        <item>dic</item>
+    </string-array>
+    <string-array name="text_sort_order">
+        <item>Por fecha</item>
+        <item>Por libro</item>
+    </string-array>
+</resources>
