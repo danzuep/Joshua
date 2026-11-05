@@ -173,14 +173,18 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
         return items
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    internal open fun formatDate(calendar: Calendar, timestamp: Long): String {
+    private fun formatDate(calendar: Calendar, timestamp: Long): String {
         calendar.timeInMillis = timeProvider.currentTimeMillis
         val currentYear = calendar.get(Calendar.YEAR)
 
         calendar.timeInMillis = timestamp
-        val skeleton = if (calendar.get(Calendar.YEAR) == currentYear) "MMMd" else "yMMMd"
+        return formatDate(calendar, includeYear = calendar.get(Calendar.YEAR) != currentYear)
+    }
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
+    internal open fun formatDate(calendar: Calendar, includeYear: Boolean): String {
         val locale = Locale.getDefault()
+        val skeleton = if (includeYear) "yMMMd" else "MMMd"
         return SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, skeleton), locale).format(calendar.time)
     }
 

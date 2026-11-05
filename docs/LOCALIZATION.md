@@ -40,6 +40,7 @@ Each `values-<code>/strings.xml` overrides only that prose, plus the `content_de
 | ⚙ | Settings |
 | 🌐 | Translations |
 | 🔍 | Search |
+| A / 文 | Language |
 | ⬇ ⬆ | Download, upload |
 | 📤 📋 | Share, copy |
 | 📦 … | Installing |

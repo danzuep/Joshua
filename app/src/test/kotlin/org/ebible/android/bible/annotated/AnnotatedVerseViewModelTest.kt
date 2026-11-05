@@ -59,18 +59,14 @@ class AnnotatedVerseViewModelTest : BaseUnitTest() {
         verseAnnotationManager: VerseAnnotationManager<TestVerseAnnotation>,
         settingsManager: SettingsManager,
         coroutineDispatcherProvider: CoroutineDispatcherProvider,
-        private val timeProvider: TimeProvider,
+        timeProvider: TimeProvider,
         application: Application
     ) : AnnotatedVerseViewModel<TestVerseAnnotation>(
         bibleReadingManager, verseAnnotationManager, R.string.text_no_bookmarks, settingsManager, coroutineDispatcherProvider, timeProvider, application
     ) {
-        override fun formatDate(calendar: Calendar, timestamp: Long): String {
-            calendar.timeInMillis = timeProvider.currentTimeMillis
-            val currentYear = calendar.get(Calendar.YEAR)
-            calendar.timeInMillis = timestamp
+        override fun formatDate(calendar: Calendar, includeYear: Boolean): String {
             val monthAndDay = "${calendar.get(Calendar.MONTH) + 1}-${calendar.get(Calendar.DATE)}"
-            val year = calendar.get(Calendar.YEAR)
-            return if (year == currentYear) monthAndDay else "$year-$monthAndDay"
+            return if (includeYear) "${calendar.get(Calendar.YEAR)}-$monthAndDay" else monthAndDay
         }
 
         override fun buildAnnotatedVerseItem(

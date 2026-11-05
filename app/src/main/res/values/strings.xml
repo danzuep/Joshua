@@ -63,11 +63,11 @@
     <string name="action_download_engwebp">World English Bible</string>
     <string name="action_download_engerv">Easy-to-Read Version</string>
     <string name="hint_filter_translations">🔍 🌐</string>
-    <string name="text_all_languages">🌐 *</string>
+    <string name="text_all_languages">A / 文 *</string>
     <string name="translation_detail_id">ID</string>
     <string name="translation_detail_territory">🗺</string>
-    <string name="translation_detail_language">🗣</string>
-    <string name="translation_detail_language_english">🗣 (EN)</string>
+    <string name="translation_detail_language">A / 文</string>
+    <string name="translation_detail_language_english">A / 文 (EN)</string>
     <string name="translation_detail_vernacular_title">Vernacular title</string>
     <string name="translation_detail_english_title">English title</string>
     <string name="dialog_title_download_sites">@string/action_download_sites</string>

@@ -84,6 +84,6 @@ class SettingButtonTest : BaseUnitTest() {
 
         button.setDescription(R.string.title_settings)
         assertEquals("title", button.findViewById<TextView>(R.id.title).text.toString())
-        assertEquals("Settings", button.findViewById<TextView>(R.id.description).text.toString())
+        assertEquals(context.getString(R.string.title_settings), button.findViewById<TextView>(R.id.description).text.toString())
     }
 }
