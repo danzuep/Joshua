@@ -1,0 +1,42 @@
+name: Update store icons
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'arts/ic_launcher.svg'
+      - '.github/workflows/update-store-icons.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: Install rsvg-convert
+      run: sudo apt-get update && sudo apt-get install -y --no-install-recommends librsvg2-bin
+    - name: Render store icons from arts/ic_launcher.svg
+      run: |
+        rsvg-convert -w 512 -h 512 arts/ic_launcher.svg -o arts/ic_launcher_store.png
+        mkdir -p fastlane/metadata/android/en-US/images
+        cp arts/ic_launcher_store.png fastlane/metadata/android/en-US/images/icon.png
+    - name: Open a pull request if the icons changed
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        if [ -z "$(git status --porcelain)" ]; then
+          echo "No changes"
+          exit 0
+        fi
+        branch=update-store-icons-$(date +%Y%m%d%H%M%S)
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -b "$branch"
+        git add arts/ic_launcher_store.png fastlane/metadata/android/en-US/images/icon.png
+        git commit -m "Update store icons"
+        git push origin "$branch"
+        gh pr create --title "Update store icons" --body "Rendered from arts/ic_launcher.svg" --base main
