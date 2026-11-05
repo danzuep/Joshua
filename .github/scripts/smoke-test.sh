@@ -90,6 +90,23 @@ else
   echo "FAIL: could not find a verse to long-press"
   status=1
 fi
+# Scroll to the start of John 2 and capture it: the chapter starts inline with a bold "¶2" instead of a heading and break.
+chapter_found=0
+for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
+  adb shell input swipe 540 1700 540 500 300
+  sleep 1
+  dump_ui
+  if grep -q "¶2" ui.xml 2> /dev/null; then
+    chapter_found=1
+    break
+  fi
+done
+if [ "$chapter_found" -eq 1 ]; then
+  adb exec-out screencap -p > screen-chapter.png
+else
+  echo "FAIL: John 2 did not start with the chapter mark"
+  status=1
+fi
 # Regression test: submitting "jhn1" used to relaunch SearchActivity in an endless loop, freezing the screen after the results showed.
 adb shell am start -W -n org.ebible.android.bible/.search.SearchActivity > /dev/null
 sleep 3

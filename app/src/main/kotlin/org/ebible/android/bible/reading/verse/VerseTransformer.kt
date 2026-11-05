@@ -73,7 +73,8 @@ fun List<Verse>.toParagraphItems(
         fun addSegment(part: String) {
             val trimmed = (if (segments.isEmpty()) part.trimStart('\n') else part).removeNotes()
             if (trimmed.isNotBlank()) {
-                val segment = ParagraphItem.Segment(verse, trimmed.trimEnd(), label)
+                val chapterNumber = if (label != null && verseNumber == 1) verse.verseIndex.chapterIndex + 1 else null
+                val segment = ParagraphItem.Segment(verse, trimmed.trimEnd(), label, chapterNumber)
                 if (previousSegment?.verse === verse) previousSegment?.endsVerse = false
                 previousSegment = segment
                 segments.add(segment)
@@ -136,6 +137,10 @@ fun Collection<Verse>.toStringForSharing(bookName: String, markdown: Boolean = f
         } else {
             verseGroups.add(Pair(verse.verseIndex.verseIndex, verse.verseIndex.verseIndex))
         }
+    }
+
+    if (sortedVerses.map { it.verseIndex.bookIndex to it.verseIndex.chapterIndex }.distinct().size > 1) {
+        return sortedVerses.toStringAcrossChapters(bookName, markdown, translationName)
     }
 
     // step 2: build the string for sharing
@@ -202,6 +207,46 @@ fun Collection<Verse>.toStringForSharing(bookName: String, markdown: Boolean = f
     }
 
     return stringBuilder.toString()
+}
+
+/**
+ * One block for verses of several chapters, e.g. "Isaiah 52:13-15, 53:1" over "13 A 14 B 15 C ¶53:1 D".
+ * The chapter mark is only copied here, where it shows where the next chapter starts.
+ */
+private fun List<Verse>.toStringAcrossChapters(bookName: String, markdown: Boolean, translationName: String?): String {
+    val header = groupBy { it.verseIndex.chapterIndex }.entries.joinToString(", ") { (chapterIndex, verses) ->
+        val runs = arrayListOf<IntRange>()
+        verses.map { it.verseIndex.verseIndex }.forEach { index ->
+            val last = runs.lastOrNull()
+            if (last != null && last.last + 1 == index) runs[runs.size - 1] = last.first..index else runs.add(index..index)
+        }
+        "${chapterIndex + 1}:" + runs.joinToString(",") { if (it.first == it.last) "${it.first + 1}" else "${it.first + 1}-${it.last + 1}" }
+    }
+
+    fun body(text: (Verse) -> String): String {
+        val builder = StringBuilder()
+        var chapterIndex = first().verseIndex.chapterIndex
+        forEachIndexed { index, verse ->
+            if (index > 0) builder.append(' ')
+            if (index > 0 && verse.verseIndex.chapterIndex != chapterIndex) {
+                chapterIndex = verse.verseIndex.chapterIndex
+                builder.append(ParagraphItem.CHAPTER_MARK).append(chapterIndex + 1).append(':')
+            }
+            builder.append(verse.verseIndex.verseIndex + 1).append(' ').append(text(verse))
+        }
+        return builder.toString()
+    }
+
+    val lines = if (first().parallel.isEmpty()) {
+        listOf(body { it.text.text })
+    } else {
+        listOf("${first().text.translationShortName}: " + body { it.text.text }) +
+                first().parallel.indices.map { parallelIndex ->
+                    "${first().parallel[parallelIndex].translationShortName}: " + body { it.parallel[parallelIndex].text }
+                }
+    }
+    val title = "$bookName $header" + if (markdown) translationName?.let { " ($it)" }.orEmpty() else ""
+    return title + "\n" + lines.joinToString("\n").let { if (markdown) it.quoted() else it }
 }
 
 private fun String.quoted(): String = split('\n').joinToString("\n") { "> $it" }

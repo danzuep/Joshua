@@ -43,6 +43,17 @@ class VerseTransformerTest : BaseUnitTest() {
     }
 
     @Test
+    fun `test toParagraphItems marks the start of a chapter with its number`() {
+        val verses = listOf(
+                Verse(VerseIndex(0, 7, 0), Verse.Text("T", "One"), emptyList()),
+                Verse(VerseIndex(0, 7, 1), Verse.Text("T", "Two"), emptyList())
+        )
+        val segments = verses.toParagraphItems(mockk(), emptyList(), emptyList(), emptyList()).paragraphs().single().segments
+        assertEquals(8, segments[0].chapterNumber)
+        assertNull(segments[1].chapterNumber)
+    }
+
+    @Test
     fun `test toParagraphItems with headings and paragraphs`() {
         val verses = listOf(
                 verse(0, "${HEADING}Creation${HEADING}${PARAGRAPH}One"),
@@ -139,6 +150,20 @@ class VerseTransformerTest : BaseUnitTest() {
         assertEquals(
                 "John 1:16-17 (World English Bible)\n> 16 A 17 B",
                 listOf(verse(15, "A"), verse(16, "B")).toStringForCopy("John", "World English Bible")
+        )
+    }
+
+    @Test
+    fun `test toStringForCopy adds the chapter mark only across chapters`() {
+        fun isaiah(chapter: Int, verse: Int, text: String) = Verse(VerseIndex(22, chapter - 1, verse - 1), Verse.Text("T", text), emptyList())
+        assertEquals(
+                "Isaiah 52:13-15, 53:1 (World English Bible)\n> 13 A 14 B 15 C \u00B653:1 D",
+                listOf(isaiah(52, 13, "A"), isaiah(52, 14, "B"), isaiah(52, 15, "C"), isaiah(53, 1, "D"))
+                        .toStringForCopy("Isaiah", "World English Bible")
+        )
+        assertEquals(
+                "Isaiah 53:1-2 (World English Bible)\n> 1 D 2 E",
+                listOf(isaiah(53, 1, "D"), isaiah(53, 2, "E")).toStringForCopy("Isaiah", "World English Bible")
         )
     }
 

@@ -13,7 +13,7 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
     - uses: gradle/actions/setup-gradle@v6
-    - name: Bundle a minimal World English Bible (John 1 and Hebrews 1 only)
+    - name: Bundle a minimal World English Bible (John 1-2 and Hebrews 1-2 only)
       run: |
         mkdir -p bundled-assets/bundled/translations
         curl -fsSL "https://ebible.org/Scriptures/engwebu_usfm.zip" -o full-engwebu.zip
@@ -38,6 +38,7 @@ jobs:
           logcat.txt
           screen.png
           screen-bookmarked.png
+          screen-chapter.png
           ui.xml
           ui-search.xml
 
@@ -52,7 +53,7 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
     - uses: gradle/actions/setup-gradle@v6
-    - name: Bundle a minimal World English Bible (John 1 and Hebrews 1 only)
+    - name: Bundle a minimal World English Bible (John 1-2 and Hebrews 1-2 only)
       run: |
         mkdir -p bundled-assets/bundled/translations
         curl -fsSL "https://ebible.org/Scriptures/engwebu_usfm.zip" -o full-engwebu.zip

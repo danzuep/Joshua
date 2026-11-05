@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds a World English Bible zip containing only John 1 and Hebrews 1, for the smoke test.
+# Builds a World English Bible zip containing only John 1-2 and Hebrews 1-2, for the smoke test.
 # Usage: make-minimal-web.sh <full engwebu_usfm.zip> <output zip>
 set -euo pipefail
 
@@ -17,9 +17,9 @@ if [ -z "$john" ] || [ -z "$hebrews" ]; then
 fi
 
 mkdir -p "$work/minimal"
-# Keep the file header and chapter 1 only, dropping everything from chapter 2 onward.
+# Keep the file header and chapters 1 and 2, so the chapter break can be seen, dropping everything from chapter 3 onward.
 for book in "$john" "$hebrews"; do
-  awk '/^\\c 2([[:space:]]|$)/ { exit } { print }' "$book" > "$work/minimal/$(basename "$book")"
+  awk '/^\\c 3([[:space:]]|$)/ { exit } { print }' "$book" > "$work/minimal/$(basename "$book")"
   grep -q '^\\c 1' "$work/minimal/$(basename "$book")"
 done
 
