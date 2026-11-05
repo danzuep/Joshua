@@ -210,6 +210,10 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
     override fun initializeView() = with(viewBinding) {
         drawerToggle = ActionBarDrawerToggle(this@ReadingActivity, drawerLayout, toolbarFragment.getFragment<ReadingToolbarFragment>().toolbar, 0, 0)
         drawerLayout.addDrawerListener(drawerToggle)
+        toolbarFragment.getFragment<ReadingToolbarFragment>().onTitleClicked = {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) drawerLayout.closeDrawer(GravityCompat.START)
+            else drawerLayout.openDrawer(GravityCompat.START)
+        }
         drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View) {
                 try {
@@ -220,10 +224,12 @@ class ReadingActivity : BaseActivity<ActivityReadingBinding, ReadingViewModel.Vi
             }
         })
 
-        versePagerAdapter = VersePagerAdapter(this@ReadingActivity, viewModel::loadVerses) { verseIndex ->
+        versePagerAdapter = VersePagerAdapter(this@ReadingActivity, viewModel::loadVerses) { pagePosition, verseIndex, middleVerse ->
             // Neighbour pages report their own scroll position too; only the selected page may update the current verse.
-            if (verseIndex.toPagePosition() == verseViewPager.currentItem) {
+            // The verse may belong to a neighbouring chapter that the page scrolled into.
+            if (pagePosition == verseViewPager.currentItem) {
                 verseReportedByScroll = verseIndex
+                toolbarFragment.getFragment<ReadingToolbarFragment>().showReadingChapter(verseIndex, middleVerse)
                 viewModel.updateCurrentVerse(verseIndex)
             }
         }
