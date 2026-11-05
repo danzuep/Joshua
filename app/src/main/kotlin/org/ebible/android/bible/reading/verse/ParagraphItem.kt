@@ -61,13 +61,19 @@ class ParagraphItem(
         private val bookmarks: MutableSet<Int>, private val highlights: MutableMap<Int, Int>, private val notes: MutableSet<Int>,
         private val selected: MutableSet<Int> = mutableSetOf(), private val footnotes: Set<Int> = emptySet()
 ) : BaseItem(R.layout.item_paragraph, { inflater, parent -> ParagraphViewHolder(inflater, parent) }) {
-    /** The part of [verse] that is in this paragraph; [label] (e.g. "2" or "3-4") is only set where the verse starts. */
-    class Segment(val verse: Verse, val text: String, val label: String?) {
+    /**
+     * The part of [verse] that is in this paragraph; [label] (e.g. "2" or "3-4") is only set where the verse starts.
+     * [chapterNumber] is set on the start of verse 1, which shows a bold "¶<chapter>" before the verse label.
+     * It is display only, so it is not part of the verse text that is searched or copied.
+     */
+    class Segment(val verse: Verse, val text: String, val label: String?, val chapterNumber: Int? = null) {
         /** Whether this is the last part of [verse], where its note and footnote icons go. */
         var endsVerse = true
     }
 
     companion object {
+        const val CHAPTER_MARK = '¶'
+        private const val NO_BREAK_SPACE = '\u00A0'
         private val ICON_COLOR_FILTER = PorterDuffColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY)
         private val FOOTNOTE_COLOR_FILTER = PorterDuffColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY)
     }
@@ -118,18 +124,26 @@ class ParagraphItem(
 
             val verseIndex = segment.verse.verseIndex.verseIndex
             val start = builder.length
+            segment.chapterNumber?.let { chapter ->
+                val chapterStart = builder.length
+                builder.append(CHAPTER_MARK).append(chapter.toString())
+                builder.setSpan(StyleSpan(Typeface.BOLD), chapterStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                // Non-breaking, so the chapter mark stays with the verse number and text that follow.
+                builder.append(NO_BREAK_SPACE)
+            }
             segment.label?.let { label ->
+                val labelStart = builder.length
                 builder.append(label)
                 val bookmark = if (bookmarks.contains(verseIndex)) ContextCompat.getDrawable(context, R.drawable.ic_bookmark) else null
                 if (bookmark != null) {
                     bookmark.mutate().colorFilter = ICON_COLOR_FILTER
-                    builder.setSpan(LabelWithIconSpan(label, bookmark), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    builder.setSpan(LabelWithIconSpan(label, bookmark), labelStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 } else {
-                    builder.setSpan(SuperscriptSpan(), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    builder.setSpan(RelativeSizeSpan(0.7F), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    builder.setSpan(StyleSpan(Typeface.BOLD), start, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    builder.setSpan(SuperscriptSpan(), labelStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    builder.setSpan(RelativeSizeSpan(0.7F), labelStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    builder.setSpan(StyleSpan(Typeface.BOLD), labelStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
-                builder.append('\u00A0')
+                builder.append(NO_BREAK_SPACE)
             }
 
             val textStart = builder.length
@@ -156,8 +170,8 @@ class ParagraphItem(
     ) {
         createDrawableSpan(context, drawableId, DynamicDrawableSpan.ALIGN_BASELINE, colorFilter, 0.67F)?.let { span ->
             // Non-breaking, so the icon can't land on a wrapped line's hanging trailing whitespace, where it is not drawn.
-            append('\u00A0')
-            append('\u00A0')
+            append(NO_BREAK_SPACE)
+            append(NO_BREAK_SPACE)
             setSpan(span, length - 1, length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
     }

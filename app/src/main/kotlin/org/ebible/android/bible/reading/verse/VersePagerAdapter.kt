@@ -32,7 +32,6 @@ import org.ebible.android.bible.reading.VerseUpdate
 import org.ebible.android.bible.ui.fadeIn
 import org.ebible.android.bible.ui.fadeOut
 import org.ebible.android.bible.ui.recyclerview.BaseItem
-import org.ebible.android.bible.ui.recyclerview.TitleItem
 
 class VersePagerAdapter(
     context: Context,
@@ -320,18 +319,13 @@ private class Page(
 
     fun containsChapter(position: Int): Boolean = chapters.containsKey(position)
 
-    private fun combinedItems(): List<BaseItem> = buildList {
-        chapters.forEach { (position, items) ->
-            add(TitleItem("Chapter ${position.toChapterIndex() + 1}", hideDivider = false))
-            addAll(items)
-        }
-    }
+    private fun combinedItems(): List<BaseItem> = chapters.values.flatten()
 
     private fun List<BaseItem>.positionOfChapter(position: Int): Int {
         var itemPosition = 0
         chapters.forEach { (chapterPosition, items) ->
             if (chapterPosition == position) return itemPosition
-            itemPosition += items.size + 1
+            itemPosition += items.size
         }
         return RecyclerView.NO_POSITION
     }
@@ -371,12 +365,12 @@ private class Page(
                     if (item is ParagraphItem && item.containsVerse(verseUpdate.verseIndex.verseIndex)) {
                         // Applied here as well as on bind, so the state is right even if the payload never reaches a bind.
                         item.update(verseUpdate)
-                        adapter.notifyItemChanged(itemPosition + index + 1, verseUpdate)
+                        adapter.notifyItemChanged(itemPosition + index, verseUpdate)
                     }
                 }
                 return
             }
-            itemPosition += chapterItems.size + 1
+            itemPosition += chapterItems.size
         }
     }
 }
