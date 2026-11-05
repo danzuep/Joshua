@@ -27,6 +27,7 @@ import org.ebible.android.bible.core.hasNotes
 import org.ebible.android.bible.core.removeNotes
 import org.ebible.android.bible.core.toDisplayedVerse
 import org.ebible.android.bible.core.Verse
+import org.ebible.android.bible.core.VerseIndex
 import org.ebible.android.bible.ui.recyclerview.BaseItem
 
 private val STRUCTURE = Regex("$HEADING([^$HEADING]*)$HEADING|$PARAGRAPH")
@@ -210,32 +211,41 @@ fun Collection<Verse>.toStringForSharing(bookName: String, markdown: Boolean = f
 }
 
 /**
- * One block for verses of several chapters, e.g. "Isaiah 52:13-15, 53:1" over "13 A 14 B 15 C ¶53:1 D".
+ * One block for verses of several chapters, e.g. "Isaiah 52:13-53:1" over "13 A 14 B 15 C ¶53:1 D".
  * The chapter mark is only copied here, where it shows where the next chapter starts.
  */
 private fun List<Verse>.toStringAcrossChapters(bookName: String, markdown: Boolean, translationName: String?): String {
-    val header = groupBy { it.verseIndex.chapterIndex }.entries.joinToString(", ") { (chapterIndex, verses) ->
-        val runs = arrayListOf<IntRange>()
-        verses.map { it.verseIndex.verseIndex }.forEach { index ->
-            val last = runs.lastOrNull()
-            if (last != null && last.last + 1 == index) runs[runs.size - 1] = last.first..index else runs.add(index..index)
-        }
-        "${chapterIndex + 1}:" + runs.joinToString(",") { if (it.first == it.last) "${it.first + 1}" else "${it.first + 1}-${it.last + 1}" }
-    }
+    val rightToLeft = ParagraphItem.isRightToLeft(first().text.text)
+    // Isolated, so references and chapter marks keep their reading order inside right to left text.
+    fun String.isolated() = if (rightToLeft) "${ParagraphItem.LEFT_TO_RIGHT_ISOLATE}$this${ParagraphItem.POP_DIRECTIONAL_ISOLATE}" else this
 
-    fun body(text: (Verse) -> String): String {
-        val builder = StringBuilder()
-        var chapterIndex = first().verseIndex.chapterIndex
-        forEachIndexed { index, verse ->
-            if (index > 0) builder.append(' ')
-            if (index > 0 && verse.verseIndex.chapterIndex != chapterIndex) {
-                chapterIndex = verse.verseIndex.chapterIndex
-                builder.append(ParagraphItem.CHAPTER_MARK).append(chapterIndex + 1).append(':')
-            }
-            builder.append(verse.verseIndex.verseIndex + 1).append(' ').append(text(verse))
-        }
-        return builder.toString()
+    // Runs of consecutive verses, which can continue into the next chapter, e.g. "1:25-2:1".
+    val runs = arrayListOf<Pair<VerseIndex, VerseIndex>>()
+    forEach { verse ->
+        val (start, end) = runs.lastOrNull() ?: (null to null)
+        val continues = end != null && ((end.chapterIndex == verse.verseIndex.chapterIndex && end.verseIndex + 1 == verse.verseIndex.verseIndex) ||
+                (end.chapterIndex + 1 == verse.verseIndex.chapterIndex && verse.verseIndex.verseIndex == 0))
+        if (continues) runs[runs.size - 1] = start!! to verse.verseIndex else runs.add(verse.verseIndex to verse.verseIndex)
     }
+    var previousChapter = -1
+    val header = runs.joinToString("") { (start, end) ->
+        val separator = when (previousChapter) { -1 -> ""; start.chapterIndex -> ","; else -> ", " }
+        val first = if (previousChapter == start.chapterIndex) "${start.verseIndex + 1}" else "${start.chapterIndex + 1}:${start.verseIndex + 1}"
+        val last = when {
+            end.chapterIndex != start.chapterIndex -> "-${end.chapterIndex + 1}:${end.verseIndex + 1}"
+            end.verseIndex != start.verseIndex -> "-${end.verseIndex + 1}"
+            else -> ""
+        }
+        previousChapter = end.chapterIndex
+        separator + first + last
+    }.isolated()
+
+    fun body(text: (Verse) -> String): String = mapIndexed { index, verse ->
+        val number = verse.verseIndex.verseIndex + 1
+        val chapterStarts = index > 0 && verse.verseIndex.chapterIndex != this[index - 1].verseIndex.chapterIndex
+        val label = if (chapterStarts) "${ParagraphItem.CHAPTER_MARK}${"${verse.verseIndex.chapterIndex + 1}:$number".isolated()}" else "$number"
+        "$label ${text(verse)}"
+    }.joinToString(" ")
 
     val lines = if (first().parallel.isEmpty()) {
         listOf(body { it.text.text })
