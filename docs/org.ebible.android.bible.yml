@@ -4,15 +4,15 @@ Categories:
   - Reading
 License: Apache-2.0
 AuthorName: danzuep
-WebSite: https://github.com/danzuep/eBible
-SourceCode: https://github.com/danzuep/eBible
-IssueTracker: https://github.com/danzuep/eBible/issues
-Changelog: https://github.com/danzuep/eBible/blob/HEAD/docs/CHANGELOG.md
+WebSite: https://github.com/danzuep/Yeshua
+SourceCode: https://github.com/danzuep/Yeshua
+IssueTracker: https://github.com/danzuep/Yeshua/issues
+Changelog: https://github.com/danzuep/Yeshua/blob/HEAD/docs/CHANGELOG.md
 
 AutoName: eBible
 
 RepoType: git
-Repo: https://github.com/danzuep/eBible.git
+Repo: https://github.com/danzuep/Yeshua.git
 
 Builds:
   - versionName: 0.27.1

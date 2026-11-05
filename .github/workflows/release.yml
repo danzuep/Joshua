@@ -38,10 +38,10 @@ jobs:
       run: |
         if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
           echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
-          echo "NAME=eBible-${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+          echo "NAME=Yeshua-${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
         else
           echo "VERSION=" >> "$GITHUB_ENV"
-          echo "NAME=eBible-${GITHUB_REF_NAME//\//-}" >> "$GITHUB_ENV"
+          echo "NAME=Yeshua-${GITHUB_REF_NAME//\//-}" >> "$GITHUB_ENV"
         fi
     - name: Build APK
       run: |
@@ -59,7 +59,7 @@ jobs:
     - uses: actions/upload-artifact@v7
       with:
         name: apk
-        path: eBible-*.apk
+        path: Yeshua-*.apk
     - name: Publish GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
       env:

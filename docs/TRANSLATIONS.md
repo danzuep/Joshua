@@ -1,6 +1,6 @@
 Available Translations
 ======================
-eBible builds its list of translations from a download site's translation table. The default site is
+Yeshua builds its list of translations from a download site's translation table. The default site is
 [eBible.org](https://ebible.org/download.php). Each translation is downloaded as a USFM zip
 (`https://ebible.org/Scriptures/<id>_usfm.zip`) and parsed on the device. The default catalog ships in the app as
 `app/src/main/assets/translations.csv`; the app only offers translations marked redistributable and downloadable.
