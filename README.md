@@ -1,5 +1,5 @@
-[![Build Status](https://img.shields.io/github/actions/workflow/status/danzuep/eBible/android.yml?branch=main&color=blue)](https://github.com/danzuep/eBible/actions/workflows/android.yml)
-[![Latest Release](https://img.shields.io/github/v/release/danzuep/eBible?color=blue)](https://github.com/danzuep/eBible/releases/latest)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/danzuep/Yeshua/android.yml?branch=main&color=blue)](https://github.com/danzuep/Yeshua/actions/workflows/android.yml)
+[![Latest Release](https://img.shields.io/github/v/release/danzuep/Yeshua?color=blue)](https://github.com/danzuep/Yeshua/releases/latest)
 ![Languages](https://img.shields.io/badge/languages-Kotlin-blue.svg?longCache=true&style=flat)
 [![API](https://img.shields.io/badge/API-23%2B-blue.svg?style=flat)](https://www.android.com/versions/marshmallow/)
 [![Apache License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
@@ -12,7 +12,7 @@ The default Bible is the **World English Bible (WEB)**, a modern-English public 
 
 ## Download
 
-Get the latest APK from **[GitHub Releases](https://github.com/danzuep/eBible/releases/latest)**. Two files are published with each release:
+Get the latest APK from **[GitHub Releases](https://github.com/danzuep/Yeshua/releases/latest)**. Two files are published with each release:
 
 | File | What it is |
 |------|------------|
@@ -40,7 +40,7 @@ F-Droid packaging metadata is in `fastlane/` and [docs/RELEASING.md](docs/RELEAS
 [Obtainium](https://github.com/ImranR98/Obtainium) installs and updates apps straight from GitHub Releases, so you don't need an app store.
 
 1. Install Obtainium from its [releases page](https://github.com/ImranR98/Obtainium/releases/latest) (or F-Droid).
-2. Open Obtainium, tap **Add App**, and enter `https://github.com/danzuep/eBible` as the source URL.
+2. Open Obtainium, tap **Add App**, and enter `https://github.com/danzuep/Yeshua` as the source URL.
 3. Under the app's additional options, set **Filter APKs by regular expression** to `with-WEB`. This picks the WEB-bundled APK. Leave it empty for the smaller one.
 4. Tap **Add**, then **Install**. Obtainium will notify you when a new release is out.
 
@@ -57,7 +57,7 @@ F-Droid packaging metadata is in `fastlane/` and [docs/RELEASING.md](docs/RELEAS
 
 Double-tap a verse to bring up its actions, or long-press a verse to copy or share it. Notes are saved as you type.
 
-Hundreds of other translations can be downloaded in the app from [eBible.org](https://ebible.org/download.php), or from download sites you add yourself. See the [full list](docs/TRANSLATIONS.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/eBible/issues).
+Hundreds of other translations can be downloaded in the app from [eBible.org](https://ebible.org/download.php), or from download sites you add yourself. See the [full list](docs/TRANSLATIONS.md). Recent changes are in the [changelog](docs/CHANGELOG.md). Report bugs or request features on the [issue tracker](https://github.com/danzuep/Yeshua/issues).
 
 ## About this project
 

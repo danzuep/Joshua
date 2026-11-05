@@ -7,12 +7,12 @@
 ## Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/danzuep/eBible.git
-   cd eBible
+   git clone https://github.com/danzuep/Yeshua.git
+   cd Yeshua
    ```
 
 2. Open in VS Code:
-   - File > Open Folder > Select the eBible directory
+   - File > Open Folder > Select the Yeshua directory
    - When prompted, click "Reopen in Container" to start the devcontainer
 
 3. Build the project:
