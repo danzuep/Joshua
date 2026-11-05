@@ -18,9 +18,9 @@ All folders are under `app/src/main/res/`. The list is kept in `Configurations.s
 
 ## How strings are organised
 
-The default file `values/strings.xml` is icon-first: navigation, actions and status text are language-agnostic symbols, so every locale (including unsupported ones) gets a usable UI without translation. Prose that cannot be an icon (error messages, hints, the Bible and testament names, "On"/"Off") is English by default.
+The default file `values/strings.xml` is icon-first: navigation, actions and status text are language-agnostic symbols, so every locale (including unsupported ones) gets a usable UI without translation. Only a handful of strings are prose: the Bible and testament names, the upload hints, the upload failure message, the download sites help and the two `content_description_*` strings. Repeated messages are shared: every "failed, retry?" dialog points at `dialog_message_retry`, and network failures at `dialog_message_network_error`.
 
-Each `values-<code>/strings.xml` overrides only that prose, plus the `content_description_*` strings used by screen readers. Do not translate the icon strings; they inherit from the default file.
+Each `values-<code>/strings.xml` therefore has about ten entries. Do not translate the icon strings; they inherit from the default file.
 
 - Shared glyphs are defined once and reused with whole-value references (for example `action_bookmarks` is `@string/title_bookmarks`). Android cannot embed a `@string` reference inside a longer string, so compound labels such as "download translations" are written as `⬇ 🌐`.
 - Dates are not stored as strings. `AnnotatedVerseViewModel.formatDate` uses the system's best date pattern for the device locale, so months, order and numerals follow the OS.

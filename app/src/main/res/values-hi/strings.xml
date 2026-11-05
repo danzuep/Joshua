@@ -6,27 +6,9 @@
     <string name="text_new_testament">नया नियम</string>
     <string name="content_description_back">वापस</string>
     <string name="content_description_drag_handle">क्रम बदलने के लिए खींचें</string>
-    <string name="action_search_whole_words">पूरे शब्द</string>
     <string name="hint_upload_name">नाम, जैसे हिंदी बाइबल</string>
     <string name="hint_upload_short_name">संक्षेप, जैसे HIN (अक्षर और अंक)</string>
     <string name="hint_upload_language">भाषा कोड, जैसे en, cmn या es</string>
     <string name="dialog_message_failed_to_upload">फ़ाइल से बाइबल नहीं पढ़ी जा सकी। यह USFM पुस्तकों (.usfm या .sfm) की zip होनी चाहिए और संक्षेप पहले से उपयोग में नहीं होना चाहिए।</string>
-    <string name="translation_detail_vernacular_title">स्थानीय शीर्षक</string>
-    <string name="translation_detail_english_title">अंग्रेज़ी शीर्षक</string>
     <string name="dialog_message_download_sites">प्रति पंक्ति एक वेब पता, जैसे https://ebible.org/download.php। डिफ़ॉल्ट के लिए खाली छोड़ें।</string>
-    <string name="dialog_message_failed_to_load_translation_list">सूची लोड नहीं हुई। नेटवर्क जाँचें और फिर प्रयास करें।</string>
-    <string name="dialog_message_failed_to_download">डाउनलोड विफल। नेटवर्क जाँचें और फिर प्रयास करें।</string>
-    <string name="dialog_message_failed_to_delete">हटाना विफल, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_select_translation">अनुवाद चुनना विफल, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_select_chapter">अध्याय चुनना विफल, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_load_verses">पद लोड नहीं हुए, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_search">खोज में त्रुटि, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_select_verse">पद चुनना विफल, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_navigate">नेविगेट करना विफल, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_save_sort_order">क्रम सहेजना विफल, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_load_reading_progress">प्रगति लोड नहीं हुई, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_load_annotated_verses">लोड विफल, पुनः प्रयास?</string>
-    <string name="dialog_message_failed_to_load_verse_detail">पद विवरण लोड नहीं हुआ, पुनः प्रयास?</string>
-    <string name="settings_text_night_mode_on">चालू</string>
-    <string name="settings_text_night_mode_off">बंद</string>
 </resources>

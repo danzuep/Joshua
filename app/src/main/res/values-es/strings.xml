@@ -6,27 +6,9 @@
     <string name="text_new_testament">Nuevo Testamento</string>
     <string name="content_description_back">Atrás</string>
     <string name="content_description_drag_handle">Arrastrar para reordenar</string>
-    <string name="action_search_whole_words">Palabras completas</string>
     <string name="hint_upload_name">Nombre, p. ej. Reina Valera</string>
     <string name="hint_upload_short_name">Abreviatura, p. ej. RVR (letras y dígitos)</string>
     <string name="hint_upload_language">Código de idioma, p. ej. en, cmn o es</string>
     <string name="dialog_message_failed_to_upload">No se pudo leer una Biblia del archivo. Debe ser un zip de libros USFM (.usfm o .sfm) y la abreviatura no puede estar en uso.</string>
-    <string name="translation_detail_vernacular_title">Título local</string>
-    <string name="translation_detail_english_title">Título en inglés</string>
     <string name="dialog_message_download_sites">Una dirección web por línea, por ejemplo https://ebible.org/download.php. Déjelo vacío para usar el valor predeterminado.</string>
-    <string name="dialog_message_failed_to_load_translation_list">No se pudo cargar la lista. Compruebe la red e inténtelo de nuevo.</string>
-    <string name="dialog_message_failed_to_download">Error de descarga. Compruebe la red e inténtelo de nuevo.</string>
-    <string name="dialog_message_failed_to_delete">Error al eliminar. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_select_translation">Error al elegir la traducción. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_select_chapter">Error al elegir el capítulo. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_load_verses">Error al cargar los versículos. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_search">Error en la búsqueda. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_select_verse">Error al elegir el versículo. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_navigate">Error al navegar. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_save_sort_order">Error al guardar el orden. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_load_reading_progress">Error al cargar el progreso. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_load_annotated_verses">Error al cargar. ¿Reintentar?</string>
-    <string name="dialog_message_failed_to_load_verse_detail">Error al cargar el versículo. ¿Reintentar?</string>
-    <string name="settings_text_night_mode_on">Sí</string>
-    <string name="settings_text_night_mode_off">No</string>
 </resources>

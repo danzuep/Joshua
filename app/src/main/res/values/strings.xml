@@ -42,7 +42,7 @@
     <string name="action_search_include_bookmarks">@string/title_bookmarks</string>
     <string name="action_search_include_highlights">@string/title_highlights</string>
     <string name="action_search_include_notes">@string/title_notes</string>
-    <string name="action_search_whole_words">Whole words only</string>
+    <string name="action_search_whole_words">“ab”</string>
     <string name="action_clear_search_history">🗑 🔍</string>
     <string name="action_bookmark_verse">@string/title_bookmarks</string>
     <string name="action_highlight_verse">@string/title_highlights</string>
@@ -68,8 +68,8 @@
     <string name="translation_detail_territory">🗺</string>
     <string name="translation_detail_language">A / 文</string>
     <string name="translation_detail_language_english">A / 文 (EN)</string>
-    <string name="translation_detail_vernacular_title">Vernacular title</string>
-    <string name="translation_detail_english_title">English title</string>
+    <string name="translation_detail_vernacular_title">文 📖</string>
+    <string name="translation_detail_english_title">A 📖</string>
     <string name="dialog_title_download_sites">@string/action_download_sites</string>
     <string name="dialog_message_download_sites">One web address per line, for example https://ebible.org/download.php. Leave empty to use the default.</string>
     <string name="dialog_title_error">⚠</string>
@@ -80,19 +80,21 @@
 
     <string name="dialog_message_download_translation_confirmation">⬇ ?</string>
     <string name="dialog_message_delete_translation_confirmation">🗑 ?</string>
-    <string name="dialog_message_failed_to_load_translation_list">Failed to load translation list. Please check the network connection and try again.</string>
-    <string name="dialog_message_failed_to_download">Failed to download. Please check the network connection and try again.</string>
-    <string name="dialog_message_failed_to_delete">Failed to delete, retry?</string>
-    <string name="dialog_message_failed_to_select_translation">Failed to select the translation, retry?</string>
-    <string name="dialog_message_failed_to_select_chapter">Failed to select the chapter, retry?</string>
-    <string name="dialog_message_failed_to_load_verses">Failed to load the verses, retry?</string>
-    <string name="dialog_message_failed_to_search">Error occurred during search, retry?</string>
-    <string name="dialog_message_failed_to_select_verse">Failed to select the verse, retry?</string>
-    <string name="dialog_message_failed_to_navigate">Failed to navigate, retry?</string>
-    <string name="dialog_message_failed_to_save_sort_order">Failed to save sort order, retry?</string>
-    <string name="dialog_message_failed_to_load_reading_progress">Failed to load reading progress, retry?</string>
-    <string name="dialog_message_failed_to_load_annotated_verses">Failed to load, retry?</string>
-    <string name="dialog_message_failed_to_load_verse_detail">Failed to load verse detail, retry?</string>
+    <string name="dialog_message_retry">⚠ 🔄 ?</string>
+    <string name="dialog_message_network_error">⚠ 📶 🔄</string>
+    <string name="dialog_message_failed_to_load_translation_list">@string/dialog_message_network_error</string>
+    <string name="dialog_message_failed_to_download">@string/dialog_message_network_error</string>
+    <string name="dialog_message_failed_to_delete">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_select_translation">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_select_chapter">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_load_verses">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_search">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_select_verse">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_navigate">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_save_sort_order">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_load_reading_progress">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_load_annotated_verses">@string/dialog_message_retry</string>
+    <string name="dialog_message_failed_to_load_verse_detail">@string/dialog_message_retry</string>
 
     <string name="text_pick_highlight_color">🎨</string>
     <string name="text_highlight_color_none">🚫</string>
@@ -146,8 +148,8 @@
     <string name="settings_title_version">v</string>
 
     <string name="settings_title_pick_night_mode">@string/settings_title_night_mode</string>
-    <string name="settings_text_night_mode_on">On</string>
-    <string name="settings_text_night_mode_off">Off</string>
+    <string name="settings_text_night_mode_on">✓</string>
+    <string name="settings_text_night_mode_off">✗</string>
     <string name="settings_text_night_mode_system">@string/title_settings</string>
 
     <string-array name="text_highlight_colors">

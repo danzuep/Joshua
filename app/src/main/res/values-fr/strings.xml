@@ -6,27 +6,9 @@
     <string name="text_new_testament">Nouveau Testament</string>
     <string name="content_description_back">Retour</string>
     <string name="content_description_drag_handle">Glisser pour réordonner</string>
-    <string name="action_search_whole_words">Mots entiers</string>
     <string name="hint_upload_name">Nom, p. ex. Louis Segond</string>
     <string name="hint_upload_short_name">Abréviation, p. ex. LSG (lettres et chiffres)</string>
     <string name="hint_upload_language">Code de langue, p. ex. en, cmn ou es</string>
     <string name="dialog_message_failed_to_upload">Impossible de lire une Bible dans le fichier. Il doit s\'agir d\'un zip de livres USFM (.usfm ou .sfm) et l\'abréviation ne doit pas être déjà utilisée.</string>
-    <string name="translation_detail_vernacular_title">Titre local</string>
-    <string name="translation_detail_english_title">Titre anglais</string>
     <string name="dialog_message_download_sites">Une adresse web par ligne, par exemple https://ebible.org/download.php. Laissez vide pour la valeur par défaut.</string>
-    <string name="dialog_message_failed_to_load_translation_list">Échec du chargement de la liste. Vérifiez le réseau et réessayez.</string>
-    <string name="dialog_message_failed_to_download">Échec du téléchargement. Vérifiez le réseau et réessayez.</string>
-    <string name="dialog_message_failed_to_delete">Échec de la suppression. Réessayer ?</string>
-    <string name="dialog_message_failed_to_select_translation">Échec du choix de la traduction. Réessayer ?</string>
-    <string name="dialog_message_failed_to_select_chapter">Échec du choix du chapitre. Réessayer ?</string>
-    <string name="dialog_message_failed_to_load_verses">Échec du chargement des versets. Réessayer ?</string>
-    <string name="dialog_message_failed_to_search">Erreur de recherche. Réessayer ?</string>
-    <string name="dialog_message_failed_to_select_verse">Échec du choix du verset. Réessayer ?</string>
-    <string name="dialog_message_failed_to_navigate">Échec de la navigation. Réessayer ?</string>
-    <string name="dialog_message_failed_to_save_sort_order">Échec de l\'enregistrement de l\'ordre. Réessayer ?</string>
-    <string name="dialog_message_failed_to_load_reading_progress">Échec du chargement de la progression. Réessayer ?</string>
-    <string name="dialog_message_failed_to_load_annotated_verses">Échec du chargement. Réessayer ?</string>
-    <string name="dialog_message_failed_to_load_verse_detail">Échec du chargement du verset. Réessayer ?</string>
-    <string name="settings_text_night_mode_on">Oui</string>
-    <string name="settings_text_night_mode_off">Non</string>
 </resources>

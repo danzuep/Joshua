@@ -6,27 +6,9 @@
     <string name="text_new_testament">العهد الجديد</string>
     <string name="content_description_back">رجوع</string>
     <string name="content_description_drag_handle">اسحب لإعادة الترتيب</string>
-    <string name="action_search_whole_words">كلمات كاملة</string>
     <string name="hint_upload_name">الاسم، مثل فان دايك</string>
     <string name="hint_upload_short_name">الاختصار، مثل SVD (حروف وأرقام)</string>
     <string name="hint_upload_language">رمز اللغة، مثل en أو cmn أو es</string>
     <string name="dialog_message_failed_to_upload">تعذّرت قراءة كتاب مقدس من الملف. يجب أن يكون ملف zip لأسفار USFM (‏.usfm أو .sfm) وألا يكون الاختصار مستخدمًا.</string>
-    <string name="translation_detail_vernacular_title">العنوان المحلي</string>
-    <string name="translation_detail_english_title">العنوان بالإنجليزية</string>
     <string name="dialog_message_download_sites">عنوان ويب واحد في كل سطر، مثل https://ebible.org/download.php. اتركه فارغًا لاستخدام الافتراضي.</string>
-    <string name="dialog_message_failed_to_load_translation_list">تعذّر تحميل القائمة. تحقق من الشبكة وحاول مجددًا.</string>
-    <string name="dialog_message_failed_to_download">فشل التنزيل. تحقق من الشبكة وحاول مجددًا.</string>
-    <string name="dialog_message_failed_to_delete">فشل الحذف. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_select_translation">فشل اختيار الترجمة. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_select_chapter">فشل اختيار الأصحاح. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_load_verses">فشل تحميل الآيات. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_search">حدث خطأ في البحث. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_select_verse">فشل اختيار الآية. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_navigate">فشل الانتقال. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_save_sort_order">فشل حفظ الترتيب. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_load_reading_progress">فشل تحميل التقدم. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_load_annotated_verses">فشل التحميل. إعادة المحاولة؟</string>
-    <string name="dialog_message_failed_to_load_verse_detail">فشل تحميل تفاصيل الآية. إعادة المحاولة؟</string>
-    <string name="settings_text_night_mode_on">تشغيل</string>
-    <string name="settings_text_night_mode_off">إيقاف</string>
 </resources>

@@ -6,27 +6,9 @@
     <string name="text_new_testament">Novo Testamento</string>
     <string name="content_description_back">Voltar</string>
     <string name="content_description_drag_handle">Arraste para reordenar</string>
-    <string name="action_search_whole_words">Palavras inteiras</string>
     <string name="hint_upload_name">Nome, ex.: Almeida</string>
     <string name="hint_upload_short_name">Abreviação, ex.: ARA (letras e dígitos)</string>
     <string name="hint_upload_language">Código do idioma, ex.: en, cmn ou es</string>
     <string name="dialog_message_failed_to_upload">Não foi possível ler uma Bíblia do arquivo. Deve ser um zip de livros USFM (.usfm ou .sfm) e a abreviação não pode estar em uso.</string>
-    <string name="translation_detail_vernacular_title">Título local</string>
-    <string name="translation_detail_english_title">Título em inglês</string>
     <string name="dialog_message_download_sites">Um endereço web por linha, por exemplo https://ebible.org/download.php. Deixe vazio para usar o padrão.</string>
-    <string name="dialog_message_failed_to_load_translation_list">Falha ao carregar a lista. Verifique a rede e tente novamente.</string>
-    <string name="dialog_message_failed_to_download">Falha no download. Verifique a rede e tente novamente.</string>
-    <string name="dialog_message_failed_to_delete">Falha ao excluir. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_select_translation">Falha ao escolher a tradução. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_select_chapter">Falha ao escolher o capítulo. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_load_verses">Falha ao carregar os versículos. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_search">Erro na busca. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_select_verse">Falha ao escolher o versículo. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_navigate">Falha ao navegar. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_save_sort_order">Falha ao salvar a ordem. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_load_reading_progress">Falha ao carregar o progresso. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_load_annotated_verses">Falha ao carregar. Tentar de novo?</string>
-    <string name="dialog_message_failed_to_load_verse_detail">Falha ao carregar o versículo. Tentar de novo?</string>
-    <string name="settings_text_night_mode_on">Sim</string>
-    <string name="settings_text_night_mode_off">Não</string>
 </resources>
