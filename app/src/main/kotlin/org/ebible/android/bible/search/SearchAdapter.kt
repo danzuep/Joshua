@@ -44,6 +44,7 @@ import org.ebible.android.bible.ui.setSpan
 import org.ebible.android.bible.ui.setSpans
 import org.ebible.android.bible.ui.toCharSequence
 import java.util.concurrent.Executor
+import org.ebible.android.bible.utils.localized
 
 class SearchAdapter(
     private val inflater: LayoutInflater,
@@ -117,7 +118,7 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
             // <book short name> <chapter index>:<verse index> <verse text>
             return@lazy SpannableStringBuilder()
                 .append(bookShortName).append(' ')
-                .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                .append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
                 .setSpan(BOOK_NAME_SPAN)
                 .append(' ').append(verseText)
                 .toCharSequence()
@@ -151,7 +152,7 @@ sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
             val builder = SpannableStringBuilder()
                 .append(bookShortName)
                 .append(' ')
-                .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                .append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
                 .setSpans(BOOK_NAME_SPAN)
                 .append('\n')
                 .append(verseText)

@@ -30,6 +30,7 @@ import org.ebible.android.bible.R
 import org.ebible.android.bible.databinding.ActivitySettingsBinding
 import org.ebible.android.bible.ui.toast
 import org.ebible.android.bible.infra.BaseActivity
+import org.ebible.android.bible.ui.AppLanguage
 import org.ebible.android.bible.ui.indeterminateProgressDialog
 import org.ebible.android.bible.ui.listDialog
 import org.ebible.android.bible.ui.seekBarDialog
@@ -58,6 +59,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         hideSearchButton.setOnCheckedChangeByUserListener(viewModel::saveHideSearchButton)
         fontSize.setOnSingleClickListener(viewModel::selectFontSizeScale)
         nightMode.setOnSingleClickListener(viewModel::selectNightMode)
+        language.setOnSingleClickListener(::selectLanguage)
         defaultHighlightColor.setOnSingleClickListener(viewModel::selectHighlightColor)
         backup.setOnSingleClickListener(viewModel::backup)
         restore.setOnSingleClickListener(viewModel::restore)
@@ -96,6 +98,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         hideSearchButton.isChecked = viewState.hideSearchButton
 
         nightMode.setDescription(viewState.nightModeStringRes)
+        language.setDescription(AppLanguage.selectedCode()?.let(AppLanguage::nativeName) ?: getString(R.string.settings_text_language_system))
         defaultHighlightColor.setDescription(viewState.defaultHighlightColorStringRes)
         version.setDescription(viewState.version)
 
@@ -112,6 +115,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
         fontSize.setTextSize(bodyTextSizePx, captionTextSizePx)
         keepScreenOn.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         nightMode.setTextSize(bodyTextSizePx, captionTextSizePx)
+        language.setTextSize(bodyTextSizePx, captionTextSizePx)
         reading.setTextSize(bodyTextSizePx)
         hideSearchButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, bodyTextSizePx.toFloat())
         defaultHighlightColor.setTextSize(bodyTextSizePx, captionTextSizePx)
@@ -171,6 +175,16 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding, SettingsViewModel
                 setTextSize(bodyTextSizePx = currentBodyTextSizePx, captionTextSizePx = currentCaptionTextSizePx)
             },
             onDismiss = viewModel::markFontSizeSelectionAsDismissed
+        )
+    }
+
+    private fun selectLanguage() {
+        val codes = listOf<String?>(null) + AppLanguage.CODES
+        listDialog(
+            title = R.string.settings_title_language,
+            items = codes.map { it?.let(AppLanguage::nativeName) ?: getString(R.string.settings_text_language_system) }.toTypedArray(),
+            selected = codes.indexOf(AppLanguage.selectedCode()),
+            onSelected = { which -> AppLanguage.select(codes[which]) },
         )
     }
 

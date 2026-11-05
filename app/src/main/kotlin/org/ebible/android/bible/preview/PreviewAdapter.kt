@@ -38,6 +38,7 @@ import org.ebible.android.bible.ui.recyclerview.VerticalRecyclerViewItem
 import org.ebible.android.bible.ui.setPrimaryTextSize
 import org.ebible.android.bible.ui.setSpans
 import org.ebible.android.bible.ui.toCharSequence
+import org.ebible.android.bible.utils.localized
 
 class PreviewAdapter(
     private val inflater: LayoutInflater,
@@ -87,7 +88,7 @@ sealed class PreviewItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
             // <chapter verseIndex>:<verse verseIndex> <verse text>
             SPANNABLE_STRING_BUILDER.clearAll()
 
-            SPANNABLE_STRING_BUILDER.append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+            SPANNABLE_STRING_BUILDER.append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
             if (followingEmptyVerseCount > 0) {
                 SPANNABLE_STRING_BUILDER.append('-').append(verseIndex.verseIndex + followingEmptyVerseCount + 1)
             }
@@ -116,7 +117,7 @@ sealed class PreviewItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
             // <chapter verseIndex>:<verse verseIndex> <verse text>
             SPANNABLE_STRING_BUILDER.clearAll()
 
-            SPANNABLE_STRING_BUILDER.append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+            SPANNABLE_STRING_BUILDER.append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
             if (followingEmptyVerseCount > 0) {
                 SPANNABLE_STRING_BUILDER.append('-').append(verseIndex.verseIndex + followingEmptyVerseCount + 1)
             }

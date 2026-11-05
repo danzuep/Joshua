@@ -134,6 +134,8 @@
     <string name="settings_header_display">📺</string>
     <string name="settings_title_font_size">Aª</string>
     <string name="settings_title_keep_screen_on">💡</string>
+    <string name="settings_title_language">A / 文</string>
+    <string name="settings_text_language_system">⚙</string>
     <string name="settings_title_night_mode">🌙</string>
     <string name="settings_header_reading">📖</string>
     <string name="settings_title_hide_search_button">🚫 🔍</string>

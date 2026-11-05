@@ -35,6 +35,7 @@ import org.ebible.android.bible.ui.TranslationInfoComparator
 import org.ebible.android.bible.utils.filterIsValid
 import org.ebible.android.bible.utils.filterNotEmpty
 import co.touchlab.kermit.Logger
+import org.ebible.android.bible.utils.localized
 
 @HiltViewModel
 class ReadingToolbarViewModel @Inject constructor(
@@ -81,7 +82,7 @@ class ReadingToolbarViewModel @Inject constructor(
             // Ignored once the saved position has moved on, e.g. after choosing a chapter.
             val titleVerse = scrolled?.takeIf { it.first == currentVerseIndex }?.second ?: currentVerseIndex
             val currentBookShortName = bibleReadingManager.readBookShortNames(currentTranslation)[titleVerse.bookIndex]
-            updateViewState { it.copy(title = "$currentBookShortName ${titleVerse.chapterIndex + 1}") }
+            updateViewState { it.copy(title = "$currentBookShortName ${(titleVerse.chapterIndex + 1).localized()}") }
         }.launchIn(viewModelScope)
 
         combine(

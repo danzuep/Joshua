@@ -16,6 +16,7 @@
 
 package org.ebible.android.bible.reading.verse
 
+import org.ebible.android.bible.utils.localized
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
@@ -144,7 +145,7 @@ class ParagraphItem(
                 // Isolated, so in right to left text the chapter stays next to the mark instead of merging with the verse number.
                 val rightToLeft = isRightToLeft(segment.text)
                 if (rightToLeft) builder.append(LEFT_TO_RIGHT_ISOLATE)
-                builder.append(chapter.toString())
+                builder.append(chapter.localized())
                 if (rightToLeft) builder.append(POP_DIRECTIONAL_ISOLATE)
                 builder.setSpan(StyleSpan(Typeface.BOLD), chapterStart, builder.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 // Non-breaking, so the chapter mark stays with the verse number and text that follow.

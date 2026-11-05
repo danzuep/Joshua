@@ -34,6 +34,7 @@ import org.ebible.android.bible.ui.recyclerview.BaseViewHolder
 import org.ebible.android.bible.ui.setPrimaryTextSize
 import org.ebible.android.bible.ui.setSpans
 import org.ebible.android.bible.ui.toCharSequence
+import org.ebible.android.bible.utils.localized
 
 class VersePreviewItem(val verse: Verse, followingEmptyVerseCount: Int)
     : BaseItem(R.layout.item_preview_verse, { inflater, parent -> VersePreviewItemViewHolder(inflater, parent) }) {
@@ -51,7 +52,7 @@ class VersePreviewItem(val verse: Verse, followingEmptyVerseCount: Int)
         // <chapter verseIndex>:<verse verseIndex> <verse text>
         SPANNABLE_STRING_BUILDER.clearAll()
 
-        SPANNABLE_STRING_BUILDER.append(verse.verseIndex.chapterIndex + 1).append(':').append(verse.verseIndex.verseIndex + 1)
+        SPANNABLE_STRING_BUILDER.append((verse.verseIndex.chapterIndex + 1).localized()).append(':').append((verse.verseIndex.verseIndex + 1).localized())
         if (followingEmptyVerseCount > 0) {
             SPANNABLE_STRING_BUILDER.append('-').append(verse.verseIndex.verseIndex + followingEmptyVerseCount + 1)
         }
