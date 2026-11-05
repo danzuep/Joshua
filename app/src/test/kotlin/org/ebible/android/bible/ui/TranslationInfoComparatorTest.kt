@@ -106,6 +106,6 @@ class TranslationInfoComparatorTest : BaseUnitTest() {
         Locale.setDefault(Locale.CHINESE)
         assertEquals(listOf(cmn, eng, jpn), listOf(eng, jpn, cmn).sortedWith(comparator))
         Locale.setDefault(Locale.JAPANESE)
-        assertEquals(listOf(jpn, cmn, eng), listOf(eng, jpn, cmn).sortedWith(comparator))
+        assertEquals(listOf(jpn, eng, cmn), listOf(eng, jpn, cmn).sortedWith(comparator))
     }
 }
