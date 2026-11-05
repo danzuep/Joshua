@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">พระคัมภีร์</string>
+    <string name="text_old_testament">พันธสัญญาเดิม</string>
+    <string name="text_new_testament">พันธสัญญาใหม่</string>
+    <string name="content_description_back">กลับ</string>
+    <string name="content_description_drag_handle">ลากเพื่อจัดลำดับใหม่</string>
+    <string name="hint_upload_name">ชื่อ เช่น พระคัมภีร์ไทยฉบับมาตรฐาน</string>
+    <string name="hint_upload_short_name">ชื่อย่อ เช่น THSV (ตัวอักษรและตัวเลข)</string>
+    <string name="hint_upload_language">รหัสภาษา เช่น en, cmn หรือ es</string>
+    <string name="dialog_message_failed_to_upload">อ่านพระคัมภีร์จากไฟล์ไม่ได้ ต้องเป็นไฟล์ zip ของหนังสือ USFM (.usfm หรือ .sfm) และชื่อย่อต้องไม่ซ้ำกับฉบับแปลที่ติดตั้งแล้ว</string>
+    <string name="dialog_message_download_sites">ที่อยู่เว็บหนึ่งรายการต่อบรรทัด เช่น https://ebible.org/download.php เว้นว่างไว้เพื่อใช้ค่าเริ่มต้น</string>
+</resources>

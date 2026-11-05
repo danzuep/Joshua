@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">بائبل</string>
+    <string name="text_old_testament">عہد نامہ قدیم</string>
+    <string name="text_new_testament">عہد نامہ جدید</string>
+    <string name="content_description_back">واپس</string>
+    <string name="content_description_drag_handle">ترتیب بدلنے کے لیے گھسیٹیں</string>
+    <string name="hint_upload_name">نام، مثلاً کنگ جیمز ورژن</string>
+    <string name="hint_upload_short_name">مخفف، مثلاً KJV (حروف اور اعداد)</string>
+    <string name="hint_upload_language">زبان کا کوڈ، مثلاً en، cmn یا es</string>
+    <string name="dialog_message_failed_to_upload">فائل سے بائبل نہیں پڑھی جا سکی۔ یہ USFM کتابوں (.usfm یا .sfm) کی zip ہونی چاہیے اور مخفف کسی انسٹال شدہ ترجمے میں استعمال نہ ہوا ہو۔</string>
+    <string name="dialog_message_download_sites">ہر سطر میں ایک ویب پتہ، مثلاً https://ebible.org/download.php۔ ڈیفالٹ کے لیے خالی چھوڑیں۔</string>
+</resources>

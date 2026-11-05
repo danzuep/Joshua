@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">Bibel</string>
+    <string name="text_old_testament">Altes Testament</string>
+    <string name="text_new_testament">Neues Testament</string>
+    <string name="content_description_back">Zurück</string>
+    <string name="content_description_drag_handle">Ziehen, um die Reihenfolge zu ändern</string>
+    <string name="hint_upload_name">Name, z. B. Luther-Bibel</string>
+    <string name="hint_upload_short_name">Kürzel, z. B. LUT (Buchstaben und Ziffern)</string>
+    <string name="hint_upload_language">Sprachcode, z. B. en, cmn oder es</string>
+    <string name="dialog_message_failed_to_upload">Aus der Datei konnte keine Bibel gelesen werden. Sie muss eine ZIP-Datei mit USFM-Büchern (.usfm oder .sfm) sein, und das Kürzel darf nicht bereits von einer installierten Übersetzung verwendet werden.</string>
+    <string name="dialog_message_download_sites">Eine Webadresse pro Zeile, z. B. https://ebible.org/download.php. Leer lassen, um den Standard zu verwenden.</string>
+</resources>

@@ -95,4 +95,17 @@ class TranslationInfoComparatorTest : BaseUnitTest() {
         assertEquals(expected, listOf(zhCn, enUs1, fiFi, enUs2).sortedWith(comparatorLanguageThenShortName))
         assertEquals(expected, listOf(enUs2, enUs1, zhCn, fiFi).sortedWith(comparatorLanguageThenShortName))
     }
+
+    @Test
+    fun testSystemLanguageMatchesIso639ThreeLetterCodes() {
+        val eng = TranslationInfo("eng", "eng", "eng", 0L, false)
+        val cmn = TranslationInfo("cmn", "cmn", "cmn", 0L, false)
+        val jpn = TranslationInfo("jpn", "jpn", "jpn", 0L, false)
+        val comparator = TranslationInfoComparator(TranslationInfoComparator.SORT_ORDER_LANGUAGE_THEN_NAME)
+
+        Locale.setDefault(Locale.CHINESE)
+        assertEquals(listOf(cmn, eng, jpn), listOf(eng, jpn, cmn).sortedWith(comparator))
+        Locale.setDefault(Locale.JAPANESE)
+        assertEquals(listOf(jpn, eng, cmn), listOf(eng, jpn, cmn).sortedWith(comparator))
+    }
 }
