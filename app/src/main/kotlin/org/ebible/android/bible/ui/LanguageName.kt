@@ -32,3 +32,23 @@ fun languageDisplayNameWithNative(language: String): String {
     val native = locale.getDisplayLanguage(locale)
     return if (native.isEmpty() || native == english) english else "$english ($native)"
 }
+
+/** Languages that eBible.org lists under a more specific code than the one the system uses (e.g. `zh` for `cmn` or `yue`). */
+private val RELATED_LANGUAGES = mapOf(
+    "zho" to setOf("cmn", "yue", "wuu", "hak", "nan", "gan", "hsn", "cdo"),
+    "ara" to setOf("arb", "arz", "apd", "ary", "acm"),
+    "msa" to setOf("zsm", "ind"),
+    "fas" to setOf("pes", "prs"),
+    "swa" to setOf("swh"),
+)
+
+private fun iso3(code: String): String? = if (code.length == 3) code.lowercase() else runCatching { Locale.forLanguageTag(code).isO3Language }.getOrNull()?.ifEmpty { null }
+
+/** Whether the translation [language] (e.g. `en`, `eng`, `cmn` or `zh_CN`) is the language of [locale], comparing ISO 639 codes. */
+fun languageMatchesLocale(language: String, locale: Locale = Locale.getDefault()): Boolean {
+    val code = iso3(language.split("_")[0]) ?: return false
+    val user = iso3(locale.language) ?: return false
+    if (code == user) return true
+    // The bibliographic and terminological codes differ for some languages, e.g. `zho` and `chi`.
+    return RELATED_LANGUAGES.any { (macro, members) -> (user == macro || user in members) && (code == macro || code in members) }
+}

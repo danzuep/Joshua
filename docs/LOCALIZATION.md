@@ -7,12 +7,24 @@ The app UI is translated into the most spoken languages. This is separate from B
 | Code | Language | Folder |
 |------|----------|--------|
 | `en` | English (default) | `values/` |
-| `zh` | Chinese | `values-zh/` |
+| `zh` | Chinese (simplified) | `values-zh/` |
+| `zh-Hant` | Chinese (traditional, also read by Cantonese speakers) | `values-b+zh+Hant/` |
 | `es` | Spanish | `values-es/` |
 | `hi` | Hindi | `values-hi/` |
 | `ar` | Arabic (right-to-left) | `values-ar/` |
 | `fr` | French | `values-fr/` |
 | `pt` | Portuguese | `values-pt/` |
+| `bn` | Bengali | `values-bn/` |
+| `ru` | Russian | `values-ru/` |
+| `ur` | Urdu (right-to-left) | `values-ur/` |
+| `id` | Indonesian | `values-in/` (`in` is the legacy code Android uses for folders) |
+| `de` | German | `values-de/` |
+| `ja` | Japanese | `values-ja/` |
+| `tr` | Turkish | `values-tr/` |
+| `vi` | Vietnamese | `values-vi/` |
+| `ko` | Korean | `values-ko/` |
+| `it` | Italian | `values-it/` |
+| `th` | Thai | `values-th/` |
 
 All folders are under `app/src/main/res/`. The list is kept in `Configurations.supportedLocales` in `buildSrc/src/main/kotlin/Configurations.kt`; a locale missing from it is stripped from the APK by `androidResources.localeFilters`. The manifest sets `supportsRtl` so Arabic mirrors the layout.
 
@@ -38,7 +50,7 @@ Chapter and verse numbers are formatted with `Int.localized()` (`java.text.Numbe
 
 1. Create `app/src/main/res/values-<code>/strings.xml`.
 2. Translate only the prose strings from `values/strings.xml` (see above).
-3. Add the code to `Configurations.supportedLocales`, `AppLanguage.CODES` and `res/xml/locales_config.xml`.
+3. Add the code to `Configurations.supportedLocales` (as a resource filter, e.g. `b+zh+Hant`), `AppLanguage.CODES` and `res/xml/locales_config.xml`.
 
 ## Symbols
 
@@ -64,3 +76,7 @@ Share (📤) and cross references (🔗) use different glyphs, and ⚙ is reserv
 ## Review
 
 The translations were written without a native-speaker review. Corrections are welcome.
+
+## Bible translation list
+
+Translations whose ISO 639 language matches the current UI language (`languageMatchesLocale`, which compares 2 and 3 letter codes and groups related codes such as `zh` with `cmn` and `yue`) are listed first, then the rest by language. The list filter also matches the language code, e.g. `spa` or `jpn`.
