@@ -68,6 +68,7 @@ The WEB was produced by **Michael Johnson**, who also maintains many other publi
 License
 -------
     Copyright (C) 2023 Xizhi Zhu
+    Copyright (C) 2026 Daniel Collingwood
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
