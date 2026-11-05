@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">聖書</string>
+    <string name="text_old_testament">旧約聖書</string>
+    <string name="text_new_testament">新約聖書</string>
+    <string name="content_description_back">戻る</string>
+    <string name="content_description_drag_handle">ドラッグして並べ替え</string>
+    <string name="hint_upload_name">名前（例：新改訳）</string>
+    <string name="hint_upload_short_name">略称（例：JCB、英数字）</string>
+    <string name="hint_upload_language">言語コード（例：en、cmn、es）</string>
+    <string name="dialog_message_failed_to_upload">ファイルから聖書を読み取れませんでした。USFM の書巻（.usfm または .sfm）の zip である必要があり、略称はインストール済みの訳と重複できません。</string>
+    <string name="dialog_message_download_sites">1 行に 1 つ Web アドレスを入力します（例：https://ebible.org/download.php）。空欄の場合は既定値を使います。</string>
+</resources>

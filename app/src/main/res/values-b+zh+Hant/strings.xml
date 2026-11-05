@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="text_bible">聖經</string>
+    <string name="text_old_testament">舊約</string>
+    <string name="text_new_testament">新約</string>
+    <string name="content_description_back">返回</string>
+    <string name="content_description_drag_handle">拖曳以排序</string>
+    <string name="hint_upload_name">名稱，如 和合本</string>
+    <string name="hint_upload_short_name">縮寫，如 CUV（字母和數字）</string>
+    <string name="hint_upload_language">語言代碼，如 en、cmn 或 es</string>
+    <string name="dialog_message_failed_to_upload">無法從檔案讀取聖經。檔案須為 USFM 書卷（.usfm 或 .sfm）的 zip，且縮寫不能與已安裝譯本重複。</string>
+    <string name="dialog_message_download_sites">每行一個網址，例如 https://ebible.org/download.php。留空則使用預設值。</string>
+</resources>
