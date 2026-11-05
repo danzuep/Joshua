@@ -21,6 +21,7 @@ import android.app.Application
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -28,6 +29,7 @@ import kotlinx.coroutines.launch
 import org.ebible.android.bible.R
 import org.ebible.android.bible.core.BibleReadingManager
 import org.ebible.android.bible.core.TranslationManager
+import org.ebible.android.bible.core.VerseIndex
 import org.ebible.android.bible.infra.BaseViewModel
 import org.ebible.android.bible.ui.TranslationInfoComparator
 import org.ebible.android.bible.utils.filterIsValid
@@ -62,13 +64,24 @@ class ReadingToolbarViewModel @Inject constructor(
 
     private val translationComparator = TranslationInfoComparator(TranslationInfoComparator.SORT_ORDER_LANGUAGE_THEN_SHORT_NAME)
 
+    /** The verse in the middle of the screen, with the saved (first visible) verse it was reported for. */
+    private val scrolledVerses = MutableStateFlow<Pair<VerseIndex, VerseIndex>?>(null)
+
+    /** The title follows the middle verse, while the saved reading position stays on [firstVerse]. */
+    fun showReadingChapter(firstVerse: VerseIndex, middleVerse: VerseIndex) {
+        scrolledVerses.value = firstVerse to middleVerse
+    }
+
     init {
         combine(
             bibleReadingManager.currentTranslation().filterNotEmpty(),
             bibleReadingManager.currentVerseIndex().filterIsValid(),
-        ) { currentTranslation, currentVerseIndex ->
-            val currentBookShortName = bibleReadingManager.readBookShortNames(currentTranslation)[currentVerseIndex.bookIndex]
-            updateViewState { it.copy(title = "$currentBookShortName ${currentVerseIndex.chapterIndex + 1}") }
+            scrolledVerses,
+        ) { currentTranslation, currentVerseIndex, scrolled ->
+            // Ignored once the saved position has moved on, e.g. after choosing a chapter.
+            val titleVerse = scrolled?.takeIf { it.first == currentVerseIndex }?.second ?: currentVerseIndex
+            val currentBookShortName = bibleReadingManager.readBookShortNames(currentTranslation)[titleVerse.bookIndex]
+            updateViewState { it.copy(title = "$currentBookShortName ${titleVerse.chapterIndex + 1}") }
         }.launchIn(viewModelScope)
 
         combine(

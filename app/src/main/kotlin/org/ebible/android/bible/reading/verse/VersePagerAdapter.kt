@@ -36,7 +36,7 @@ import org.ebible.android.bible.ui.recyclerview.BaseItem
 class VersePagerAdapter(
     context: Context,
     private val loadVerses: (Int, Int) -> Unit,
-    private val updateCurrentVerse: (VerseIndex) -> Unit
+    private val updateCurrentVerse: (pagePosition: Int, firstVerse: VerseIndex, middleVerse: VerseIndex) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val inflater = LayoutInflater.from(context)
     private val chapterItems = mutableMapOf<Int, List<BaseItem>>()
@@ -199,7 +199,7 @@ private class Page(
     container: ViewGroup,
     private val getChapter: (Int) -> List<BaseItem>?,
     private val loadChapter: (Int) -> Unit,
-    updateCurrentVerse: (VerseIndex) -> Unit
+    updateCurrentVerse: (pagePosition: Int, firstVerse: VerseIndex, middleVerse: VerseIndex) -> Unit
 ) : RecyclerView.ViewHolder(PageVerseBinding.inflate(inflater, container, false).root) {
     private val chapters = sortedMapOf<Int, List<BaseItem>>()
     private val requestedPositions = mutableSetOf<Int>()
@@ -212,7 +212,9 @@ private class Page(
         verseList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    firstVisibleVerse(recyclerView)?.let(updateCurrentVerse)
+                    firstVisibleVerse(recyclerView)?.let { first ->
+                        updateCurrentVerse(pagePosition, first, middleVisibleVerse(recyclerView) ?: first)
+                    }
                 }
             }
 
@@ -346,6 +348,22 @@ private class Page(
         val lastPosition = layoutManager.findLastVisibleItemPosition()
         for (position in firstPosition..lastPosition) {
             (renderedItems.getOrNull(position) as? ParagraphItem)?.let { return it.firstVerse }
+        }
+        return null
+    }
+
+    /** The verse in the middle of the screen, so the chapter changes once most of the visible text belongs to it. */
+    private fun middleVisibleVerse(recyclerView: RecyclerView): VerseIndex? {
+        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+        val firstPosition = layoutManager.findFirstVisibleItemPosition()
+        val lastPosition = layoutManager.findLastVisibleItemPosition()
+        if (firstPosition == RecyclerView.NO_POSITION) return null
+        val middle = (firstPosition + lastPosition) / 2
+        for (distance in 0..(lastPosition - firstPosition)) {
+            for (position in listOf(middle - distance, middle + distance)) {
+                if (position < firstPosition || position > lastPosition) continue
+                (renderedItems.getOrNull(position) as? ParagraphItem)?.let { return it.firstVerse }
+            }
         }
         return null
     }

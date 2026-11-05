@@ -22,6 +22,7 @@ import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.ebible.android.bible.Navigator
 import org.ebible.android.bible.R
+import org.ebible.android.bible.core.VerseIndex
 import org.ebible.android.bible.databinding.FragmentReadingToolbarBinding
 import org.ebible.android.bible.infra.BaseFragment
 import org.ebible.android.bible.ui.toast
@@ -29,6 +30,10 @@ import org.ebible.android.bible.ui.toast
 @AndroidEntryPoint
 class ReadingToolbarFragment : BaseFragment<FragmentReadingToolbarBinding, ReadingToolbarViewModel.ViewAction, ReadingToolbarViewModel.ViewState, ReadingToolbarViewModel>() {
     val toolbar: Toolbar by lazy(LazyThreadSafetyMode.NONE) { viewBinding.toolbar }
+
+    fun showReadingChapter(firstVerse: VerseIndex, middleVerse: VerseIndex) = viewModel.showReadingChapter(firstVerse, middleVerse)
+
+    var onTitleClicked: (() -> Unit)? = null
 
     override val viewModel: ReadingToolbarViewModel by viewModels()
 
@@ -47,9 +52,7 @@ class ReadingToolbarFragment : BaseFragment<FragmentReadingToolbarBinding, Readi
                 is ReadingToolbar.ViewEvent.RemoveParallelTranslation -> viewModel.removeParallelTranslation(viewEvent.translationToRemove)
                 is ReadingToolbar.ViewEvent.RequestParallelTranslation -> viewModel.requestParallelTranslation(viewEvent.translationToRequest)
                 is ReadingToolbar.ViewEvent.SelectCurrentTranslation -> viewModel.selectTranslation(viewEvent.translationToSelect)
-                is ReadingToolbar.ViewEvent.TitleClicked -> {
-                    // TODO
-                }
+                is ReadingToolbar.ViewEvent.TitleClicked -> onTitleClicked?.invoke()
             }
         }
     }
