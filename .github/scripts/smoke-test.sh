@@ -92,8 +92,9 @@ else
 fi
 # Scroll to the start of John 2 and capture it: the chapter starts inline with a bold "¶2" instead of a heading and break.
 chapter_found=0
+read -r width height < <(adb shell wm size | grep -oE '[0-9]+x[0-9]+' | tail -n 1 | tr 'x' ' ')
 for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
-  adb shell input swipe 540 1700 540 500 300
+  adb shell input swipe $((width / 2)) $((height * 3 / 4)) $((width / 2)) $((height / 4)) 300
   sleep 1
   dump_ui
   if grep -q "¶2" ui.xml 2> /dev/null; then
@@ -101,9 +102,8 @@ for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
     break
   fi
 done
-if [ "$chapter_found" -eq 1 ]; then
-  adb exec-out screencap -p > screen-chapter.png
-else
+adb exec-out screencap -p > screen-chapter.png
+if [ "$chapter_found" -ne 1 ]; then
   echo "FAIL: John 2 did not start with the chapter mark"
   status=1
 fi
