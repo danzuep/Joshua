@@ -42,6 +42,7 @@ import org.ebible.android.bible.core.provider.TimeProvider
 import org.ebible.android.bible.tests.BaseUnitTest
 import org.ebible.android.bible.tests.MockContents
 import org.ebible.android.bible.tests.TestTimeProvider
+import java.util.Calendar
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
