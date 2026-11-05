@@ -92,6 +92,9 @@ else
 fi
 # Scroll to the start of John 2 and capture it: the chapter starts inline with a bold "¶2" instead of a heading and break.
 chapter_found=0
+# The back press above can leave the reader, so reopen John first.
+adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK "${SMOKE_BOOK_INDEX:-42}" > /dev/null
+sleep 5
 # The emulator screen is only 320x640, so scroll relative to its size rather than with fixed coordinates.
 read -r width height < <(adb shell wm size | grep -oE '[0-9]+x[0-9]+' | tail -n 1 | tr 'x' ' ')
 for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
