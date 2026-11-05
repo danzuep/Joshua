@@ -98,13 +98,13 @@
 
     <string name="text_pick_highlight_color">🎨</string>
     <string name="text_highlight_color_none">🚫</string>
-    <string name="text_highlight_color_yellow">🟡</string>
+    <string name="text_highlight_color_yellow">🟨</string>
     <string name="text_highlight_color_pink">🩷</string>
-    <string name="text_highlight_color_orange">🟠</string>
-    <string name="text_highlight_color_purple">🟣</string>
-    <string name="text_highlight_color_red">🔴</string>
-    <string name="text_highlight_color_green">🟢</string>
-    <string name="text_highlight_color_blue">🔵</string>
+    <string name="text_highlight_color_orange">🟧</string>
+    <string name="text_highlight_color_purple">🟪</string>
+    <string name="text_highlight_color_red">🟥</string>
+    <string name="text_highlight_color_green">🟩</string>
+    <string name="text_highlight_color_blue">🟦</string>
 
     <string name="text_chapter_selection_old_testament">@string/text_old_testament_abbr</string>
     <string name="text_chapter_selection_new_testament">@string/text_new_testament_abbr</string>
@@ -135,7 +135,7 @@
     <string name="settings_title_font_size">Aª</string>
     <string name="settings_title_keep_screen_on">💡</string>
     <string name="settings_title_language">A / 文</string>
-    <string name="settings_text_language_system">⚙</string>
+    <string name="settings_text_language_system">🗣️</string>
     <string name="settings_title_night_mode">🌙</string>
     <string name="settings_header_reading">📖</string>
     <string name="settings_title_hide_search_button">🚫 🔍</string>

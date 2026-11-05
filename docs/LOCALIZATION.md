@@ -28,7 +28,7 @@ Each `values-<code>/strings.xml` therefore has about ten entries. Do not transla
 
 ## Language picker
 
-Settings has an **A / 文** entry that lists the supported languages by their own names, plus ⚙ to follow the system. It uses `AppCompatDelegate.setApplicationLocales`, so the choice is remembered (via `AppLocalesMetadataHolderService` before Android 13, and shown in system settings through `res/xml/locales_config.xml`). Without a choice the device language is used.
+Settings has an **A / 文** entry that lists the supported languages by their own names, plus 🗣️ to follow the system. It uses `AppCompatDelegate.setApplicationLocales`, so the choice is remembered (via `AppLocalesMetadataHolderService` before Android 13, and shown in system settings through `res/xml/locales_config.xml`). Without a choice the device language is used.
 
 Chapter and verse numbers are formatted with `Int.localized()` (`java.text.NumberFormat`), so they use the digits of the current locale, such as ١٢٣ in Arabic.
 
