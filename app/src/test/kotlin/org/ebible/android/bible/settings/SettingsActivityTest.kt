@@ -39,6 +39,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.flowOf
 import org.ebible.android.bible.R
+import org.ebible.android.bible.core.Highlight
 import org.ebible.android.bible.NavigationModule
 import org.ebible.android.bible.Navigator
 import org.ebible.android.bible.databinding.ActivitySettingsBinding
