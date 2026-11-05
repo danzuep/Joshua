@@ -1,4 +1,4 @@
-name: Update eBible downloads
+name: Update eBible translation catalog
 
 on:
   schedule:
@@ -19,8 +19,8 @@ jobs:
         distribution: 'temurin'
         java-version: '25'
     - uses: gradle/actions/setup-gradle@v6
-    - name: Regenerate ebible_downloads.tsv
-      run: ./gradlew updateEbibleDownloads
+    - name: Download translations.csv
+      run: ./gradlew updateEbibleTranslations
     - name: Open a pull request if the list changed
       env:
         GH_TOKEN: ${{ github.token }}
@@ -29,10 +29,11 @@ jobs:
           echo "No changes"
           exit 0
         fi
-        branch=update-ebible-downloads-$(date +%Y%m%d)
+        branch=update-ebible-translations-$(date +%Y%m%d)
         git config user.name "github-actions[bot]"
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git checkout -b "$branch"
-        git commit -am "Update ebible_downloads.tsv"
+        git add -A app/src/main/assets
+        git commit -m "Update eBible translation catalog"
         git push origin "$branch"
-        gh pr create --title "Update ebible_downloads.tsv" --body "Regenerated from https://ebible.org/download.php" --base "${GITHUB_REF_NAME}"
+        gh pr create --title "Update eBible translation catalog" --body "Downloaded https://ebible.org/Scriptures/translations.csv" --base "${GITHUB_REF_NAME}"
