@@ -55,6 +55,8 @@ class SettingSectionHeader : FrameLayout {
                 viewBinding.title.setText(this, R.styleable.SettingSectionHeader_settingSectionHeaderTitle)
                 recycle()
             }
+        // A blank title leaves just the divider, with no empty row above it.
+        viewBinding.title.visibility = if (viewBinding.title.text.isNullOrEmpty()) GONE else VISIBLE
     }
 
     fun setTextSize(@Px textSize: Int) {

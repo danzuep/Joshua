@@ -62,7 +62,7 @@
     <string name="action_download_engbsb">Berean Standard Bible</string>
     <string name="action_download_engwebp">World English Bible</string>
     <string name="action_download_engerv">Easy-to-Read Version</string>
-    <string name="hint_filter_translations">🔍 🌐</string>
+    <string name="hint_filter_translations"></string>
     <string name="text_all_languages">A / 文 *</string>
     <string name="translation_detail_id">ID</string>
     <string name="translation_detail_territory">🗺</string>
@@ -102,20 +102,21 @@
     <string name="text_chapter_selection_old_testament">@string/text_old_testament_abbr</string>
     <string name="text_chapter_selection_new_testament">@string/text_new_testament_abbr</string>
 
-    <string name="text_restore_from">☁ ⬇</string>
+    <string name="text_restore_from">☁ 💾 ⬇</string>
     <string name="text_share_with">@string/action_share</string>
 
     <string name="text_parallel">||</string>
     <string name="text_notes">@string/title_notes</string>
+    <string name="text_notes_hint"></string>
     <string name="text_notes_typing">✎ …</string>
     <string name="text_notes_saved">✎ ✓</string>
     <string name="text_paratext">📖</string>
-    <string name="text_footnotes">🦶</string>
-    <string name="text_cross_references">🔗</string>
+    <string name="text_footnotes"></string>
+    <string name="text_cross_references"></string>
 
-    <string name="text_no_bookmarks">🔖 ∅</string>
-    <string name="text_no_highlights">🖍 ∅</string>
-    <string name="text_no_notes">📝 ∅</string>
+    <string name="text_no_bookmarks">∅</string>
+    <string name="text_no_highlights">∅</string>
+    <string name="text_no_notes">∅</string>
 
     <string name="text_continuous_reading">🔥</string>
     <string name="text_continuous_reading_count">🔥 %1$d</string>
@@ -124,20 +125,20 @@
     <string name="text_finished_old_testament">@string/text_old_testament</string>
     <string name="text_finished_new_testament">@string/text_new_testament</string>
 
-    <string name="settings_header_display">📺</string>
+    <string name="settings_header_display"></string>
     <string name="settings_title_font_size">Aª</string>
-    <string name="settings_title_keep_screen_on">💡</string>
+    <string name="settings_title_keep_screen_on">🔒 💡</string>
     <string name="settings_title_language">A / 文</string>
     <string name="settings_text_language_system">🗣️</string>
     <string name="settings_title_night_mode">🌙</string>
-    <string name="settings_header_reading">📖</string>
+    <string name="settings_header_reading"></string>
     <string name="settings_title_hide_search_button">🚫 🔍</string>
     <string name="settings_title_default_highlight_color">🎨 🖍</string>
-    <string name="settings_header_backup_restore">☁</string>
-    <string name="settings_title_backup">☁ ⬆</string>
-    <string name="settings_title_restore">☁ ⬇</string>
+    <string name="settings_header_backup_restore"></string>
+    <string name="settings_title_backup">☁ 💾 ⬆</string>
+    <string name="settings_title_restore">☁ 💾 ⬇</string>
     <string name="action_copyright_permissions">©</string>
-    <string name="settings_header_about">ℹ</string>
+    <string name="settings_header_about"></string>
     <string name="settings_title_rate">⭐</string>
     <string name="settings_title_website">@string/title_translation_management</string>
     <string name="settings_title_version">v</string>

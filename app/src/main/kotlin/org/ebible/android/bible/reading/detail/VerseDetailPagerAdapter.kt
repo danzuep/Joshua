@@ -191,7 +191,8 @@ private class ParatextPage(inflater: LayoutInflater, container: ViewGroup, priva
     private fun bindSection(title: TextView, scroll: View, content: TextView, items: List<String>,
                             verseDetail: VerseDetailViewData, settings: Settings) {
         val visible = items.isNotEmpty()
-        title.visibility = if (visible) View.VISIBLE else View.GONE
+        // Section titles are blank, so the title row is never shown.
+        title.visibility = if (visible && title.text.isNotEmpty()) View.VISIBLE else View.GONE
         scroll.visibility = if (visible) View.VISIBLE else View.GONE
         content.text = linkReferences(items.joinToString("\n\n"), verseDetail)
         content.movementMethod = LinkMovementMethod.getInstance()
@@ -248,7 +249,7 @@ private class NotePage(inflater: LayoutInflater, container: ViewGroup, scheduleN
     override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
         this.verseDetail = verseDetail
         handler.removeCallbacks(showSavedIndicator)
-        viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes)
+        viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes_hint)
         with(viewBinding.note) {
             removeTextChangedListener(textWatcher)
             setText(verseDetail.note)
