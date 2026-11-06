@@ -88,8 +88,14 @@ android {
         }
         getByName("debug") { java.setSrcDirs(setOf("src/debug/kotlin")) }
         getByName("release") { java.setSrcDirs(setOf("src/release/kotlin")) }
-        getByName("test") { java.setSrcDirs(setOf("src/test/kotlin", "src/testShared/kotlin")) }
-        getByName("androidTest") { java.setSrcDirs(setOf("src/androidTest/kotlin", "src/testShared/kotlin")) }
+        getByName("test") {
+            java.setSrcDirs(setOf("src/test/kotlin"))
+            kotlin.srcDir("src/testShared/kotlin")
+        }
+        getByName("androidTest") {
+            java.setSrcDirs(setOf("src/androidTest/kotlin"))
+            kotlin.srcDir("src/testShared/kotlin")
+        }
     }
 
     signingConfigs {
