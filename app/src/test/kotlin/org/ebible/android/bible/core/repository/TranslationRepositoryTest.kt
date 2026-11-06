@@ -56,6 +56,7 @@ class TranslationRepositoryTest : BaseUnitTest() {
         localTranslationStorage = mockk()
         coEvery { localTranslationStorage.readDownloadSites() } returns emptyList()
         coEvery { localTranslationStorage.readTranslations() } returns emptyList()
+        coEvery { localTranslationStorage.installPrebuiltTranslations() } returns false
 
         remoteTranslationService = mockk()
         coEvery { remoteTranslationService.fetchBundledTranslations() } returns emptyList()

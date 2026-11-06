@@ -81,6 +81,11 @@ class TranslationRepository(
     }
 
     private suspend fun installBundledTranslations(): Boolean {
+        if (localTranslationStorage.installPrebuiltTranslations()) {
+            Logger.withTag(TAG).i { "Installed prebuilt bundled translations" }
+            return true
+        }
+
         val bundled = remoteTranslationService.fetchBundledTranslations()
         if (bundled.isEmpty()) return false
 

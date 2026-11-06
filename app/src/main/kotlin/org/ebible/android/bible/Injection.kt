@@ -181,5 +181,5 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideTranslationRepository(app: Application, androidDatabase: AndroidDatabase, timeProvider: TimeProvider, appScope: CoroutineScope): TranslationRepository =
-        TranslationRepository(AndroidTranslationStorage(androidDatabase), HttpTranslationService(app), timeProvider, appScope)
+        TranslationRepository(AndroidTranslationStorage(androidDatabase, app), HttpTranslationService(app), timeProvider, appScope)
 }

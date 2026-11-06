@@ -42,7 +42,7 @@ More about app signing can be found [here](https://developer.android.com/studio/
 ## Automated releases
 
 - Merging a PR into `main` runs the *Auto Tag* workflow, which creates the next `vX.Y.Z` tag from the prefix of the PR title: `major: ...` bumps X, `minor: ...` bumps Y, `patch: ...` bumps Z. Any other title creates no tag and no release. After a tag is created it starts the *Release APK* workflow.
-- The release workflow stamps the tag into the app (`versionName` and `versionCode` via `-PappVersion`) and publishes two APKs: `Yeshua-vX.Y.Z.apk`, and `Yeshua-vX.Y.Z-with-WEB.apk`, which has the WEB Bible prepackaged (installed on first launch when no translation is present; built with `-PbundledAssetsDir=<dir>` containing `bundled/list.tsv` (id, name and language separated by tabs) and `bundled/translations/<id>.zip` (USFM)`).
+- The release workflow stamps the tag into the app (`versionName` and `versionCode` via `-PappVersion`) and publishes two APKs: `Yeshua-vX.Y.Z.apk`, and `Yeshua-vX.Y.Z-with-WEB.apk`, which has the WEB Bible prepackaged (installed on first launch when no translation is present). The workflow parses the WEB USFM zip during the build with the `BundledDatabaseGenerator` unit test (`BUNDLE_DIR=<dir>` containing `list.tsv` and `translations/<id>.zip`), and builds with `-PbundledAssetsDir=<dir>` containing the resulting `bundled/bundled.db`, which the app copies into its database on first launch. As a fallback the app also accepts `bundled/list.tsv` (id, name and language separated by tabs) and `bundled/translations/<id>.zip` (USFM), which it parses on first launch.
 
 
 F-Droid

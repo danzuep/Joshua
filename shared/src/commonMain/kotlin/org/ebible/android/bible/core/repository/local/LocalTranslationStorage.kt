@@ -39,4 +39,7 @@ interface LocalTranslationStorage {
                                 verses: Map<Pair<Int, Int>, List<String>>)
 
     suspend fun removeTranslation(translationInfo: TranslationInfo)
+
+    /** Installs translations that were parsed at build time and shipped with the app; false if there are none. */
+    suspend fun installPrebuiltTranslations(): Boolean = false
 }

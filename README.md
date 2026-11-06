@@ -16,7 +16,7 @@ Get the latest APK from **[GitHub Releases](https://github.com/danzuep/Yeshua/re
 
 | File | What it is |
 |------|------------|
-| `Yeshua-vX.Y.Z-with-WEB.apk` | **Recommended.** Includes the WEB Bible, so it works offline from the first launch. 3.33 MB as of v0.21.2 |
+| `Yeshua-vX.Y.Z-with-WEB.apk` | **Recommended.** Includes the WEB Bible, so it works offline from the first launch. under 5 MB as of v0.33.0 |
 | `Yeshua-vX.Y.Z.apk` | Download translations from inside the app. 1.67 MB as of v0.21.2 |
 
 Open the APK on your device and allow installs from your browser or file manager when asked.

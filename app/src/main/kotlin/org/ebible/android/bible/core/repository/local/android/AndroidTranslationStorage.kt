@@ -17,6 +17,7 @@
 
 package org.ebible.android.bible.core.repository.local.android
 
+import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.xizzhu.android.ask.db.transaction
@@ -24,8 +25,15 @@ import org.ebible.android.bible.core.TranslationInfo
 import org.ebible.android.bible.core.repository.local.LocalTranslationStorage
 import org.ebible.android.bible.core.repository.local.android.db.AndroidDatabase
 import org.ebible.android.bible.core.repository.local.android.db.MetadataDao
+import java.io.File
+import java.io.FileNotFoundException
 
-class AndroidTranslationStorage(private val androidDatabase: AndroidDatabase) : LocalTranslationStorage {
+class AndroidTranslationStorage(private val androidDatabase: AndroidDatabase, private val context: Context? = null) : LocalTranslationStorage {
+    companion object {
+        /** A database built by the release workflow with the translations already parsed, see docs/RELEASING.md. */
+        const val PREBUILT_ASSET = "bundled/bundled.db"
+    }
+
     override suspend fun readTranslationListRefreshTimestamp(): Long = withContext(Dispatchers.IO) {
         androidDatabase.metadataDao.read(MetadataDao.KEY_TRANSLATION_LIST_REFRESH_TIMESTAMP, "0").toLong()
     }
@@ -78,6 +86,55 @@ class AndroidTranslationStorage(private val androidDatabase: AndroidDatabase) : 
                 }
                 androidDatabase.translationDao.remove(translationInfo.shortName)
             }
+        }
+    }
+
+    override suspend fun installPrebuiltTranslations(): Boolean = withContext(Dispatchers.IO) {
+        val context = context ?: return@withContext false
+        val file = File(context.cacheDir, "prebuilt-translations.db")
+        try {
+            try {
+                context.assets.open(PREBUILT_ASSET).use { input -> file.outputStream().use { input.copyTo(it) } }
+            } catch (_: FileNotFoundException) {
+                return@withContext false
+            }
+            installPrebuiltTranslations(file)
+        } finally {
+            file.delete()
+        }
+    }
+
+    /** Copies the book names, translation list entries and verse tables of the database at [file] into the app database. */
+    internal fun installPrebuiltTranslations(file: File): Boolean {
+        val db = androidDatabase.writableDatabase
+        // ATTACH is not allowed inside a transaction.
+        db.execSQL("ATTACH DATABASE ? AS prebuilt", arrayOf(file.absolutePath))
+        try {
+            db.beginTransaction()
+            try {
+                val tables = db.rawQuery("SELECT shortName FROM prebuilt.translationInfo", null).use { cursor ->
+                    generateSequence { if (cursor.moveToNext()) cursor.getString(0) else null }.toList()
+                }
+                if (tables.isEmpty()) return false
+
+                db.execSQL("INSERT OR REPLACE INTO main.bookNames SELECT * FROM prebuilt.bookNames")
+                db.execSQL("INSERT OR REPLACE INTO main.translationInfo SELECT * FROM prebuilt.translationInfo")
+                tables.forEach { table ->
+                    val name = table.replace("\"", "\"\"")
+                    val createSql = db.rawQuery("SELECT sql FROM prebuilt.sqlite_master WHERE type = 'table' AND name = ?", arrayOf(table)).use {
+                        if (it.moveToFirst()) it.getString(0) else null
+                    } ?: return false
+                    db.execSQL("DROP TABLE IF EXISTS main.\"$name\"")
+                    db.execSQL(createSql)
+                    db.execSQL("INSERT INTO main.\"$name\" SELECT * FROM prebuilt.\"$name\"")
+                }
+                db.setTransactionSuccessful()
+                return true
+            } finally {
+                db.endTransaction()
+            }
+        } finally {
+            db.execSQL("DETACH DATABASE prebuilt")
         }
     }
 }
