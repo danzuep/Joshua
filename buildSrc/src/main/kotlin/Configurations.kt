@@ -51,20 +51,20 @@ object Versions {
     }
 
     object AndroidX {
-        const val activity = "1.8.0"
-        const val annotation = "1.5.0"
-        const val appCompat = "1.6.1"
-        const val core = "1.12.0"
-        const val fragment = "1.6.1"
-        const val lifecycle = "2.7.0"
+        const val activity = "1.10.1"
+        const val annotation = "1.9.1"
+        const val appCompat = "1.7.0"
+        const val core = "1.15.0"
+        const val fragment = "1.8.6"
+        const val lifecycle = "2.8.7"
 
         object View {
-            const val constraintLayout = "2.1.4"
-            const val coordinatorLayout = "1.2.0"
-            const val drawerLayout = "1.1.1"
-            const val recyclerView = "1.2.1"
+            const val constraintLayout = "2.2.1"
+            const val coordinatorLayout = "1.3.0"
+            const val drawerLayout = "1.2.0"
+            const val recyclerView = "1.4.0"
             const val swipeRefreshLayout = "1.1.0"
-            const val viewPager2 = "1.0.0"
+            const val viewPager2 = "1.1.0"
         }
 
         object Test {
@@ -77,7 +77,7 @@ object Versions {
     const val ask = "0.5.2"
     const val hilt = "2.59.2"
     const val kermit = "2.2.0"
-    const val materialComponent = "1.11.0"
+    const val materialComponent = "1.12.0"
     const val mockk = "1.14.11"
     const val robolectric = "4.16.1"
 }
