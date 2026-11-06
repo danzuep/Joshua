@@ -6,11 +6,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class NativeDigitsTest {
-    private fun format(tag: String, number: Long) =
-        NumberFormat.getInstance(Locale.forLanguageTag(tag).withNativeDigits()).format(number)
+    private fun format(tag: String, number: Long, grouping: Boolean = true) =
+        NumberFormat.getInstance(Locale.forLanguageTag(tag).withNativeDigits()).apply { isGroupingUsed = grouping }.format(number)
 
     @Test
-    fun `Thai uses Thai digits`() = assertEquals("๒๐๒๔", format("th-TH", 2024))
+    fun `Thai uses Thai digits`() = assertEquals("๒๐๒๔", format("th-TH", 2024, grouping = false))
 
     @Test
     fun `Hindi uses Devanagari digits`() = assertEquals("१,२३४", format("hi-IN", 1234))
@@ -29,7 +29,7 @@ class NativeDigitsTest {
 
     @Test
     fun `explicit numbering system is respected`() {
-        assertEquals("2024", format("th-u-nu-latn", 2024))
+        assertEquals("2024", format("th-u-nu-latn", 2024, grouping = false))
         assertEquals("th-u-nu-latn", Locale.forLanguageTag("th-u-nu-latn").withNativeDigits().toLanguageTag())
     }
 }
