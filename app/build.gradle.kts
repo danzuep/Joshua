@@ -66,7 +66,7 @@ android {
         androidResources.localeFilters.addAll(Configurations.supportedLocales)
         manifestPlaceholders["appName"] = appName
         buildConfigField("int", "DEFAULT_BOOK_INDEX", defaultBookIndex.toString())
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "org.ebible.android.bible.HiltTestRunner"
     }
 
     // F-Droid forbids the signing-block dependency metadata that AGP embeds by default.
@@ -88,8 +88,8 @@ android {
         }
         getByName("debug") { java.setSrcDirs(setOf("src/debug/kotlin")) }
         getByName("release") { java.setSrcDirs(setOf("src/release/kotlin")) }
-        getByName("test") { java.setSrcDirs(setOf("src/test/kotlin")) }
-        getByName("androidTest") { java.setSrcDirs(setOf("src/androidTest/kotlin")) }
+        getByName("test") { java.setSrcDirs(setOf("src/test/kotlin", "src/testShared/kotlin")) }
+        getByName("androidTest") { java.setSrcDirs(setOf("src/androidTest/kotlin", "src/testShared/kotlin")) }
     }
 
     signingConfigs {
@@ -126,7 +126,6 @@ android {
     }
 
     testOptions {
-        unitTests.isIncludeAndroidResources = true
         unitTests.isReturnDefaultValues = true
 
         unitTests.all { test ->
@@ -171,14 +170,17 @@ dependencies {
     testImplementation(Dependencies.Kotlin.coroutinesTest)
     testImplementation(Dependencies.Kotlin.reflect)
     debugImplementation(Dependencies.AndroidX.Fragment.test)
-    testImplementation(Dependencies.AndroidX.Test.core)
-    testImplementation(Dependencies.AndroidX.Test.junit)
-    testImplementation(Dependencies.Hilt.test)
     testImplementation(Dependencies.mockk)
-    testImplementation(Dependencies.robolectric)
 
     androidTestImplementation(Dependencies.Kotlin.test)
+    androidTestImplementation(Dependencies.Kotlin.coroutinesTest)
+    androidTestImplementation(Dependencies.Kotlin.reflect)
     androidTestImplementation(Dependencies.AndroidX.Test.core)
     androidTestImplementation(Dependencies.AndroidX.Test.junit)
     androidTestImplementation(Dependencies.AndroidX.Test.runner)
+    androidTestImplementation(Dependencies.AndroidX.Test.espresso)
+    androidTestImplementation(Dependencies.AndroidX.Test.espressoIntents)
+    androidTestImplementation(Dependencies.Hilt.test)
+    androidTestImplementation(Dependencies.mockkAndroid)
+    kspAndroidTest(Dependencies.Hilt.compiler)
 }

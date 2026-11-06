@@ -69,6 +69,7 @@ object Versions {
 
         object Test {
             const val core = "1.5.0"
+            const val espresso = "3.5.1"
             const val junit = "1.1.4"
             const val runner = "1.5.2"
         }
@@ -79,7 +80,6 @@ object Versions {
     const val kermit = "2.2.0"
     const val materialComponent = "1.11.0"
     const val mockk = "1.14.11"
-    const val robolectric = "4.16.1"
 }
 
 object Dependencies {
@@ -133,6 +133,8 @@ object Dependencies {
 
         object Test {
             const val core = "androidx.test:core:${Versions.AndroidX.Test.core}"
+            const val espresso = "androidx.test.espresso:espresso-core:${Versions.AndroidX.Test.espresso}"
+            const val espressoIntents = "androidx.test.espresso:espresso-intents:${Versions.AndroidX.Test.espresso}"
             const val junit = "androidx.test.ext:junit:${Versions.AndroidX.Test.junit}"
             const val runner = "androidx.test:runner:${Versions.AndroidX.Test.runner}"
         }
@@ -150,5 +152,5 @@ object Dependencies {
     const val materialComponent = "com.google.android.material:material:${Versions.materialComponent}"
 
     const val mockk = "io.mockk:mockk:${Versions.mockk}"
-    const val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
+    const val mockkAndroid = "io.mockk:mockk-android:${Versions.mockk}"
 }

@@ -34,8 +34,10 @@ import org.ebible.android.bible.core.repository.local.LocalReadingStorage
 import org.ebible.android.bible.core.repository.local.android.AndroidReadingStorage
 import org.ebible.android.bible.core.repository.local.android.db.AndroidDatabase
 import org.ebible.android.bible.testing.CoreReader
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
-import org.junit.BeforeClass
+import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -47,7 +49,10 @@ import kotlin.test.fail
  * and then serves it from memory, so a write through a separate [AndroidDatabase] is never seen by the running app.
  * [AppReadingStorage] therefore sends the saves through that repository, which updates its memory and SQLite together.
  */
+@HiltAndroidTest
 class CoreReaderTest {
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
     private companion object {
         const val JOHN = 42
         const val TIMEOUT_MS = 20_000L
@@ -58,9 +63,7 @@ class CoreReaderTest {
         private val repository: BibleReadingRepository
             get() = EntryPointAccessors.fromApplication(context, DebugEntryPoints::class.java).bibleReadingRepository()
 
-        /** The first launch imports the bundled translation, so wait for it once. */
-        @BeforeClass
-        @JvmStatic
+        /** The first launch imports the bundled translation, so wait for it once. Runs per test because the Hilt component is per test. */
         fun importBundledTranslation() {
             val intent = Intent(context, ReadingActivity::class.java).putExtra(ReadingActivity.KEY_OPEN_BOOK, JOHN)
             ActivityScenario.launch<ReadingActivity>(intent).use { awaitParagraph(it, "In the beginning was the Word") }
@@ -105,6 +108,7 @@ class CoreReaderTest {
 
     @Before
     fun setUp() {
+        importBundledTranslation()
         database = AndroidDatabase(ApplicationProvider.getApplicationContext<Application>())
         storage = AndroidReadingStorage(database)
     }

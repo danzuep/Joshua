@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: instrumented tests inflate this to get real AttributeSets for the custom setting widgets. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <org.ebible.android.bible.settings.widgets.SettingButton
+        android:id="@+id/test_button_title_only"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:settingButtonTitle="title" />
+
+    <org.ebible.android.bible.settings.widgets.SettingButton
+        android:id="@+id/test_button_description_only"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:settingButtonDescription="description" />
+
+    <org.ebible.android.bible.settings.widgets.SettingButton
+        android:id="@+id/test_button_title_and_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:settingButtonDescription="description"
+        app:settingButtonTitle="title" />
+
+    <org.ebible.android.bible.settings.widgets.SettingSectionHeader
+        android:id="@+id/test_section_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:settingSectionHeaderTitle="title" />
+</LinearLayout>

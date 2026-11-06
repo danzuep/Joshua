@@ -35,8 +35,9 @@ Before pushing, review Kotlin changes carefully (unresolved references, imports,
 
 - `main` is protected. Open PRs; the maintainer merges them.
 - Merging a PR auto-tags the next version from the PR title prefix (`major:`, `minor:`, `patch:`; any other title creates no tag) and starts the release. See `.github/workflows/auto-tag.yml`.
-- Known-bad dependency versions that broke CI on JDK 25: Robolectric 4.17, Hilt 2.60.1, KSP 2.3.13. Keep Robolectric 4.16.1, Hilt 2.59.2, KSP 2.3.6 (`buildSrc/src/main/kotlin/Configurations.kt`).
-- Some unit tests can be flaky because of leftover coroutines. `BaseUnitTest.tearDown` cancels the shared test scope; cancel any view-model scope you create in a test too.
+- Known-bad dependency versions that broke CI on JDK 25: Hilt 2.60.1, KSP 2.3.13 (and Robolectric 4.17, which has since been removed). Keep Hilt 2.59.2, KSP 2.3.6 (`buildSrc/src/main/kotlin/Configurations.kt`).
+- Robolectric is gone. Tests needing Android (views, activities, fragments, SQLite, Hilt) live in `app/src/androidTest` and run on the emulator through the `instrumented` job, using `HiltTestRunner`. Only pure-JVM tests remain in `app/src/test`. Helpers shared by both (`BaseUnitTest`, `MockContents`, ...) are in `app/src/testShared`. Widget tests inflate `app/src/debug/res/layout/test_setting_widgets.xml`.
+- Some tests can be flaky because of leftover coroutines. `BaseUnitTest.tearDown` cancels the shared test scope; cancel any view-model scope you create in a test too.
 - The reading screen accepts the launch extra `org.ebible.android.bible.KEY_OPEN_BOOK` (0-based book index) to open a book directly, which the smoke test uses.
 - Branches opened by other tools can be based on an old `main`, which shows up as unresolved references for code that merged later. Rebase onto `origin/main` before debugging a CI failure.
 - After a rebase, `git push --force-with-lease` is often rejected as "stale info". Use `git push --force-with-lease=<branch>:$(git ls-remote origin refs/heads/<branch> | cut -f1) origin <branch>`.
