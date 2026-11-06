@@ -248,7 +248,7 @@ private class NotePage(inflater: LayoutInflater, container: ViewGroup, scheduleN
     override fun bind(verseDetail: VerseDetailViewData, settings: Settings) {
         this.verseDetail = verseDetail
         handler.removeCallbacks(showSavedIndicator)
-        viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes)
+        viewBinding.noteInputLayout.hint = viewBinding.root.context.getString(R.string.text_notes_hint)
         with(viewBinding.note) {
             removeTextChangedListener(textWatcher)
             setText(verseDetail.note)
