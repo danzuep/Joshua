@@ -17,6 +17,8 @@
 
 package org.ebible.android.bible.infra
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +29,7 @@ import androidx.viewbinding.ViewBinding
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.ebible.android.bible.Navigator
+import org.ebible.android.bible.utils.withNativeDigits
 import co.touchlab.kermit.Logger
 import javax.inject.Inject
 
@@ -45,6 +48,15 @@ abstract class BaseActivity<VB : ViewBinding, ViewAction, ViewState, VM : BaseVi
     protected abstract fun onViewActionEmitted(viewAction: ViewAction)
 
     protected abstract fun onViewStateUpdated(viewState: ViewState)
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(newBase.withNativeDigits())
+    }
+
+    // AppCompat replaces the locales with the per-app language here, which would drop the digits keyword.
+    override fun applyOverrideConfiguration(overrideConfiguration: Configuration?) {
+        super.applyOverrideConfiguration(overrideConfiguration?.withNativeDigits())
+    }
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
