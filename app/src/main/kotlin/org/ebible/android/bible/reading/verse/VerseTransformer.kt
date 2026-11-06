@@ -161,7 +161,7 @@ fun Collection<Verse>.toStringForSharing(bookName: String, markdown: Boolean = f
             stringBuilder.append(bookName).append(' ')
                     .append((verse.verseIndex.chapterIndex + 1).localized()).append(':').append((verse.verseIndex.verseIndex + 1).localized())
             if (currentVerseGroup.first < currentVerseGroup.second) {
-                stringBuilder.append('-').append(currentVerseGroup.second + 1)
+                stringBuilder.append('-').append((currentVerseGroup.second + 1).localized())
             }
             if (markdown) translationName?.let { stringBuilder.append(" (").append(it).append(')') }
             stringBuilder.append('\n')

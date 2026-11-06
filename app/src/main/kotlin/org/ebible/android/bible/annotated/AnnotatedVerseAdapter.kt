@@ -18,6 +18,7 @@
 package org.ebible.android.bible.annotated
 
 import android.text.SpannableStringBuilder
+import org.ebible.android.bible.utils.localized
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
@@ -114,7 +115,7 @@ sealed class AnnotatedVerseItem(viewType: Int) : VerticalRecyclerViewItem(viewTy
                 // format:
                 // <book short name> <chapter verseIndex>:<verse verseIndex> <verse text>
                 SPANNABLE_STRING_BUILDER.append(bookShortName).append(' ')
-                    .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                    .append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
                     .setSpans(BOOK_NAME_SPANS)
                     .append(' ').append(verseText)
             } else {
@@ -122,7 +123,7 @@ sealed class AnnotatedVerseItem(viewType: Int) : VerticalRecyclerViewItem(viewTy
                 // <book name> <chapter verseIndex>:<verse verseIndex>
                 // <verse text>
                 SPANNABLE_STRING_BUILDER.append(bookName).append(' ')
-                    .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                    .append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
                     .setSpans(BOOK_NAME_SPANS)
                     .append('\n').append(verseText)
             }
@@ -151,7 +152,7 @@ sealed class AnnotatedVerseItem(viewType: Int) : VerticalRecyclerViewItem(viewTy
                 // format:
                 // <book short name> <chapter verseIndex>:<verse verseIndex> <verse text>
                 SPANNABLE_STRING_BUILDER.append(bookShortName).append(' ')
-                    .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                    .append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
                     .setSpans(BOOK_NAME_SPANS)
                     .append(' ')
             } else {
@@ -159,7 +160,7 @@ sealed class AnnotatedVerseItem(viewType: Int) : VerticalRecyclerViewItem(viewTy
                 // <book name> <chapter verseIndex>:<verse verseIndex>
                 // <verse text>
                 SPANNABLE_STRING_BUILDER.append(bookName).append(' ')
-                    .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                    .append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
                     .setSpans(BOOK_NAME_SPANS)
                     .append('\n')
             }
@@ -188,7 +189,7 @@ sealed class AnnotatedVerseItem(viewType: Int) : VerticalRecyclerViewItem(viewTy
             // <book short name> <chapter index>:<verse index> <verse text>
             return@lazy SPANNABLE_STRING_BUILDER.clearAll()
                 .append(bookShortName).append(' ')
-                .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                .append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
                 .setSpan(BOOK_NAME_STYLE_SPAN)
                 .append(' ').append(verseText)
                 .toCharSequence()
