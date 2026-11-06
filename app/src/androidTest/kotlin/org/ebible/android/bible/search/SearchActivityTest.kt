@@ -82,7 +82,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test adapter viewEvent, OpenVerse`() {
+    fun test_adapter_viewEvent_OpenVerse() {
         withActivity<SearchActivity> { activity ->
             val adapter: SearchAdapter = activity.getProperty("adapter")
             val onViewEvent: (SearchAdapter.ViewEvent) -> Unit = adapter.getProperty("onViewEvent")
@@ -93,7 +93,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test adapter viewEvent, ShowPreview`() {
+    fun test_adapter_viewEvent_ShowPreview() {
         withActivity<SearchActivity> { activity ->
             val adapter: SearchAdapter = activity.getProperty("adapter")
             val onViewEvent: (SearchAdapter.ViewEvent) -> Unit = adapter.getProperty("onViewEvent")
@@ -104,7 +104,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test ACTION_SEARCH intent searches once without submitting again`() {
+    fun test_ACTION_SEARCH_intent_searches_once_without_submitting_again() {
         val launchIntent = Intent.makeMainActivity(ComponentName(ApplicationProvider.getApplicationContext(), SearchActivity::class.java))
         ActivityScenario.launch<SearchActivity>(launchIntent).use { scenario ->
             scenario.onActivity { activity ->
@@ -121,7 +121,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewActionEmitted(), OpenReadingScreen`() {
+    fun test_onViewActionEmitted_OpenReadingScreen() {
         every { viewModel.viewAction() } returns flowOf(SearchViewModel.ViewAction.OpenReadingScreen)
         every { MockNavigationModule.mockNavigator.navigate(any(), Navigator.SCREEN_READING) } returns Unit
 
@@ -131,7 +131,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with searchConfig, null searchResultSummary, null preview, and null error`() {
+    fun test_onViewStateUpdated_with_searchConfig_null_searchResultSummary_null_preview_and_null_error() {
         every { viewModel.viewState() } returns flowOf(SearchViewModel.ViewState(
             loading = true,
             searchConfig = SearchConfiguration(
@@ -163,7 +163,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null searchConfig, searchResultSummary, null preview, and null error`() {
+    fun test_onViewStateUpdated_with_null_searchConfig_searchResultSummary_null_preview_and_null_error() {
         every { viewModel.viewState() } returns flowOf(SearchViewModel.ViewState(
             loading = false,
             searchConfig = null,
@@ -188,7 +188,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null searchConfig, null searchResultSummary, preview, and null error`() {
+    fun test_onViewStateUpdated_with_null_searchConfig_null_searchResultSummary_preview_and_null_error() {
         every { viewModel.viewState() } returns flowOf(SearchViewModel.ViewState(
             loading = false,
             searchConfig = null,
@@ -218,7 +218,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null searchConfig, null searchResultSummary, null preview, and PreviewLoadingError error`() {
+    fun test_onViewStateUpdated_with_null_searchConfig_null_searchResultSummary_null_preview_and_PreviewLoadingError_error() {
         every { viewModel.viewState() } returns flowOf(SearchViewModel.ViewState(
             loading = false,
             searchConfig = null,
@@ -243,7 +243,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null searchConfig, null searchResultSummary, null preview, and SearchConfigUpdatingError error`() {
+    fun test_onViewStateUpdated_with_null_searchConfig_null_searchResultSummary_null_preview_and_SearchConfigUpdatingError_error() {
         every { viewModel.viewState() } returns flowOf(SearchViewModel.ViewState(
             loading = false,
             searchConfig = null,
@@ -265,7 +265,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null searchConfig, null searchResultSummary, null preview, and VerseOpeningError error`() {
+    fun test_onViewStateUpdated_with_null_searchConfig_null_searchResultSummary_null_preview_and_VerseOpeningError_error() {
         every { viewModel.viewState() } returns flowOf(SearchViewModel.ViewState(
             loading = false,
             searchConfig = null,
@@ -286,7 +286,7 @@ class SearchActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null searchConfig, null searchResultSummary, null preview, and VerseSearchingError error`() {
+    fun test_onViewStateUpdated_with_null_searchConfig_null_searchResultSummary_null_preview_and_VerseSearchingError_error() {
         every { viewModel.viewState() } returns flowOf(SearchViewModel.ViewState(
             loading = false,
             searchConfig = null,

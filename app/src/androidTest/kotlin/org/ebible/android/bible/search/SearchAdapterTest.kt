@@ -51,7 +51,7 @@ class SearchAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test getItemViewType()`() {
+    fun test_getItemViewType() {
         adapter.submitList(
             listOf(
                 SearchItem.Header(Settings.DEFAULT, ""),
@@ -80,12 +80,12 @@ class SearchAdapterTest : BaseUnitTest() {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `test onCreateViewHolder(), with unsupported viewType`() {
+    fun test_onCreateViewHolder_with_unsupported_viewType() {
         adapter.onCreateViewHolder(FrameLayout(context), 0)
     }
 
     @Test
-    fun `test onCreateViewHolder()`() {
+    fun test_onCreateViewHolder() {
         adapter.onCreateViewHolder(FrameLayout(context), SearchItem.Header.VIEW_TYPE) as SearchViewHolder.Header
         adapter.onCreateViewHolder(FrameLayout(context), SearchItem.Note.VIEW_TYPE) as SearchViewHolder.Note
         adapter.onCreateViewHolder(FrameLayout(context), SearchItem.Verse.VIEW_TYPE) as SearchViewHolder.Verse

@@ -41,7 +41,7 @@ class ChapterListViewTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test expand and collapse group`() {
+    fun test_expand_and_collapse_group() {
         val selectedBooks = mutableListOf<Int>()
         val chapterListView = ChapterListView(ApplicationProvider.getApplicationContext())
         chapterListView.initialize { viewEvent ->
@@ -84,7 +84,7 @@ class ChapterListViewTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test expandCurrentBook, before items are loaded`() {
+    fun test_expandCurrentBook_before_items_are_loaded() {
         val chapterListView = ChapterListView(ApplicationProvider.getApplicationContext())
         chapterListView.initialize { fail() }
         chapterListView.setCurrentChapter(currentBookIndex = 0, currentChapterIndex = 0)

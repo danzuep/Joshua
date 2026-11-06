@@ -37,13 +37,13 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 class SpanTest : BaseUnitTest() {
     @Test
-    fun `test createDrawableSpan with non-existing drawable`() {
+    fun test_createDrawableSpan_with_non_existing_drawable() {
         val context = mockk<Context>().apply { every { getDrawable(any()) } returns null }
         assertNull(createDrawableSpan(context, R.drawable.ic_bookmark))
     }
 
     @Test
-    fun `test createHighlightSpans`() {
+    fun test_createHighlightSpans() {
         assertTrue(createHighlightSpans(Highlight.COLOR_NONE).isEmpty())
         `verify highlight spans`(Highlight.COLOR_YELLOW, Color.BLACK, createHighlightSpans(Highlight.COLOR_YELLOW))
         `verify highlight spans`(Highlight.COLOR_PINK, Color.BLACK, createHighlightSpans(Highlight.COLOR_PINK))
@@ -54,7 +54,7 @@ class SpanTest : BaseUnitTest() {
         `verify highlight spans`(Highlight.COLOR_BLUE, Color.WHITE, createHighlightSpans(Highlight.COLOR_BLUE))
     }
 
-    private fun `verify highlight spans`(expectedBackgroundColor: Int, expectedForegroundColor: Int, actualStyles: Array<CharacterStyle>) {
+    private fun verify_highlight_spans(expectedBackgroundColor: Int, expectedForegroundColor: Int, actualStyles: Array<CharacterStyle>) {
         assertEquals(2, actualStyles.size)
         assertEquals(expectedBackgroundColor, (actualStyles[0] as BackgroundColorSpan).backgroundColor)
         assertEquals(expectedForegroundColor, (actualStyles[1] as ForegroundColorSpan).foregroundColor)

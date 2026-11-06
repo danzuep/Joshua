@@ -97,7 +97,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test viewState(), from constructor`() = runTest {
+    fun test_viewState_from_constructor() = runTest {
         val packageInfo = PackageInfo().apply { versionName = "version_name" }
         val packageManager = mockk<PackageManager>().apply {
             every { getPackageInfo(any<String>(), any<Int>()) } returns packageInfo
@@ -132,7 +132,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     )
 
     @Test
-    fun `test saveFontSizeScale()`() = runTest {
+    fun test_saveFontSizeScale() = runTest {
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
         coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(fontSizeScale = 2.0F)) } returns Unit
 
@@ -153,7 +153,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test saveKeepScreenOn()`() = runTest {
+    fun test_saveKeepScreenOn() = runTest {
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
         coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(keepScreenOn = false)) } returns Unit
 
@@ -174,7 +174,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test saveNightMode()`() = runTest {
+    fun test_saveNightMode() = runTest {
         mockkStatic(AppCompatDelegate::class)
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
         coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(nightMode = Settings.NIGHT_MODE_OFF)) } returns Unit
@@ -204,7 +204,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test saveSimpleReadingModeOn()`() = runTest {
+    fun test_saveSimpleReadingModeOn() = runTest {
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
         coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(simpleReadingModeOn = true)) } returns Unit
 
@@ -225,7 +225,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test saveHideSearchButton()`() = runTest {
+    fun test_saveHideSearchButton() = runTest {
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
         coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(hideSearchButton = true)) } returns Unit
 
@@ -246,7 +246,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test saveDefaultHighlightColor()`() = runTest {
+    fun test_saveDefaultHighlightColor() = runTest {
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
         coEvery { settingsManager.saveSettings(Settings.DEFAULT.copy(defaultHighlightColor = Highlight.COLOR_BLUE)) } returns Unit
 
@@ -267,7 +267,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test selectFontSizeScale()`() = runTest {
+    fun test_selectFontSizeScale() = runTest {
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
 
         settingsViewModel.selectFontSizeScale()
@@ -289,7 +289,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test selectNightMode()`() = runTest {
+    fun test_selectNightMode() = runTest {
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
 
         settingsViewModel.selectNightMode()
@@ -312,7 +312,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test selectHighlightColor()`() = runTest {
+    fun test_selectHighlightColor() = runTest {
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
 
         settingsViewModel.selectHighlightColor()
@@ -340,7 +340,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test backup()`() = runTest {
+    fun test_backup() = runTest {
         val viewAction = async(Dispatchers.Unconfined) { settingsViewModel.viewAction().first() }
 
         settingsViewModel.backup()
@@ -350,7 +350,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test backup(), with null uri`() = runTest {
+    fun test_backup_with_null_uri() = runTest {
         settingsViewModel.backup(null)
         assertEquals(
             createDefaultViewState().copy(error = SettingsViewModel.ViewState.Error.BackupError),
@@ -362,7 +362,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test backup(), with exception`() = runTest {
+    fun test_backup_with_exception() = runTest {
         every { app.contentResolver } throws RuntimeException("random exception")
 
         settingsViewModel.backup(Uri.EMPTY)
@@ -391,7 +391,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test backup(), with openOutputStream returning null`() = runTest {
+    fun test_backup_with_openOutputStream_returning_null() = runTest {
         every { resolver.openOutputStream(Uri.EMPTY) } returns null
 
         settingsViewModel.backup(Uri.EMPTY)
@@ -414,7 +414,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test backup(), success`() = runTest {
+    fun test_backup_success() = runTest {
         coEvery { backupManager.backup(outputStream) } returns Unit
 
         settingsViewModel.backup(uri)
@@ -428,7 +428,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test restore()`() = runTest {
+    fun test_restore() = runTest {
         val viewAction = async(Dispatchers.Unconfined) { settingsViewModel.viewAction().first() }
 
         settingsViewModel.restore()
@@ -437,7 +437,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test restore(), with null uri`() = runTest {
+    fun test_restore_with_null_uri() = runTest {
         settingsViewModel.restore(null)
         assertEquals(
             createDefaultViewState().copy(error = SettingsViewModel.ViewState.Error.RestoreError),
@@ -449,7 +449,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test restore(), with exception`() = runTest {
+    fun test_restore_with_exception() = runTest {
         every { app.contentResolver } throws RuntimeException("random exception")
 
         settingsViewModel.restore(Uri.EMPTY)
@@ -478,7 +478,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test restore(), with openInputStream returning null`() = runTest {
+    fun test_restore_with_openInputStream_returning_null() = runTest {
         every { resolver.openInputStream(Uri.EMPTY) } returns null
 
         settingsViewModel.restore(Uri.EMPTY)
@@ -501,7 +501,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test restore(), success`() = runTest {
+    fun test_restore_success() = runTest {
         coEvery { backupManager.restore(inputStream) } returns Unit
 
         settingsViewModel.restore(uri)
@@ -515,7 +515,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test openRateMe()`() = runTest {
+    fun test_openRateMe() = runTest {
         val viewAction = async(Dispatchers.Unconfined) { settingsViewModel.viewAction().first() }
 
         settingsViewModel.openRateMe()
@@ -523,7 +523,7 @@ class SettingsViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test openWebsite()`() = runTest {
+    fun test_openWebsite() = runTest {
         val viewAction = async(Dispatchers.Unconfined) { settingsViewModel.viewAction().first() }
 
         settingsViewModel.openWebsite()

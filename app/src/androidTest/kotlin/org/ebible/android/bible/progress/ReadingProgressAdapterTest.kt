@@ -48,7 +48,7 @@ class ReadingProgressAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test getItemViewType()`() {
+    fun test_getItemViewType() {
         adapter.submitList(
             listOf(
                 ReadingProgressItem.Summary(Settings.DEFAULT, 0, 0, 0, 0, 0),
@@ -61,12 +61,12 @@ class ReadingProgressAdapterTest : BaseUnitTest() {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `test onCreateViewHolder(), with unsupported viewType`() {
+    fun test_onCreateViewHolder_with_unsupported_viewType() {
         adapter.onCreateViewHolder(FrameLayout(context), 0)
     }
 
     @Test
-    fun `test onCreateViewHolder()`() {
+    fun test_onCreateViewHolder() {
         adapter.onCreateViewHolder(FrameLayout(context), ReadingProgressItem.Summary.VIEW_TYPE) as ReadingProgressViewHolder.Summary
         adapter.onCreateViewHolder(FrameLayout(context), ReadingProgressItem.Book.VIEW_TYPE) as ReadingProgressViewHolder.Book
     }

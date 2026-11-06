@@ -78,7 +78,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test includeOldTestament(), with exception`() = runTest {
+    fun test_includeOldTestament_with_exception() = runTest {
         coEvery { searchManager.configuration() } throws RuntimeException("random exception")
 
         searchViewModel.includeOldTestament(false)
@@ -134,7 +134,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test includeOldTestament()`() = runTest {
+    fun test_includeOldTestament() = runTest {
         every {
             searchManager.saveConfiguration(SearchConfiguration(
                 includeOldTestament = false, includeNewTestament = true, includeBookmarks = true, includeHighlights = true, includeNotes = true
@@ -163,7 +163,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test includeNewTestament()`() = runTest {
+    fun test_includeNewTestament() = runTest {
         every {
             searchManager.saveConfiguration(SearchConfiguration(
                 includeOldTestament = true, includeNewTestament = false, includeBookmarks = true, includeHighlights = true, includeNotes = true
@@ -192,7 +192,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test includeBookmarks()`() = runTest {
+    fun test_includeBookmarks() = runTest {
         every {
             searchManager.saveConfiguration(SearchConfiguration(
                 includeOldTestament = true, includeNewTestament = true, includeBookmarks = false, includeHighlights = true, includeNotes = true
@@ -221,7 +221,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test includeHighlights()`() = runTest {
+    fun test_includeHighlights() = runTest {
         every {
             searchManager.saveConfiguration(SearchConfiguration(
                 includeOldTestament = true, includeNewTestament = true, includeBookmarks = true, includeHighlights = false, includeNotes = true
@@ -250,7 +250,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test includeNotes()`() = runTest {
+    fun test_includeNotes() = runTest {
         every {
             searchManager.saveConfiguration(SearchConfiguration(
                 includeOldTestament = true, includeNewTestament = true, includeBookmarks = true, includeHighlights = true, includeNotes = false
@@ -279,7 +279,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test search(), with empty query`() = runTest {
+    fun test_search_with_empty_query() = runTest {
         searchViewModel.search("", true)
         delay(1000L)
 
@@ -301,7 +301,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test instant search waits until typing stops`() = runTest {
+    fun test_instant_search_waits_until_typing_stops() = runTest {
         searchViewModel.search("query", instanceSearch = true)
         delay(200L)
         coVerify(exactly = 0) { searchManager.search(any()) }
@@ -311,7 +311,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test search(), with exception`() = runTest {
+    fun test_search_with_exception() = runTest {
         every { bibleReadingManager.currentTranslation() } throws RuntimeException("random error")
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
 
@@ -336,7 +336,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test search(), with empty result`() = runTest {
+    fun test_search_with_empty_result() = runTest {
         every { settingsManager.settings() } returns flowOf(Settings.DEFAULT)
 
         searchViewModel = SearchViewModel(bibleReadingManager, searchManager, settingsManager, testCoroutineDispatcherProvider, application)
@@ -379,7 +379,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test search(), called multiple times`() = runTest {
+    fun test_search_called_multiple_times() = runTest {
         coEvery { searchManager.search("not used") } returns SearchResult(listOf(MockContents.kjvVerses[1]), emptyList(), emptyList(), emptyList())
         coEvery { searchManager.search("query") } returns SearchResult(listOf(MockContents.kjvVerses[0]), emptyList(), emptyList(), emptyList())
 
@@ -483,7 +483,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test search(), with verses only`() = runTest {
+    fun test_search_with_verses_only() = runTest {
         coEvery { searchManager.search("query") } returns SearchResult(
             listOf(MockContents.kjvVerses[0], MockContents.kjvVerses[2], MockContents.kjvExtraVerses[0], MockContents.kjvExtraVerses[1]),
             emptyList(),
@@ -545,7 +545,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test search(), with verses and bookmarks`() = runTest {
+    fun test_search_with_verses_and_bookmarks() = runTest {
         coEvery { searchManager.search("query") } returns SearchResult(
             listOf(MockContents.kjvVerses[0], MockContents.kjvVerses[2]),
             listOf(Pair(Bookmark(VerseIndex(0, 0, 0), 12345L), MockContents.kjvVerses[0])),
@@ -599,7 +599,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test search(), with verses and highlights`() = runTest {
+    fun test_search_with_verses_and_highlights() = runTest {
         coEvery { searchManager.search("query") } returns SearchResult(
             listOf(MockContents.kjvVerses[0], MockContents.kjvVerses[2]),
             emptyList(),
@@ -653,7 +653,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test search(), with verses and notes`() = runTest {
+    fun test_search_with_verses_and_notes() = runTest {
         coEvery { searchManager.search("query") } returns SearchResult(
             listOf(MockContents.kjvVerses[0], MockContents.kjvVerses[2]),
             emptyList(),
@@ -707,7 +707,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test search(), with verses, bookmarks, highlights, and notes`() = runTest {
+    fun test_search_with_verses_bookmarks_highlights_and_notes() = runTest {
         coEvery { searchManager.search("query") } returns SearchResult(
             listOf(MockContents.kjvVerses[0], MockContents.kjvVerses[2]),
             listOf(Pair(Bookmark(VerseIndex(0, 0, 0), 12345L), MockContents.kjvVerses[0])),
@@ -779,7 +779,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test openVerse() with exception`() = runTest {
+    fun test_openVerse_with_exception() = runTest {
         coEvery { bibleReadingManager.saveCurrentVerseIndex(VerseIndex(0, 0, 0)) } throws RuntimeException("random exception")
 
         searchViewModel.openVerse(VerseIndex(0, 0, 0))
@@ -802,7 +802,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test openVerse()`() = runTest {
+    fun test_openVerse() = runTest {
         coEvery { bibleReadingManager.saveCurrentVerseIndex(VerseIndex(0, 0, 0)) } returns Unit
 
         val viewAction = async(Dispatchers.Unconfined) { searchViewModel.viewAction().first() }
@@ -828,7 +828,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test loadPreview() with invalid verse index`() = runTest {
+    fun test_loadPreview_with_invalid_verse_index() = runTest {
         searchViewModel.loadPreview(VerseIndex.INVALID)
 
         assertEquals(
@@ -849,7 +849,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test loadPreview()`() = runTest {
+    fun test_loadPreview() = runTest {
         coEvery { bibleReadingManager.currentTranslation() } returns flowOf(MockContents.kjvShortName)
         coEvery {
             bibleReadingManager.readVerses(MockContents.kjvShortName, 0, 0)

@@ -83,7 +83,7 @@ class SettingsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test initializeView()`() {
+    fun test_initializeView() {
         withActivity<SettingsActivity> { activity ->
             val viewBinding: ActivitySettingsBinding = activity.getProperty("viewBinding")
             viewBinding.keepScreenOn.performClickPressed()
@@ -111,7 +111,7 @@ class SettingsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewActionEmitted(), OpenRateMe`() {
+    fun test_onViewActionEmitted_OpenRateMe() {
         every { viewModel.viewAction() } returns flowOf(SettingsViewModel.ViewAction.OpenRateMe)
         every { MockNavigationModule.mockNavigator.navigate(any(), Navigator.SCREEN_RATE_ME) } returns Unit
 
@@ -121,7 +121,7 @@ class SettingsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewActionEmitted(), OpenWebsite`() {
+    fun test_onViewActionEmitted_OpenWebsite() {
         every { viewModel.viewAction() } returns flowOf(SettingsViewModel.ViewAction.OpenWebsite)
         every { MockNavigationModule.mockNavigator.navigate(any(), Navigator.SCREEN_WEBSITE) } returns Unit
 
@@ -131,7 +131,7 @@ class SettingsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewActionEmitted(), RequestUriForBackup`() {
+    fun test_onViewActionEmitted_RequestUriForBackup() {
         every { viewModel.viewAction() } returns flowOf(SettingsViewModel.ViewAction.RequestUriForBackup)
 
         withActivity<SettingsActivity> {
@@ -144,7 +144,7 @@ class SettingsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewActionEmitted(), RequestUriForRestore`() {
+    fun test_onViewActionEmitted_RequestUriForRestore() {
         every { viewModel.viewAction() } returns flowOf(SettingsViewModel.ViewAction.RequestUriForRestore)
 
         withActivity<SettingsActivity> {
@@ -160,7 +160,7 @@ class SettingsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with completed backup state, null font size selection, null night mode selection, null highlight color selection, and null error`() {
+    fun test_onViewStateUpdated_with_completed_backup_state_null_font_size_selection_null_night_mode_selection_null_highlight_color_selection_and_null_error() {
         every { viewModel.viewState() } returns flowOf(SettingsViewModel.ViewState(
             fontSizeScale = 1.0F,
             bodyTextSizePx = 2,
@@ -192,7 +192,7 @@ class SettingsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with completed restore state, null font size selection, null night mode selection, null highlight color selection, and null error`() {
+    fun test_onViewStateUpdated_with_completed_restore_state_null_font_size_selection_null_night_mode_selection_null_highlight_color_selection_and_null_error() {
         every { viewModel.viewState() } returns flowOf(SettingsViewModel.ViewState(
             fontSizeScale = 1.0F,
             bodyTextSizePx = 2,

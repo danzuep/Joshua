@@ -46,7 +46,7 @@ class SearchToolbarTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test initialize()`() {
+    fun test_initialize() {
         var onSearchByReferenceChangedCalled = 0
         var onIncludeOldTestamentChangedCalled = 0
         var onIncludeNewTestamentChangedCalled = 0
@@ -163,7 +163,7 @@ class SearchToolbarTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test setSearchConfiguration()`() {
+    fun test_setSearchConfiguration() {
         searchToolbar.setSearchConfiguration(
             searchByReference = true,
             includeOldTestament = true,
@@ -200,7 +200,7 @@ class SearchToolbarTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test setQuery() does not submit the query`() {
+    fun test_setQuery_does_not_submit_the_query() {
         val submitted = mutableListOf<String>()
         val changed = mutableListOf<String>()
         searchToolbar.initialize(

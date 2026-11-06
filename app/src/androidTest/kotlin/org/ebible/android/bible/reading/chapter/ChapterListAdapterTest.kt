@@ -47,7 +47,7 @@ class ChapterListAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test without data`() {
+    fun test_without_data() {
         val adapter = ChapterListAdapter(
             context = ApplicationProvider.getApplicationContext(),
             onViewEvent = { fail() },
@@ -56,7 +56,7 @@ class ChapterListAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test getGroupView()`() {
+    fun test_getGroupView() {
         val adapter = ChapterListAdapter(
             context = ApplicationProvider.getApplicationContext(),
             onViewEvent = { fail() },
@@ -79,7 +79,7 @@ class ChapterListAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test getChildView()`() {
+    fun test_getChildView() {
         var selectChapterCalled = 0
         var bookToSelect = -1
         var chapterToSelect = -1

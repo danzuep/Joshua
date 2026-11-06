@@ -46,28 +46,28 @@ class SettingButtonTest : BaseUnitTest() {
         LayoutInflater.from(context).inflate(R.layout.test_setting_widgets, null).findViewById<View>(id) as SettingButton
 
     @Test
-    fun `test constructor, without attrs`() {
+    fun test_constructor_without_attrs() {
         val button = SettingButton(context)
         assertTrue(button.findViewById<TextView>(R.id.title).text.isEmpty())
         assertTrue(button.findViewById<TextView>(R.id.description).text.isEmpty())
     }
 
     @Test
-    fun `test constructor, with only title`() {
+    fun test_constructor_with_only_title() {
         val button = inflateButton(R.id.test_button_title_only)
         assertEquals("title", button.findViewById<TextView>(R.id.title).text.toString())
         assertTrue(button.findViewById<TextView>(R.id.description).text.isEmpty())
     }
 
     @Test
-    fun `test constructor, with only description`() {
+    fun test_constructor_with_only_description() {
         val button = inflateButton(R.id.test_button_description_only)
         assertTrue(button.findViewById<TextView>(R.id.title).text.isEmpty())
         assertEquals("description", button.findViewById<TextView>(R.id.description).text.toString())
     }
 
     @Test
-    fun `test constructor, with title and description, then override`() {
+    fun test_constructor_with_title_and_description_then_override() {
         val button = inflateButton(R.id.test_button_title_and_description)
         assertEquals("title", button.findViewById<TextView>(R.id.title).text.toString())
         assertEquals("description", button.findViewById<TextView>(R.id.description).text.toString())

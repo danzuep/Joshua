@@ -33,7 +33,7 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 class SearchItemTest : BaseUnitTest() {
     @Test
-    fun `test DiffCallback`() {
+    fun test_DiffCallback() {
         val diffCallback = SearchItem.DiffCallback()
 
         assertTrue(diffCallback.areItemsTheSame(
@@ -122,14 +122,14 @@ class SearchItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test viewType`() {
+    fun test_viewType() {
         assertEquals(R.layout.item_title, SearchItem.Header(Settings.DEFAULT, "").viewType)
         assertEquals(R.layout.item_search_note, SearchItem.Note(Settings.DEFAULT, VerseIndex.INVALID, "", "", "", "").viewType)
         assertEquals(R.layout.item_search_verse, SearchItem.Verse(Settings.DEFAULT, VerseIndex.INVALID, "", "", "", Highlight.COLOR_NONE).viewType)
     }
 
     @Test
-    fun `test Note`() {
+    fun test_Note() {
         val actual = SearchItem.Note(
             settings = Settings.DEFAULT,
             verseIndex = VerseIndex(0, 0, 0),
@@ -143,7 +143,7 @@ class SearchItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Verse`() {
+    fun test_Verse() {
         val actual = SearchItem.Verse(
             settings = Settings.DEFAULT,
             verseIndex = VerseIndex(0, 0, 0),

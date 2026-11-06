@@ -50,7 +50,7 @@ class ReadingToolbarTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test without data`() {
+    fun test_without_data() {
         var openBookmarksCalled = 0
         var openHighlightsCalled = 0
         var openNotesCalled = 0
@@ -150,7 +150,7 @@ class ReadingToolbarTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test with data`() {
+    fun test_with_data() {
         var openTranslationsCalled = 0
         var removeParallelTranslationCalled = 0
         var requestParallelTranslationCalled = 0

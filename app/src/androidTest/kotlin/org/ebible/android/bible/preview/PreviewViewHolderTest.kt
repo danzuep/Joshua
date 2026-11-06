@@ -46,7 +46,7 @@ class PreviewViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Verse`() {
+    fun test_Verse() {
         var openVerseCalled = 0
         val viewHolder = PreviewViewHolder.Verse(
             inflater = LayoutInflater.from(context),
@@ -85,7 +85,7 @@ class PreviewViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test VerseWithQuery`() {
+    fun test_VerseWithQuery() {
         var openVerseCalled = 0
         val viewHolder = PreviewViewHolder.VerseWithQuery(
             inflater = LayoutInflater.from(context),

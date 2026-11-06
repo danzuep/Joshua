@@ -40,12 +40,12 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 class PreviewViewDataTest : BaseUnitTest() {
     @Test
-    fun `test loadPreview with invalid verseIndex`() = runTest {
+    fun test_loadPreview_with_invalid_verseIndex() = runTest {
         assertFailsWith<IllegalArgumentException> { loadPreview(mockk(), mockk(), VerseIndex.INVALID, mockk()) }
     }
 
     @Test
-    fun `test loadPreview`() = runTest {
+    fun test_loadPreview() = runTest {
         val bibleReadingManager: BibleReadingManager = mockk()
         every { bibleReadingManager.currentTranslation() } returns flowOf("", MockContents.kjvShortName)
         coEvery { bibleReadingManager.readVerses("KJV", 0, 0) } returns MockContents.kjvVerses
@@ -63,14 +63,14 @@ class PreviewViewDataTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test toVersePreviewItems() with single verse`() {
+    fun test_toVersePreviewItems_with_single_verse() {
         val actual = toVersePreviewItems(listOf(MockContents.kjvVerses[0]))
         assertEquals(1, actual.size)
         assertEquals("1:1 In the beginning God created the heaven and the earth.", actual[0].textForDisplay.toString())
     }
 
     @Test
-    fun `test toVersePreviewItems() with multiple verses`() {
+    fun test_toVersePreviewItems_with_multiple_verses() {
         val actual = toVersePreviewItems(listOf(MockContents.kjvVerses[0], MockContents.kjvVerses[1]))
         assertEquals(2, actual.size)
         assertEquals("1:1 In the beginning God created the heaven and the earth.", actual[0].textForDisplay.toString())
@@ -81,7 +81,7 @@ class PreviewViewDataTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test toVersePreviewItems() with multiple verses but not consecutive`() {
+    fun test_toVersePreviewItems_with_multiple_verses_but_not_consecutive() {
         val actual = toVersePreviewItems(listOf(MockContents.msgVerses[0], MockContents.msgVerses[1], MockContents.msgVerses[2]))
         assertEquals(2, actual.size)
         assertEquals(

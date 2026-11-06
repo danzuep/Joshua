@@ -50,7 +50,7 @@ class AnnotatedVerseViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Header`() {
+    fun test_Header() {
         val viewHolder = AnnotatedVerseViewHolder.Header(
             inflater = LayoutInflater.from(context),
             parent = FrameLayout(context)
@@ -69,7 +69,7 @@ class AnnotatedVerseViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Bookmark`() {
+    fun test_Bookmark() {
         var openVerseCalled = 0
         var showPreviewCalled = 0
         val viewHolder = AnnotatedVerseViewHolder.Bookmark(
@@ -123,7 +123,7 @@ class AnnotatedVerseViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Highlight`() {
+    fun test_Highlight() {
         var openVerseCalled = 0
         var showPreviewCalled = 0
         val viewHolder = AnnotatedVerseViewHolder.Highlight(
@@ -178,7 +178,7 @@ class AnnotatedVerseViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Note`() {
+    fun test_Note() {
         var openVerseCalled = 0
         var showPreviewCalled = 0
         val viewHolder = AnnotatedVerseViewHolder.Note(

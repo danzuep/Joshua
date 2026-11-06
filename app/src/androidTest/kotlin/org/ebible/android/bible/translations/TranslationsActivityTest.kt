@@ -71,7 +71,7 @@ class TranslationsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test adapter viewEvent, SelectTranslation`() {
+    fun test_adapter_viewEvent_SelectTranslation() {
         withActivity<TranslationsActivity> { activity ->
             val adapter: TranslationsAdapter = activity.getProperty("adapter")
             val onViewEvent: (TranslationsAdapter.ViewEvent) -> Unit = adapter.getProperty("onViewEvent")
@@ -82,7 +82,7 @@ class TranslationsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewActionEmitted(), GoBack`() {
+    fun test_onViewActionEmitted_GoBack() {
         every { viewModel.viewAction() } returns flowOf(TranslationsViewModel.ViewAction.GoBack)
         every { MockNavigationModule.mockNavigator.goBack(any()) } returns Unit
 
@@ -92,7 +92,7 @@ class TranslationsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null error`() {
+    fun test_onViewStateUpdated_with_null_error() {
         every { viewModel.viewState() } returns flowOf(TranslationsViewModel.ViewState(
             loading = true,
             items = emptyList(),
@@ -110,7 +110,7 @@ class TranslationsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with completed downloading state, and TranslationDownloadingError error`() {
+    fun test_onViewStateUpdated_with_completed_downloading_state_and_TranslationDownloadingError_error() {
         every { viewModel.viewState() } returns flowOf(TranslationsViewModel.ViewState(
             loading = false,
             items = listOf(
@@ -132,7 +132,7 @@ class TranslationsActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with completed removal state, and TranslationRemovalError error`() {
+    fun test_onViewStateUpdated_with_completed_removal_state_and_TranslationRemovalError_error() {
         every { viewModel.viewState() } returns flowOf(TranslationsViewModel.ViewState(
             loading = false,
             items = listOf(

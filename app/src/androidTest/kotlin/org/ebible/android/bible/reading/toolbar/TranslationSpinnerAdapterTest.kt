@@ -45,7 +45,7 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test without data`() {
+    fun test_without_data() {
         val adapter = TranslationSpinnerAdapter(
             context = ApplicationProvider.getApplicationContext(),
             onViewEvent = { fail() },
@@ -54,7 +54,7 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test WEB Updated short name`() {
+    fun test_WEB_Updated_short_name() {
         val adapter = TranslationSpinnerAdapter(
             context = ApplicationProvider.getApplicationContext(),
             onViewEvent = { fail() },
@@ -76,7 +76,7 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test without parallel translations`() {
+    fun test_without_parallel_translations() {
         var requestParallelTranslationCalled = 0
         val adapter = TranslationSpinnerAdapter(
             context = ApplicationProvider.getApplicationContext(),
@@ -147,7 +147,7 @@ class TranslationSpinnerAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test with parallel translations`() {
+    fun test_with_parallel_translations() {
         var removeParallelTranslationCalled = 0
         val adapter = TranslationSpinnerAdapter(
             context = ApplicationProvider.getApplicationContext(),

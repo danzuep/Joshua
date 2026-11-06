@@ -71,7 +71,7 @@ class ReadingProgressActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test adapter viewEvent, ExpandOrCollapseBook`() {
+    fun test_adapter_viewEvent_ExpandOrCollapseBook() {
         withActivity<ReadingProgressActivity> { activity ->
             val adapter: ReadingProgressAdapter = activity.getProperty("adapter")
             val onViewEvent: (ReadingProgressAdapter.ViewEvent) -> Unit = adapter.getProperty("onViewEvent")
@@ -82,7 +82,7 @@ class ReadingProgressActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test adapter viewEvent, OpenVerse`() {
+    fun test_adapter_viewEvent_OpenVerse() {
         withActivity<ReadingProgressActivity> { activity ->
             val adapter: ReadingProgressAdapter = activity.getProperty("adapter")
             val onViewEvent: (ReadingProgressAdapter.ViewEvent) -> Unit = adapter.getProperty("onViewEvent")
@@ -93,7 +93,7 @@ class ReadingProgressActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewActionEmitted(), OpenReadingScreen`() {
+    fun test_onViewActionEmitted_OpenReadingScreen() {
         every { viewModel.viewAction() } returns flowOf(ReadingProgressViewModel.ViewAction.OpenReadingScreen)
         every { MockNavigationModule.mockNavigator.navigate(any(), Navigator.SCREEN_READING) } returns Unit
 
@@ -103,7 +103,7 @@ class ReadingProgressActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null error`() {
+    fun test_onViewStateUpdated_with_null_error() {
         every { viewModel.viewState() } returns flowOf(ReadingProgressViewModel.ViewState(
             loading = true,
             items = emptyList(),
@@ -119,7 +119,7 @@ class ReadingProgressActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with ReadingProgressLoadingError error`() {
+    fun test_onViewStateUpdated_with_ReadingProgressLoadingError_error() {
         every { viewModel.viewState() } returns flowOf(ReadingProgressViewModel.ViewState(
             loading = false,
             items = listOf(ReadingProgressItem.Summary(Settings.DEFAULT, 0, 0, 0, 0, 0)),
@@ -135,7 +135,7 @@ class ReadingProgressActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with VerseOpeningError error`() {
+    fun test_onViewStateUpdated_with_VerseOpeningError_error() {
         every { viewModel.viewState() } returns flowOf(ReadingProgressViewModel.ViewState(
             loading = false,
             items = listOf(ReadingProgressItem.Summary(Settings.DEFAULT, 0, 0, 0, 0, 0)),

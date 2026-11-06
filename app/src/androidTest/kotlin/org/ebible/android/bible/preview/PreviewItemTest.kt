@@ -37,7 +37,7 @@ import org.ebible.android.bible.core.VerseIndex
 @RunWith(AndroidJUnit4::class)
 class PreviewItemTest : BaseUnitTest() {
     @Test
-    fun `test DiffCallback`() {
+    fun test_DiffCallback() {
         val diffCallback = PreviewItem.DiffCallback()
 
         assertTrue(diffCallback.areItemsTheSame(
@@ -105,13 +105,13 @@ class PreviewItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test viewType`() {
+    fun test_viewType() {
         assertEquals(R.layout.item_preview_verse, PreviewItem.Verse(Settings.DEFAULT, VerseIndex.INVALID, "", 0).viewType)
         assertEquals(R.layout.item_preview_verse_with_query, PreviewItem.VerseWithQuery(Settings.DEFAULT, VerseIndex.INVALID, "", "", 0).viewType)
     }
 
     @Test
-    fun `test Verse_textForDisplay, followingEmptyVerseCount is 0`() {
+    fun test_Verse_textForDisplay_followingEmptyVerseCount_is_0() {
         val actual = PreviewItem.Verse(Settings.DEFAULT, VerseIndex(0, 0, 0), MockContents.kjvVerses[0].text.text, 0).textForDisplay
         assertEquals("1:1 In the beginning God created the heaven and the earth.", actual.toString())
 
@@ -124,7 +124,7 @@ class PreviewItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Verse_textForDisplay, followingEmptyVerseCount is 1`() {
+    fun test_Verse_textForDisplay_followingEmptyVerseCount_is_1() {
         val actual = PreviewItem.Verse(Settings.DEFAULT, VerseIndex(0, 0, 0), MockContents.msgVerses[0].text.text, 1).textForDisplay
         assertEquals(
             "1:1-2 First this: God created the Heavens and Earth—all you see, all you don't see. Earth was a soup of nothingness, a bottomless emptiness, an inky blackness. God's Spirit brooded like a bird above the watery abyss.",
@@ -140,7 +140,7 @@ class PreviewItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test VerseWithQuery_textForDisplay, followingEmptyVerseCount is 0`() {
+    fun test_VerseWithQuery_textForDisplay_followingEmptyVerseCount_is_0() {
         val actual = PreviewItem.VerseWithQuery(Settings.DEFAULT, VerseIndex(0, 0, 0), MockContents.kjvVerses[0].text.text, "God", 0).textForDisplay
         assertEquals("1:1 In the beginning God created the heaven and the earth.", actual.toString())
 
@@ -160,7 +160,7 @@ class PreviewItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test VerseWithQuery_textForDisplay, followingEmptyVerseCount is 1`() {
+    fun test_VerseWithQuery_textForDisplay_followingEmptyVerseCount_is_1() {
         val actual = PreviewItem.VerseWithQuery(Settings.DEFAULT, VerseIndex(0, 0, 0), MockContents.msgVerses[0].text.text, "God", 1).textForDisplay
         assertEquals(
             "1:1-2 First this: God created the Heavens and Earth—all you see, all you don't see. Earth was a soup of nothingness, a bottomless emptiness, an inky blackness. God's Spirit brooded like a bird above the watery abyss.",

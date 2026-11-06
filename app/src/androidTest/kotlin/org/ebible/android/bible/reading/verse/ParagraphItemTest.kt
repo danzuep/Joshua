@@ -49,7 +49,7 @@ class ParagraphItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test bookmark is added and removed live`() {
+    fun test_bookmark_is_added_and_removed_live() {
         val item = paragraph()
         assertEquals(0, bookmarkCount(item))
 
@@ -61,12 +61,12 @@ class ParagraphItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test bookmark renders for saved state when chapter is loaded`() {
+    fun test_bookmark_renders_for_saved_state_when_chapter_is_loaded() {
         assertEquals(1, bookmarkCount(paragraph(listOf(Bookmark(VerseIndex(57, 0, 2), 0L)))))
     }
 
     @Test
-    fun `test note icon is an end of verse image span but the bookmark is not`() {
+    fun test_note_icon_is_an_end_of_verse_image_span_but_the_bookmark_is_not() {
         val item = paragraph(listOf(Bookmark(VerseIndex(57, 0, 2), 0L)))
         assertEquals(0, noteCount(item))
         item.update(VerseUpdate(VerseIndex(57, 0, 2), VerseUpdate.NOTE_ADDED))

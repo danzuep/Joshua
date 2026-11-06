@@ -48,7 +48,7 @@ class TranslationsViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Header`() {
+    fun test_Header() {
         val viewHolder = TranslationsViewHolder.Header(
             inflater = LayoutInflater.from(context),
             parent = FrameLayout(context)
@@ -79,7 +79,7 @@ class TranslationsViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Translation`() {
+    fun test_Translation() {
         var downloadTranslationCalled = 0
         var removeTranslationCalled = 0
         var selectTranslationCalled = 0

@@ -33,7 +33,7 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 class AnnotatedVerseItemTest : BaseUnitTest() {
     @Test
-    fun `test DiffCallback`() {
+    fun test_DiffCallback() {
         val diffCallback = AnnotatedVerseItem.DiffCallback()
 
         assertTrue(diffCallback.areItemsTheSame(
@@ -143,7 +143,7 @@ class AnnotatedVerseItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Bookmark_textForDisplay`() {
+    fun test_Bookmark_textForDisplay() {
         assertEquals(
             "Genesis 1:1\nIn the beginning God created the heaven and the earth.",
             AnnotatedVerseItem.Bookmark(
@@ -170,7 +170,7 @@ class AnnotatedVerseItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Highlight_textForDisplay`() {
+    fun test_Highlight_textForDisplay() {
         assertEquals(
             "Genesis 1:1\nIn the beginning God created the heaven and the earth.",
             AnnotatedVerseItem.Highlight(
@@ -199,7 +199,7 @@ class AnnotatedVerseItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Note_textForDisplay`() {
+    fun test_Note_textForDisplay() {
         assertEquals(
             "Gen. 1:1 In the beginning God created the heaven and the earth.",
             AnnotatedVerseItem.Note(

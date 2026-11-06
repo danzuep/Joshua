@@ -43,7 +43,7 @@ class ChapterSelectionFragmentTest : BaseFragmentTest() {
     val viewModel: ChapterSelectionViewModel = mockk(relaxed = true)
 
     @Test
-    fun `test onViewStateUpdated(), with null error`() {
+    fun test_onViewStateUpdated_with_null_error() {
         every { viewModel.viewState() } returns flowOf(ChapterSelectionViewModel.ViewState(
             currentBookIndex = 1,
             currentChapterIndex = 2,
@@ -62,7 +62,7 @@ class ChapterSelectionFragmentTest : BaseFragmentTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with ChapterSelectionError error`() {
+    fun test_onViewStateUpdated_with_ChapterSelectionError_error() {
         every { viewModel.viewState() } returns flowOf(ChapterSelectionViewModel.ViewState(
             currentBookIndex = -1,
             currentChapterIndex = -1,

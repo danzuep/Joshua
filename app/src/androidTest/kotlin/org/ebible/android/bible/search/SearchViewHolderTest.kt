@@ -48,7 +48,7 @@ class SearchViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Header`() {
+    fun test_Header() {
         val viewHolder = SearchViewHolder.Header(
             inflater = LayoutInflater.from(context),
             parent = FrameLayout(context)
@@ -65,7 +65,7 @@ class SearchViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Note`() {
+    fun test_Note() {
         var openVerseCalled = 0
         var showPreviewCalled = 0
         val viewHolder = SearchViewHolder.Note(
@@ -123,7 +123,7 @@ class SearchViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Verse`() {
+    fun test_Verse() {
         var openVerseCalled = 0
         var showPreviewCalled = 0
         val viewHolder = SearchViewHolder.Verse(

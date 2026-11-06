@@ -49,7 +49,7 @@ class TranslationsAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test getItemViewType()`() {
+    fun test_getItemViewType() {
         adapter.submitList(
             listOf(
                 TranslationsItem.Header(Settings.DEFAULT, "", false),
@@ -62,12 +62,12 @@ class TranslationsAdapterTest : BaseUnitTest() {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `test onCreateViewHolder(), with unsupported viewType`() {
+    fun test_onCreateViewHolder_with_unsupported_viewType() {
         adapter.onCreateViewHolder(FrameLayout(context), 0)
     }
 
     @Test
-    fun `test onCreateViewHolder()`() {
+    fun test_onCreateViewHolder() {
         adapter.onCreateViewHolder(FrameLayout(context), TranslationsItem.Header.VIEW_TYPE) as TranslationsViewHolder.Header
         adapter.onCreateViewHolder(FrameLayout(context), TranslationsItem.Translation.VIEW_TYPE) as TranslationsViewHolder.Translation
     }

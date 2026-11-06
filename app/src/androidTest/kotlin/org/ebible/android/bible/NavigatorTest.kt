@@ -71,7 +71,7 @@ class NavigatorTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test navigate(), internal activities`() {
+    fun test_navigate_internal_activities() {
         testNavigate<ReadingActivity>(Navigator.SCREEN_READING)
         testNavigate<SearchActivity>(Navigator.SCREEN_SEARCH)
         testNavigate<TranslationsActivity>(Navigator.SCREEN_TRANSLATIONS)
@@ -92,7 +92,7 @@ class NavigatorTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test navigate(), SCREEN_NOTES`() {
+    fun test_navigate_SCREEN_NOTES() {
         withActivity<ReadingActivity> { activity ->
             navigator.navigate(activity, Navigator.SCREEN_NOTES, Bundle().apply { putString("test_key", "value") })
 
@@ -104,7 +104,7 @@ class NavigatorTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test navigate(), SCREEN_RATE_ME`() {
+    fun test_navigate_SCREEN_RATE_ME() {
         withActivity<ReadingActivity> { activity ->
             navigator.navigate(activity, Navigator.SCREEN_RATE_ME)
 
@@ -115,7 +115,7 @@ class NavigatorTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test navigate(), SCREEN_WEBSITE`() {
+    fun test_navigate_SCREEN_WEBSITE() {
         withActivity<ReadingActivity> { activity ->
             navigator.navigate(activity, Navigator.SCREEN_WEBSITE)
 
@@ -126,14 +126,14 @@ class NavigatorTest : BaseActivityTest() {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun `test navigate(), with unknown screen`() {
+    fun test_navigate_with_unknown_screen() {
         withActivity<ReadingActivity> { activity ->
             navigator.navigate(activity, -1)
         }
     }
 
     @Test
-    fun `test goBack()`() {
+    fun test_goBack() {
         withActivity<ReadingActivity> { activity ->
             navigator.goBack(activity)
             // Verify that onBackPressedDispatcher.onBackPressed() was called

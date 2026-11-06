@@ -42,13 +42,13 @@ class SettingSectionHeaderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test constructor, without attrs`() {
+    fun test_constructor_without_attrs() {
         val header = SettingSectionHeader(context)
         assertTrue(header.findViewById<TextView>(R.id.title).text.isEmpty())
     }
 
     @Test
-    fun `test constructor, with title`() {
+    fun test_constructor_with_title() {
         val header = LayoutInflater.from(context).inflate(R.layout.test_setting_widgets, null)
             .findViewById<SettingSectionHeader>(R.id.test_section_header)
         assertEquals("title", header.findViewById<TextView>(R.id.title).text.toString())

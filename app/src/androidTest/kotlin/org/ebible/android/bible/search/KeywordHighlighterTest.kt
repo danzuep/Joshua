@@ -31,7 +31,7 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 class KeywordHighlighterTest : BaseUnitTest() {
     @Test
-    fun `test highlight with no matching keyword`() {
+    fun test_highlight_with_no_matching_keyword() {
         with(SpannableStringBuilder("Gen. 1:1 In the beginning God created the heaven and the earth.").highlightKeyword("no-match", 0)) {
             assertTrue(getSpans<RelativeSizeSpan>(0, length).isEmpty())
             assertTrue(getSpans<StyleSpan>(0, length).isEmpty())
@@ -44,7 +44,7 @@ class KeywordHighlighterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test highlight with blank or empty query does nothing`() {
+    fun test_highlight_with_blank_or_empty_query_does_nothing() {
         with(SpannableStringBuilder("Gen. 1:1 In the beginning God created the heaven and the earth.").highlightKeyword("", 0)) {
             assertTrue(getSpans<RelativeSizeSpan>(0, length).isEmpty())
         }
@@ -54,7 +54,7 @@ class KeywordHighlighterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test highlight with one keyword and one match`() {
+    fun test_highlight_with_one_keyword_and_one_match() {
         val ssb = SpannableStringBuilder("Gen. 1:1 In the beginning God created the heaven and the earth.")
                 .highlightKeyword("god", 9)
 
@@ -70,7 +70,7 @@ class KeywordHighlighterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test highlight with one keyword and multiple matches`() {
+    fun test_highlight_with_one_keyword_and_multiple_matches() {
         val ssb = SpannableStringBuilder("Gen. 1:1 In the beginning God created the heaven and the earth.")
                 .highlightKeyword("The", 9)
 
@@ -94,7 +94,7 @@ class KeywordHighlighterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test highlight with multiple keywords and multiple matches`() {
+    fun test_highlight_with_multiple_keywords_and_multiple_matches() {
         val ssb = SpannableStringBuilder("Gen. 1:1 In the beginning God created the heaven and the earth.")
                 .highlightKeyword("The god", 9)
 

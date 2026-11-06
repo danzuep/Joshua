@@ -77,7 +77,7 @@ class AnnotatedVerseActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test adapter viewEvent, OpenVerse`() {
+    fun test_adapter_viewEvent_OpenVerse() {
         withActivity<BookmarksActivity> { activity ->
             val adapter: AnnotatedVerseAdapter = (activity as AnnotatedVerseActivity<*, *>).getProperty("adapter")
             val onViewEvent: (AnnotatedVerseAdapter.ViewEvent) -> Unit = adapter.getProperty("onViewEvent")
@@ -88,7 +88,7 @@ class AnnotatedVerseActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test adapter viewEvent, ShowPreview`() {
+    fun test_adapter_viewEvent_ShowPreview() {
         withActivity<BookmarksActivity> { activity ->
             val adapter: AnnotatedVerseAdapter = (activity as AnnotatedVerseActivity<*, *>).getProperty("adapter")
             val onViewEvent: (AnnotatedVerseAdapter.ViewEvent) -> Unit = adapter.getProperty("onViewEvent")
@@ -99,7 +99,7 @@ class AnnotatedVerseActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewActionEmitted(), OpenReadingScreen`() {
+    fun test_onViewActionEmitted_OpenReadingScreen() {
         every { viewModel.viewAction() } returns flowOf(AnnotatedVerseViewModel.ViewAction.OpenReadingScreen)
         every { MockNavigationModule.mockNavigator.navigate(any(), Navigator.SCREEN_READING) } returns Unit
 
@@ -109,7 +109,7 @@ class AnnotatedVerseActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null preview, and null error`() {
+    fun test_onViewStateUpdated_with_null_preview_and_null_error() {
         every { viewModel.viewState() } returns flowOf(AnnotatedVerseViewModel.ViewState(
             loading = true,
             sortOrder = Constants.SORT_BY_DATE,
@@ -127,7 +127,7 @@ class AnnotatedVerseActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with preview, and null error`() {
+    fun test_onViewStateUpdated_with_preview_and_null_error() {
         every { viewModel.viewState() } returns flowOf(AnnotatedVerseViewModel.ViewState(
             loading = false,
             sortOrder = Constants.SORT_BY_DATE,
@@ -154,7 +154,7 @@ class AnnotatedVerseActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null preview, and AnnotatedVersesLoadingError error`() {
+    fun test_onViewStateUpdated_with_null_preview_and_AnnotatedVersesLoadingError_error() {
         every { viewModel.viewState() } returns flowOf(AnnotatedVerseViewModel.ViewState(
             loading = false,
             sortOrder = Constants.SORT_BY_DATE,
@@ -172,7 +172,7 @@ class AnnotatedVerseActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null preview, and PreviewLoadingError error`() {
+    fun test_onViewStateUpdated_with_null_preview_and_PreviewLoadingError_error() {
         every { viewModel.viewState() } returns flowOf(AnnotatedVerseViewModel.ViewState(
             loading = false,
             sortOrder = Constants.SORT_BY_DATE,
@@ -195,7 +195,7 @@ class AnnotatedVerseActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null preview, and SortOrderSavingError error`() {
+    fun test_onViewStateUpdated_with_null_preview_and_SortOrderSavingError_error() {
         every { viewModel.viewState() } returns flowOf(AnnotatedVerseViewModel.ViewState(
             loading = false,
             sortOrder = Constants.SORT_BY_DATE,
@@ -213,7 +213,7 @@ class AnnotatedVerseActivityTest : BaseActivityTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null preview, and VerseOpeningError error`() {
+    fun test_onViewStateUpdated_with_null_preview_and_VerseOpeningError_error() {
         every { viewModel.viewState() } returns flowOf(AnnotatedVerseViewModel.ViewState(
             loading = false,
             sortOrder = Constants.SORT_BY_DATE,

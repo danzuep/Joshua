@@ -42,7 +42,7 @@ class ChapterSelectionViewTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test OT NT selection`() {
+    fun test_OT_NT_selection() {
         val chapterSelectionView = ChapterSelectionView(ApplicationProvider.getApplicationContext())
         chapterSelectionView.initialize { fail() }
         chapterSelectionView.setCurrentChapter(currentBookIndex = 0, currentChapterIndex = 0)

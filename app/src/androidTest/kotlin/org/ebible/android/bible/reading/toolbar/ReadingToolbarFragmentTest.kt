@@ -67,7 +67,7 @@ class ReadingToolbarFragmentTest : BaseFragmentTest() {
     val chapterSelectionViewModel: ChapterSelectionViewModel = mockk(relaxed = true)
 
     @Test
-    fun `test toolbar ViewEvent`() {
+    fun test_toolbar_ViewEvent() {
         `verify toolbar ViewEvent`(R.id.action_bookmarks, Navigator.SCREEN_BOOKMARKS)
         `verify toolbar ViewEvent`(R.id.action_highlights, Navigator.SCREEN_HIGHLIGHTS)
         `verify toolbar ViewEvent`(R.id.action_notes, Navigator.SCREEN_NOTES)
@@ -76,7 +76,7 @@ class ReadingToolbarFragmentTest : BaseFragmentTest() {
         `verify toolbar ViewEvent`(R.id.action_settings, Navigator.SCREEN_SETTINGS)
     }
 
-    private fun `verify toolbar ViewEvent`(@IdRes menuItemId: Int, @Navigator.Companion.Screen screen: Int) {
+    private fun verify_toolbar_ViewEvent(@IdRes menuItemId: Int, @Navigator.Companion.Screen screen: Int) {
         every { MockNavigationModule.mockNavigator.navigate(any(), screen) } returns Unit
 
         withFragment<ReadingToolbarFragment, ReadingActivity> { fragment ->
@@ -88,7 +88,7 @@ class ReadingToolbarFragmentTest : BaseFragmentTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with null error`() {
+    fun test_onViewStateUpdated_with_null_error() {
         every { readingToolbarViewModel.viewState() } returns flowOf(ReadingToolbarViewModel.ViewState(
             title = "my title",
             translationItems = emptyList(),
@@ -101,7 +101,7 @@ class ReadingToolbarFragmentTest : BaseFragmentTest() {
     }
 
     @Test
-    fun `test onViewStateUpdated(), with ParallelTranslationRequestingError error`() {
+    fun test_onViewStateUpdated_with_ParallelTranslationRequestingError_error() {
         every { readingToolbarViewModel.viewState() } returns flowOf(ReadingToolbarViewModel.ViewState(
             title = "my title",
             translationItems = emptyList(),

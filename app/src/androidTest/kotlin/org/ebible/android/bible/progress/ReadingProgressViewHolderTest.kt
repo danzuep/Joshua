@@ -51,7 +51,7 @@ class ReadingProgressViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Summary`() {
+    fun test_Summary() {
         val viewHolder = ReadingProgressViewHolder.Summary(
             inflater = LayoutInflater.from(context),
             parent = FrameLayout(context)
@@ -90,7 +90,7 @@ class ReadingProgressViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Book, no chapter read, and collapsed`() {
+    fun test_Book_no_chapter_read_and_collapsed() {
         var expandedOrCollapseBookCalled = 0
         val viewHolder = ReadingProgressViewHolder.Book(
             inflater = LayoutInflater.from(context),
@@ -133,7 +133,7 @@ class ReadingProgressViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Book, two chapter read, and expanded`() {
+    fun test_Book_two_chapter_read_and_expanded() {
         var expandedOrCollapseBookCalled = 0
         var openVerseCalled = 0
         val viewHolder = ReadingProgressViewHolder.Book(
@@ -210,7 +210,7 @@ class ReadingProgressViewHolderTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test Book, bind again with less chapters`() {
+    fun test_Book_bind_again_with_less_chapters() {
         val viewHolder = ReadingProgressViewHolder.Book(
             inflater = LayoutInflater.from(context),
             parent = FrameLayout(context)

@@ -55,7 +55,7 @@ class HttpTranslationServiceTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test toRemoteTranslation()`() {
+    fun test_toRemoteTranslation() {
         val info = RemoteTranslationInfo("eng_web", "World English Bible", "eng", 0L)
         val actual = httpTranslationService.toRemoteTranslation(
             info,

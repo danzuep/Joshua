@@ -50,7 +50,7 @@ class PreviewAdapterTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test getItemViewType()`() {
+    fun test_getItemViewType() {
         adapter.submitList(listOf(
             PreviewItem.Verse(
                 settings = Settings.DEFAULT,
@@ -72,12 +72,12 @@ class PreviewAdapterTest : BaseUnitTest() {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun `test onCreateViewHolder(), with unsupported viewType`() {
+    fun test_onCreateViewHolder_with_unsupported_viewType() {
         adapter.onCreateViewHolder(FrameLayout(context), 0)
     }
 
     @Test
-    fun `test onCreateViewHolder()`() {
+    fun test_onCreateViewHolder() {
         adapter.onCreateViewHolder(FrameLayout(context), PreviewItem.Verse.VIEW_TYPE) as PreviewViewHolder.Verse
         adapter.onCreateViewHolder(FrameLayout(context), PreviewItem.VerseWithQuery.VIEW_TYPE) as PreviewViewHolder.VerseWithQuery
     }

@@ -35,12 +35,12 @@ import kotlin.test.assertTrue
 @RunWith(AndroidJUnit4::class)
 class VersePreviewItemTest : BaseUnitTest() {
     @Test
-    fun `test viewType`() {
+    fun test_viewType() {
         assertEquals(R.layout.item_preview_verse, VersePreviewItem(Verse.INVALID, 0).viewType)
     }
 
     @Test
-    fun `test textForDisplay without followingEmptyVerseCount`() {
+    fun test_textForDisplay_without_followingEmptyVerseCount() {
         val actual = VersePreviewItem(MockContents.kjvVerses[0], 0).textForDisplay
         assertEquals("1:1 In the beginning God created the heaven and the earth.", actual.toString())
 
@@ -55,7 +55,7 @@ class VersePreviewItemTest : BaseUnitTest() {
     }
 
     @Test
-    fun `test textForDisplay with followingEmptyVerseCount`() {
+    fun test_textForDisplay_with_followingEmptyVerseCount() {
         val actual = VersePreviewItem(MockContents.msgVerses[0], 1).textForDisplay
         assertEquals(
                 "1:1-2 First this: God created the Heavens and Earth—all you see, all you don't see. Earth was a soup of nothingness, a bottomless emptiness, an inky blackness. God's Spirit brooded like a bird above the watery abyss.",
