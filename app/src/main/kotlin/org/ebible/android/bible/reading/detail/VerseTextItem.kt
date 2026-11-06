@@ -18,6 +18,7 @@
 package org.ebible.android.bible.reading.detail
 
 import android.text.SpannableStringBuilder
+import org.ebible.android.bible.utils.localized
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -58,9 +59,9 @@ class VerseTextItem(
         SPANNABLE_STRING_BUILDER.clearAll()
                 .append(verseText.translationShortName).append(", ")
                 .append(bookName).append(' ')
-                .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                .append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
         if (followingEmptyVerseCount > 0) {
-            SPANNABLE_STRING_BUILDER.append('-').append(verseIndex.verseIndex + followingEmptyVerseCount + 1)
+            SPANNABLE_STRING_BUILDER.append('-').append((verseIndex.verseIndex + followingEmptyVerseCount + 1).localized())
         }
         return@lazy SPANNABLE_STRING_BUILDER.setSpans(BOOK_NAME_SPANS)
                 .append('\n').append(verseText.text)

@@ -18,6 +18,7 @@
 package org.ebible.android.bible.progress
 
 import android.graphics.Typeface
+import org.ebible.android.bible.utils.localized
 import android.text.SpannableStringBuilder
 import android.text.style.CharacterStyle
 import android.text.style.ForegroundColorSpan
@@ -115,19 +116,19 @@ sealed class ReadingProgressViewHolder<Item : ReadingProgressItem, VB : ViewBind
 
             chaptersReadTitle.setPrimaryTextSize(item.settings)
             chaptersReadValue.setPrimaryTextSize(item.settings)
-            chaptersReadValue.text = item.chaptersRead.toString()
+            chaptersReadValue.text = item.chaptersRead.localized()
 
             finishedBooksTitle.setPrimaryTextSize(item.settings)
             finishedBooksValue.setPrimaryTextSize(item.settings)
-            finishedBooksValue.text = item.finishedBooks.toString()
+            finishedBooksValue.text = item.finishedBooks.localized()
 
             finishedOldTestamentTitle.setPrimaryTextSize(item.settings)
             finishedOldTestamentValue.setPrimaryTextSize(item.settings)
-            finishedOldTestamentValue.text = item.finishedOldTestament.toString()
+            finishedOldTestamentValue.text = item.finishedOldTestament.localized()
 
             finishedNewTestamentTitle.setPrimaryTextSize(item.settings)
             finishedNewTestamentValue.setPrimaryTextSize(item.settings)
-            finishedNewTestamentValue.text = item.finishedNewTestament.toString()
+            finishedNewTestamentValue.text = item.finishedNewTestament.localized()
         }
     }
 
@@ -165,7 +166,7 @@ sealed class ReadingProgressViewHolder<Item : ReadingProgressItem, VB : ViewBind
             bookName.isSelected = item.isCurrentBook
 
             readingProgressBar.progress = item.chaptersReadCount * readingProgressBar.maxProgress / item.chaptersRead.size
-            readingProgressBar.text = "${item.chaptersReadCount} / ${item.chaptersRead.size}"
+            readingProgressBar.text = "${item.chaptersReadCount.localized()} / ${item.chaptersRead.size.localized()}"
 
             if (item.expanded) {
                 val rowCount = item.chaptersRead.size / ROW_CHILD_COUNT + if (item.chaptersRead.size % ROW_CHILD_COUNT == 0) 0 else 1
@@ -189,7 +190,7 @@ sealed class ReadingProgressViewHolder<Item : ReadingProgressItem, VB : ViewBind
                                 isVisible = true
                                 tag = chapter
 
-                                SPANNABLE_STRING_BUILDER.clearAll().append(chapter + 1)
+                                SPANNABLE_STRING_BUILDER.clearAll().append((chapter + 1).localized())
                                 if (item.chaptersRead[chapter]) {
                                     SPANNABLE_STRING_BUILDER.setSpans(CHAPTER_READ_SPANS)
                                 }

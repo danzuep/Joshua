@@ -54,7 +54,7 @@ class VersePreviewItem(val verse: Verse, followingEmptyVerseCount: Int)
 
         SPANNABLE_STRING_BUILDER.append((verse.verseIndex.chapterIndex + 1).localized()).append(':').append((verse.verseIndex.verseIndex + 1).localized())
         if (followingEmptyVerseCount > 0) {
-            SPANNABLE_STRING_BUILDER.append('-').append(verse.verseIndex.verseIndex + followingEmptyVerseCount + 1)
+            SPANNABLE_STRING_BUILDER.append('-').append((verse.verseIndex.verseIndex + followingEmptyVerseCount + 1).localized())
         }
 
         SPANNABLE_STRING_BUILDER.setSpans(VERSE_INDEX_SPANS)

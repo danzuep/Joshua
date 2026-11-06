@@ -18,6 +18,7 @@
 package org.ebible.android.bible.reading.chapter
 
 import android.content.Context
+import org.ebible.android.bible.utils.localized
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -126,7 +127,7 @@ class ChapterListAdapter(context: Context, onViewEvent: (ChapterSelectionView.Vi
                 } else {
                     isVisible = true
                     isSelected = bookIndex == currentBookIndex && chapterIndex == currentChapterIndex
-                    text = (chapterIndex + 1).toString()
+                    text = (chapterIndex + 1).localized()
 
                     with(tag as Tag) {
                         this.bookIndex = bookIndex
