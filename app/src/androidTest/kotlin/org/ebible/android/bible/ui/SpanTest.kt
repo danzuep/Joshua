@@ -45,13 +45,13 @@ class SpanTest : BaseUnitTest() {
     @Test
     fun test_createHighlightSpans() {
         assertTrue(createHighlightSpans(Highlight.COLOR_NONE).isEmpty())
-        `verify highlight spans`(Highlight.COLOR_YELLOW, Color.BLACK, createHighlightSpans(Highlight.COLOR_YELLOW))
-        `verify highlight spans`(Highlight.COLOR_PINK, Color.BLACK, createHighlightSpans(Highlight.COLOR_PINK))
-        `verify highlight spans`(Highlight.COLOR_ORANGE, Color.BLACK, createHighlightSpans(Highlight.COLOR_ORANGE))
-        `verify highlight spans`(Highlight.COLOR_PURPLE, Color.BLACK, createHighlightSpans(Highlight.COLOR_PURPLE))
-        `verify highlight spans`(Highlight.COLOR_RED, Color.WHITE, createHighlightSpans(Highlight.COLOR_RED))
-        `verify highlight spans`(Highlight.COLOR_GREEN, Color.BLACK, createHighlightSpans(Highlight.COLOR_GREEN))
-        `verify highlight spans`(Highlight.COLOR_BLUE, Color.WHITE, createHighlightSpans(Highlight.COLOR_BLUE))
+        verify_highlight_spans(Highlight.COLOR_YELLOW, Color.BLACK, createHighlightSpans(Highlight.COLOR_YELLOW))
+        verify_highlight_spans(Highlight.COLOR_PINK, Color.BLACK, createHighlightSpans(Highlight.COLOR_PINK))
+        verify_highlight_spans(Highlight.COLOR_ORANGE, Color.BLACK, createHighlightSpans(Highlight.COLOR_ORANGE))
+        verify_highlight_spans(Highlight.COLOR_PURPLE, Color.BLACK, createHighlightSpans(Highlight.COLOR_PURPLE))
+        verify_highlight_spans(Highlight.COLOR_RED, Color.WHITE, createHighlightSpans(Highlight.COLOR_RED))
+        verify_highlight_spans(Highlight.COLOR_GREEN, Color.BLACK, createHighlightSpans(Highlight.COLOR_GREEN))
+        verify_highlight_spans(Highlight.COLOR_BLUE, Color.WHITE, createHighlightSpans(Highlight.COLOR_BLUE))
     }
 
     private fun verify_highlight_spans(expectedBackgroundColor: Int, expectedForegroundColor: Int, actualStyles: Array<CharacterStyle>) {

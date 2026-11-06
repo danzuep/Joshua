@@ -68,12 +68,12 @@ class ReadingToolbarFragmentTest : BaseFragmentTest() {
 
     @Test
     fun test_toolbar_ViewEvent() {
-        `verify toolbar ViewEvent`(R.id.action_bookmarks, Navigator.SCREEN_BOOKMARKS)
-        `verify toolbar ViewEvent`(R.id.action_highlights, Navigator.SCREEN_HIGHLIGHTS)
-        `verify toolbar ViewEvent`(R.id.action_notes, Navigator.SCREEN_NOTES)
-        `verify toolbar ViewEvent`(R.id.action_reading_progress, Navigator.SCREEN_READING_PROGRESS)
-        `verify toolbar ViewEvent`(R.id.action_search, Navigator.SCREEN_SEARCH)
-        `verify toolbar ViewEvent`(R.id.action_settings, Navigator.SCREEN_SETTINGS)
+        verify_toolbar_ViewEvent(R.id.action_bookmarks, Navigator.SCREEN_BOOKMARKS)
+        verify_toolbar_ViewEvent(R.id.action_highlights, Navigator.SCREEN_HIGHLIGHTS)
+        verify_toolbar_ViewEvent(R.id.action_notes, Navigator.SCREEN_NOTES)
+        verify_toolbar_ViewEvent(R.id.action_reading_progress, Navigator.SCREEN_READING_PROGRESS)
+        verify_toolbar_ViewEvent(R.id.action_search, Navigator.SCREEN_SEARCH)
+        verify_toolbar_ViewEvent(R.id.action_settings, Navigator.SCREEN_SETTINGS)
     }
 
     private fun verify_toolbar_ViewEvent(@IdRes menuItemId: Int, @Navigator.Companion.Screen screen: Int) {
