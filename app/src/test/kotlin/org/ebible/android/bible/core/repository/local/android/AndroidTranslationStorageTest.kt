@@ -17,12 +17,17 @@
 
 package org.ebible.android.bible.core.repository.local.android
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.test.runTest
 import org.ebible.android.bible.core.TranslationInfo
+import org.ebible.android.bible.core.repository.local.android.db.AndroidDatabase
+import org.ebible.android.bible.core.repository.local.android.db.MetadataDao
 import org.ebible.android.bible.tests.MockContents
 import org.ebible.android.bible.tests.toMap
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.io.File
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -125,5 +130,35 @@ class AndroidTranslationStorageTest : BaseSqliteTest() {
         assertTrue(androidDatabase.translationDao.read(MockContents.kjvShortName,
                 MockContents.kjvVerses[0].verseIndex.bookIndex,
                 MockContents.kjvVerses[0].verseIndex.chapterIndex).isEmpty())
+    }
+
+    @Test
+    fun testInstallPrebuiltTranslations() = runTest {
+        androidTranslationStorage.saveTranslation(MockContents.kjvTranslationInfo,
+                MockContents.kjvBookNames, MockContents.kjvBookShortNames, MockContents.kjvVerses.toMap())
+        androidDatabase.close()
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val prebuilt = File.createTempFile("prebuilt", ".db")
+        context.getDatabasePath(AndroidDatabase.DATABASE_NAME).copyTo(prebuilt, overwrite = true)
+
+        context.deleteDatabase(AndroidDatabase.DATABASE_NAME)
+        androidDatabase = AndroidDatabase(context)
+        androidTranslationStorage = AndroidTranslationStorage(androidDatabase)
+        androidDatabase.metadataDao.save(MetadataDao.KEY_DOWNLOAD_SITES, "https://example.com")
+
+        assertTrue(androidTranslationStorage.installPrebuiltTranslations(prebuilt))
+        prebuilt.delete()
+
+        assertEquals(listOf(MockContents.kjvDownloadedTranslationInfo), androidTranslationStorage.readTranslations())
+        assertEquals(MockContents.kjvBookNames, androidDatabase.bookNamesDao.read(MockContents.kjvShortName))
+        assertEquals(MockContents.kjvVerses, androidDatabase.translationDao.read(
+                MockContents.kjvShortName, MockContents.kjvVerses[0].verseIndex.bookIndex,
+                MockContents.kjvVerses[0].verseIndex.chapterIndex))
+        assertEquals(listOf("https://example.com"), androidTranslationStorage.readDownloadSites())
+    }
+
+    @Test
+    fun testInstallPrebuiltTranslationsWithoutContext() = runTest {
+        assertFalse(androidTranslationStorage.installPrebuiltTranslations())
     }
 }

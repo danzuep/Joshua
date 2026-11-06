@@ -49,9 +49,15 @@ jobs:
         cp app/build/outputs/apk/release/app-release.apk "$NAME.apk"
     - name: Download the WEB Bible to prepackage
       run: |
-        mkdir -p bundled-assets/bundled/translations
-        curl -fsSL "https://ebible.org/Scriptures/engwebu_usfm.zip" -o bundled-assets/bundled/translations/engwebu.zip
-        printf 'engwebu\tWorld English Bible Updated\teng\n' > bundled-assets/bundled/list.tsv
+        mkdir -p bundle-src/translations
+        curl -fsSL "https://ebible.org/Scriptures/engwebu_usfm.zip" -o bundle-src/translations/engwebu.zip
+        printf 'engwebu\tWorld English Bible Updated\teng\n' > bundle-src/list.tsv
+    - name: Parse the WEB Bible into a prebuilt database
+      run: |
+        # Writes bundled-assets/bundled/bundled.db, so the app does not parse the USFM on first launch.
+        BUNDLE_DIR="$PWD/bundle-src" ./gradlew cleanTestDebugUnitTest testDebugUnitTest --tests '*BundledDatabaseGenerator'
+        mkdir -p bundled-assets/bundled
+        cp bundle-src/bundled/bundled.db bundled-assets/bundled/bundled.db
     - name: Build APK with the WEB Bible prepackaged
       run: |
         ./gradlew assembleRelease -PbundledAssetsDir="$PWD/bundled-assets" -PdefaultBookIndex=42 ${VERSION:+-PappVersion=$VERSION}
