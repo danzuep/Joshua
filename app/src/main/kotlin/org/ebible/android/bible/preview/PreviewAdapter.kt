@@ -90,7 +90,7 @@ sealed class PreviewItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
 
             SPANNABLE_STRING_BUILDER.append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
             if (followingEmptyVerseCount > 0) {
-                SPANNABLE_STRING_BUILDER.append('-').append(verseIndex.verseIndex + followingEmptyVerseCount + 1)
+                SPANNABLE_STRING_BUILDER.append('-').append((verseIndex.verseIndex + followingEmptyVerseCount + 1).localized())
             }
 
             SPANNABLE_STRING_BUILDER.setSpans(VERSE_INDEX_SPANS)
@@ -119,7 +119,7 @@ sealed class PreviewItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
 
             SPANNABLE_STRING_BUILDER.append((verseIndex.chapterIndex + 1).localized()).append(':').append((verseIndex.verseIndex + 1).localized())
             if (followingEmptyVerseCount > 0) {
-                SPANNABLE_STRING_BUILDER.append('-').append(verseIndex.verseIndex + followingEmptyVerseCount + 1)
+                SPANNABLE_STRING_BUILDER.append('-').append((verseIndex.verseIndex + followingEmptyVerseCount + 1).localized())
             }
 
             SPANNABLE_STRING_BUILDER.setSpans(VERSE_INDEX_SPANS)

@@ -18,6 +18,7 @@
 package org.ebible.android.bible.annotated
 
 import android.app.Application
+import org.ebible.android.bible.utils.localized
 import android.text.format.DateFormat
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
@@ -253,7 +254,7 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
             runCatching {
                 val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
                 val preview = Preview(
-                    title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseToPreview.bookIndex]} ${verseToPreview.chapterIndex + 1}",
+                    title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseToPreview.bookIndex]} ${(verseToPreview.chapterIndex + 1).localized()}",
                     items = buildPreviewVerseItems(
                         settings = settingsManager.settings().first(),
                         verses = bibleReadingManager.readVerses(currentTranslation, verseToPreview.bookIndex, verseToPreview.chapterIndex)
