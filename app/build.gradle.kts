@@ -143,6 +143,8 @@ android {
     packaging {
         resources.excludes.add("**/NOTNOTICE")
         jniLibs.excludes.add("**/libshared.so")
+        // MockK's jvmti agent is dlopen-ed from the extracted native library dir in instrumented tests.
+        jniLibs.useLegacyPackaging = true
     }
 }
 
