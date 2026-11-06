@@ -46,6 +46,7 @@ import co.touchlab.kermit.Logger
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import org.ebible.android.bible.utils.withNativeDigits
 import kotlin.collections.ArrayList
 import org.ebible.android.bible.preview.Preview
 import org.ebible.android.bible.preview.buildPreviewVerseItems
@@ -184,7 +185,7 @@ abstract class AnnotatedVerseViewModel<V : VerseAnnotation>(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     internal open fun formatDate(calendar: Calendar, includeYear: Boolean): String {
-        val locale = Locale.getDefault()
+        val locale = Locale.getDefault().withNativeDigits()
         val skeleton = if (includeYear) "yMMMd" else "MMMd"
         return SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, skeleton), locale).format(calendar.time)
     }

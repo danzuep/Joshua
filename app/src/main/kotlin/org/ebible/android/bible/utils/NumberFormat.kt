@@ -18,6 +18,7 @@
 package org.ebible.android.bible.utils
 
 import java.text.NumberFormat
+import java.util.Locale
 
 /** Formats a chapter or verse number with the digits of the current locale. */
-fun Int.localized(): String = NumberFormat.getIntegerInstance().apply { isGroupingUsed = false }.format(this)
+fun Int.localized(): String = NumberFormat.getIntegerInstance(Locale.getDefault().withNativeDigits()).apply { isGroupingUsed = false }.format(this)
