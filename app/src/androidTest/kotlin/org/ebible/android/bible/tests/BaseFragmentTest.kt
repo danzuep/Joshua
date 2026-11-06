@@ -34,15 +34,23 @@ abstract class BaseFragmentTest : BaseUnitTest() {
 
     protected inline fun <reified F : Fragment, reified A : AppCompatActivity> withFragment(
         fragmentArgs: Bundle? = null,
-        crossinline afterLaunch: () -> Unit = {},
-        crossinline block: (fragment: F) -> Unit,
+        noinline afterLaunch: () -> Unit = {},
+        noinline block: (fragment: F) -> Unit,
+    ) = launchFragment(F::class.java, A::class.java, fragmentArgs, afterLaunch, block)
+
+    protected fun <F : Fragment, A : AppCompatActivity> launchFragment(
+        fragmentClass: Class<F>,
+        activityClass: Class<A>,
+        fragmentArgs: Bundle?,
+        afterLaunch: () -> Unit,
+        block: (fragment: F) -> Unit,
     ) {
-        val startActivityIntent = Intent.makeMainActivity(ComponentName(ApplicationProvider.getApplicationContext(), A::class.java))
+        val startActivityIntent = Intent.makeMainActivity(ComponentName(ApplicationProvider.getApplicationContext(), activityClass))
             .putExtra("androidx.fragment.app.testing.FragmentScenario.EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY", R.style.AppTheme)
 
         ActivityScenario.launch<A>(startActivityIntent).use {
             it.onActivity { activity ->
-                val fragment: F = activity.supportFragmentManager.fragmentFactory.instantiate(F::class.java.classLoader!!, F::class.java.name) as F
+                val fragment = fragmentClass.cast(activity.supportFragmentManager.fragmentFactory.instantiate(fragmentClass.classLoader!!, fragmentClass.name))!!
                 fragment.arguments = fragmentArgs
 
                 activity.supportFragmentManager

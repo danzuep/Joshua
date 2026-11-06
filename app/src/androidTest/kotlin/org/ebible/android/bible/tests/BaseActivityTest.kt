@@ -29,9 +29,15 @@ abstract class BaseActivityTest : BaseUnitTest() {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    /** [block] runs on the main thread; [afterLaunch] runs on the test thread while the activity is still resumed (Espresso can't run on the main thread). */
-    protected inline fun <reified A : Activity> withActivity(crossinline afterLaunch: () -> Unit = {}, crossinline block: (activity: A) -> Unit) {
-        val startActivityIntent = Intent.makeMainActivity(ComponentName(ApplicationProvider.getApplicationContext(), A::class.java))
+    /**
+     * [block] runs on the main thread; [afterLaunch] runs on the test thread while the activity is still resumed (Espresso can't run on the main thread).
+     * The lambdas are not inlined: inlined lambdas generate classes named after the test method, and D8 rejects spaces in class names below API 30.
+     */
+    protected inline fun <reified A : Activity> withActivity(noinline afterLaunch: () -> Unit = {}, noinline block: (activity: A) -> Unit) =
+        launchActivity(A::class.java, afterLaunch, block)
+
+    protected fun <A : Activity> launchActivity(activityClass: Class<A>, afterLaunch: () -> Unit, block: (activity: A) -> Unit) {
+        val startActivityIntent = Intent.makeMainActivity(ComponentName(ApplicationProvider.getApplicationContext(), activityClass))
         ActivityScenario.launch<A>(startActivityIntent).use {
             it.onActivity { activity -> block(activity) }
             afterLaunch()
