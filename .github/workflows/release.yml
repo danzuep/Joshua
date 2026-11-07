@@ -11,6 +11,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # The signing secrets live in the `release` environment, which only v* tags may deploy to.
+    # Other refs (dry runs) use the secret-less `dry-run` environment and sign with the debug key.
+    environment: ${{ startsWith(github.ref, 'refs/tags/v') && 'release' || 'dry-run' }}
     steps:
     - uses: actions/checkout@v7
     - uses: actions/setup-java@v6

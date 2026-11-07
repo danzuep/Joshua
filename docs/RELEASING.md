@@ -35,7 +35,16 @@ KEY_ALIAS=<key alias>
 KEY_PASSWORD=<key password>
 ```
 
-For CI, set the optional secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`. Without a keystore the release APK is signed with the debug key (installable, but not suitable for updates from a different key).
+For CI, set the optional secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD` as secrets of the `release` environment (not repository secrets), so only `v*` tags can read them:
+
+```bash
+gh api -X PUT repos/danzuep/Yeshua/environments/release --input - <<< '{"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}'
+gh api -X POST repos/danzuep/Yeshua/environments/release/deployment-branch-policies -f name='v*' -f type=tag
+gh secret set KEYSTORE_BASE64 --env release --repo danzuep/Yeshua < keystore.b64
+# likewise KEYSTORE_PASSWORD, KEY_ALIAS and KEY_PASSWORD with --body
+```
+
+Branch runs of `release.yml` use the secret-less `dry-run` environment. Without a keystore the release APK is signed with the debug key (installable, but not suitable for updates from a different key).
 
 More about app signing can be found [here](https://developer.android.com/studio/publish/app-signing).
 
