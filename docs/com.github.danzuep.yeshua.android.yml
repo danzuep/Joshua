@@ -1,5 +1,5 @@
 # Template for the F-Droid inclusion merge request to https://gitlab.com/fdroid/fdroiddata
-# (copy to metadata/org.ebible.android.bible.yml). Store listing text comes from fastlane/.
+# (copy to metadata/com.github.danzuep.yeshua.android.yml). Store listing text comes from fastlane/.
 Categories:
   - Reading
 License: Apache-2.0

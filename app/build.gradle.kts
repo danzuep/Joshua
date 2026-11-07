@@ -35,7 +35,7 @@ val defaultBookIndex = (findProperty("defaultBookIndex") as String?)?.toIntOrNul
 require(defaultBookIndex in 0 until 66) { "defaultBookIndex must be a valid 0-based Bible book index" }
 
 android {
-    namespace = Configurations.applicationId
+    namespace = Configurations.namespace
 
     compileOptions {
         sourceCompatibility = Versions.java
