@@ -16,13 +16,13 @@
             android:orientation="vertical"
             android:paddingTop="@dimen/padding_small">
 
-            <org.ebible.android.bible.settings.widgets.SettingSectionHeader
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingSectionHeader
                 android:id="@+id/display"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingSectionHeaderTitle="@string/settings_header_display" />
 
-            <org.ebible.android.bible.settings.widgets.SettingButton
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingButton
                 android:id="@+id/font_size"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -39,19 +39,19 @@
                 app:thumbTint="@color/switch_thumb_tint"
                 app:trackTint="@color/switch_track_tint" />
 
-            <org.ebible.android.bible.settings.widgets.SettingButton
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingButton
                 android:id="@+id/night_mode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingButtonTitle="@string/settings_title_night_mode" />
 
-            <org.ebible.android.bible.settings.widgets.SettingButton
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingButton
                 android:id="@+id/language"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingButtonTitle="@string/settings_title_language" />
 
-            <org.ebible.android.bible.settings.widgets.SettingSectionHeader
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingSectionHeader
                 android:id="@+id/reading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -66,49 +66,49 @@
                 android:paddingEnd="@dimen/padding"
                 android:text="@string/settings_title_hide_search_button" />
 
-            <org.ebible.android.bible.settings.widgets.SettingButton
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingButton
                 android:id="@+id/default_highlight_color"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingButtonTitle="@string/settings_title_default_highlight_color" />
 
-            <org.ebible.android.bible.settings.widgets.SettingSectionHeader
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingSectionHeader
                 android:id="@+id/backup_restore"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingSectionHeaderTitle="@string/settings_header_backup_restore" />
 
-            <org.ebible.android.bible.settings.widgets.SettingButton
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingButton
                 android:id="@+id/backup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingButtonTitle="@string/settings_title_backup" />
 
-            <org.ebible.android.bible.settings.widgets.SettingButton
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingButton
                 android:id="@+id/restore"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingButtonTitle="@string/settings_title_restore" />
 
-            <org.ebible.android.bible.settings.widgets.SettingSectionHeader
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingSectionHeader
                 android:id="@+id/about"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingSectionHeaderTitle="@string/settings_header_about" />
 
-            <org.ebible.android.bible.settings.widgets.SettingButton
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingButton
                 android:id="@+id/rate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingButtonTitle="@string/settings_title_rate" />
 
-            <org.ebible.android.bible.settings.widgets.SettingButton
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingButton
                 android:id="@+id/website"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:settingButtonTitle="@string/settings_title_website" />
 
-            <org.ebible.android.bible.settings.widgets.SettingButton
+            <com.github.danzuep.yeshua.android.settings.widgets.SettingButton
                 android:id="@+id/version"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -1,0 +1,47 @@
+/*
+ * Copyright (C) 2023 Xizhi Zhu
+ * Copyright (C) 2026 Daniel Collingwood
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.danzuep.yeshua.android.core
+
+import kotlinx.coroutines.flow.Flow
+import com.github.danzuep.yeshua.android.core.repository.VerseAnnotationRepository
+
+class VerseAnnotationManager<T : VerseAnnotation>(private val verseAnnotationRepository: VerseAnnotationRepository<T>) {
+    fun sortOrder(): Flow<Int> = verseAnnotationRepository.sortOrder
+
+    suspend fun saveSortOrder(@Constants.SortOrder sortOrder: Int) {
+        verseAnnotationRepository.saveSortOrder(sortOrder)
+    }
+
+    suspend fun read(@Constants.SortOrder sortOrder: Int): List<T> = verseAnnotationRepository.read(sortOrder)
+
+    suspend fun read(bookIndex: Int, chapterIndex: Int): List<T> = verseAnnotationRepository.read(bookIndex, chapterIndex)
+
+    suspend fun read(verseIndex: VerseIndex): T = verseAnnotationRepository.read(verseIndex)
+
+    suspend fun save(verseAnnotation: T) {
+        verseAnnotationRepository.save(verseAnnotation)
+    }
+
+    suspend fun save(verseAnnotations: List<T>) {
+        verseAnnotationRepository.save(verseAnnotations)
+    }
+
+    suspend fun remove(verseIndex: VerseIndex) {
+        verseAnnotationRepository.remove(verseIndex)
+    }
+}

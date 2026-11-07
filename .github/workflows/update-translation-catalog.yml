@@ -1,0 +1,39 @@
+name: Update translation catalog
+
+on:
+  schedule:
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-java@v6
+      with:
+        distribution: 'temurin'
+        java-version: '25'
+    - uses: gradle/actions/setup-gradle@v6
+    - name: Download translations.csv
+      run: ./gradlew updateTranslationCatalog
+    - name: Open a pull request if the list changed
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        if git diff --quiet; then
+          echo "No changes"
+          exit 0
+        fi
+        branch=update-translation-catalog-$(date +%Y%m%d)
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -b "$branch"
+        git add -A app/src/main/assets
+        git commit -m "Update translation catalog"
+        git push origin "$branch"
+        gh pr create --title "Update translation catalog" --body "Downloaded https://ebible.org/Scriptures/translations.csv" --base "${GITHUB_REF_NAME}"

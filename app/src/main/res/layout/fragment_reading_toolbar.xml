@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Modified by Daniel Collingwood, 2026 -->
-<org.ebible.android.bible.reading.toolbar.ReadingToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.danzuep.yeshua.android.reading.toolbar.ReadingToolbar xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize" />
