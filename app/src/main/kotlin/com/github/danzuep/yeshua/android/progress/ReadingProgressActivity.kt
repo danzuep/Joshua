@@ -1,0 +1,115 @@
+/*
+ * Copyright (C) 2023 Xizhi Zhu
+ * Copyright (C) 2026 Daniel Collingwood
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.danzuep.yeshua.android.progress
+
+import androidx.activity.viewModels
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.asExecutor
+import com.github.danzuep.yeshua.android.Navigator
+import com.github.danzuep.yeshua.android.R
+import com.github.danzuep.yeshua.android.core.provider.CoroutineDispatcherProvider
+import com.github.danzuep.yeshua.android.databinding.ActivityReadingProgressBinding
+import com.github.danzuep.yeshua.android.infra.BaseActivity
+import com.github.danzuep.yeshua.android.ui.dialog
+import com.github.danzuep.yeshua.android.ui.fadeIn
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class ReadingProgressActivity : BaseActivity<ActivityReadingProgressBinding, ReadingProgressViewModel.ViewAction, ReadingProgressViewModel.ViewState, ReadingProgressViewModel>() {
+    @Inject
+    lateinit var coroutineDispatcherProvider: CoroutineDispatcherProvider
+
+    private lateinit var adapter: ReadingProgressAdapter
+    private var pendingScrollToCurrentBook = false
+
+    override val viewModel: ReadingProgressViewModel by viewModels()
+
+    override val viewBinding: ActivityReadingProgressBinding by lazy(LazyThreadSafetyMode.NONE) { ActivityReadingProgressBinding.inflate(layoutInflater) }
+
+    override fun initializeView() {
+        viewBinding.toolbar.setNavigationOnClickListener { navigator.goBack(this) }
+        adapter = ReadingProgressAdapter(
+            inflater = layoutInflater,
+            executor = coroutineDispatcherProvider.default.asExecutor()
+        ) { viewEvent ->
+            when (viewEvent) {
+                is ReadingProgressAdapter.ViewEvent.ExpandOrCollapseBook -> viewModel.expandOrCollapseBook(viewEvent.bookIndex)
+                is ReadingProgressAdapter.ViewEvent.OpenVerse -> viewModel.openVerse(viewEvent.verseToOpen)
+            }
+        }
+        viewBinding.readingProgressList.adapter = adapter
+    }
+
+    override fun onViewActionEmitted(viewAction: ReadingProgressViewModel.ViewAction) = when (viewAction) {
+        ReadingProgressViewModel.ViewAction.OpenReadingScreen -> navigator.navigate(this, Navigator.SCREEN_READING)
+    }
+
+    override fun onViewStateUpdated(viewState: ReadingProgressViewModel.ViewState): Unit = with(viewBinding) {
+        if (viewState.loading) {
+            loadingSpinner.fadeIn()
+            readingProgressList.isVisible = false
+        } else {
+            loadingSpinner.isVisible = false
+            readingProgressList.fadeIn()
+        }
+
+        adapter.submitList(viewState.items) {
+            if (pendingScrollToCurrentBook) scrollToCurrentBook(viewState.items)
+        }
+
+        viewState.error?.handle()
+    }
+
+    private fun ReadingProgressViewModel.ViewState.Error.handle() = when (this) {
+        is ReadingProgressViewModel.ViewState.Error.ReadingProgressLoadingError -> {
+            dialog(
+                cancelable = false,
+                title = R.string.dialog_title_error,
+                message = R.string.dialog_message_failed_to_load_reading_progress,
+                onPositive = { _, _ -> viewModel.loadReadingProgress() },
+                onNegative = { _, _ -> navigator.goBack(this@ReadingProgressActivity) },
+                onDismiss = { viewModel.markErrorAsShown(this) }
+            )
+        }
+        is ReadingProgressViewModel.ViewState.Error.VerseOpeningError -> {
+            dialog(
+                cancelable = true,
+                title = R.string.dialog_title_error,
+                message = R.string.dialog_message_failed_to_select_verse,
+                onPositive = { _, _ -> viewModel.openVerse(verseToOpen) },
+                onDismiss = { viewModel.markErrorAsShown(this) }
+            )
+        }
+    }
+
+    private fun scrollToCurrentBook(items: List<ReadingProgressItem>) {
+        val position = items.indexOfFirst { it is ReadingProgressItem.Book && it.isCurrentBook }
+        if (position < 0) return
+
+        pendingScrollToCurrentBook = false
+        (viewBinding.readingProgressList.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, 0)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        pendingScrollToCurrentBook = true
+        viewModel.loadReadingProgress()
+    }
+}

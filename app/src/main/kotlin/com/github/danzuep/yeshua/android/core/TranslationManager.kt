@@ -1,0 +1,47 @@
+/*
+ * Copyright (C) 2023 Xizhi Zhu
+ * Copyright (C) 2026 Daniel Collingwood
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.danzuep.yeshua.android.core
+
+import kotlinx.coroutines.flow.Flow
+import com.github.danzuep.yeshua.android.core.repository.TranslationRepository
+
+class TranslationManager(private val translationRepository: TranslationRepository) {
+    fun availableTranslations(): Flow<List<TranslationInfo>> = translationRepository.availableTranslations
+
+    fun downloadedTranslations(): Flow<List<TranslationInfo>> = translationRepository.downloadedTranslations
+
+    suspend fun reload(forceRefresh: Boolean) {
+        translationRepository.reload(forceRefresh)
+    }
+
+    suspend fun readDownloadSites(): List<String> = translationRepository.readDownloadSites()
+
+    suspend fun saveDownloadSites(sites: List<String>) {
+        translationRepository.saveDownloadSites(sites)
+    }
+
+    fun downloadTranslation(translationToDownload: TranslationInfo): Flow<Int> = translationRepository.downloadTranslation(translationToDownload)
+
+    suspend fun importTranslation(translationInfo: TranslationInfo, content: ByteArray) {
+        translationRepository.importTranslation(translationInfo, content)
+    }
+
+    suspend fun removeTranslation(translationInfo: TranslationInfo) {
+        translationRepository.removeTranslation(translationInfo)
+    }
+}

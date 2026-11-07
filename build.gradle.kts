@@ -40,7 +40,7 @@ allprojects {
 }
 
 // Downloads app/src/main/assets/translations.csv from https://ebible.org/Scriptures/translations.csv.
-tasks.register("updateEbibleTranslations") {
+tasks.register("updateTranslationCatalog") {
     group = "translations"
     description = "Downloads the eBible.org translations.csv catalog"
     val output = file("app/src/main/assets/translations.csv")

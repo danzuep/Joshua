@@ -21,7 +21,7 @@ import org.gradle.api.JavaVersion
 
 object Configurations {
     const val applicationId = "com.github.danzuep.yeshua.android"
-    const val namespace = "org.ebible.android.bible"
+    const val namespace = "com.github.danzuep.yeshua.android"
     val supportedLocales = listOf("en", "zh", "b+zh+Hant", "es", "hi", "ar", "fr", "pt", "bn", "ru", "ur", "id", "in", "de", "ja", "tr", "vi", "ko", "it", "th")
 }
 

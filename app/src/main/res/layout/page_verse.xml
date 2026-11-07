@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <org.ebible.android.bible.ui.recyclerview.CommonRecyclerView
+    <com.github.danzuep.yeshua.android.ui.recyclerview.CommonRecyclerView
         android:id="@+id/verse_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

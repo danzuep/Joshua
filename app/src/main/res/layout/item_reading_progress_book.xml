@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <org.ebible.android.bible.progress.ReadingProgressBar
+    <com.github.danzuep.yeshua.android.progress.ReadingProgressBar
         android:id="@+id/reading_progress_bar"
         android:layout_width="240dp"
         android:layout_height="wrap_content"

@@ -28,9 +28,9 @@
             </intent-filter>
         </activity-alias>
 
-        <activity android:name="org.ebible.android.bible.annotated.bookmarks.BookmarksActivity" />
-        <activity android:name="org.ebible.android.bible.annotated.highlights.HighlightsActivity" />
-        <activity android:name="org.ebible.android.bible.annotated.notes.NotesActivity" />
+        <activity android:name="com.github.danzuep.yeshua.android.annotated.bookmarks.BookmarksActivity" />
+        <activity android:name="com.github.danzuep.yeshua.android.annotated.highlights.HighlightsActivity" />
+        <activity android:name="com.github.danzuep.yeshua.android.annotated.notes.NotesActivity" />
         <activity android:name=".progress.ReadingProgressActivity" />
         <activity android:name=".reading.ReadingActivity" />
         <activity
