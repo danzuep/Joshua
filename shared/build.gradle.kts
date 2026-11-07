@@ -21,7 +21,7 @@ plugins {
 
 kotlin {
     androidLibrary {
-        namespace = "${Configurations.applicationId}.shared"
+        namespace = "${Configurations.namespace}.shared"
         compileSdk = Versions.Sdk.compile
         minSdk = Versions.Sdk.min
 

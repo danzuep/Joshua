@@ -3,6 +3,9 @@
 # then searches "jhn1" and checks the search screen stays responsive.
 set -u
 
+APP_ID="com.github.danzuep.yeshua.android"
+APP_NAMESPACE="org.ebible.android.bible"
+
 # Taps the center of the node whose content-desc contains $1 in ui.xml; returns 1 if there is none.
 tap_desc() {
   local xy
@@ -28,10 +31,10 @@ adb install app/build/outputs/apk/release/app-release.apk
 adb logcat -c
 # Open Genesis first (importing the bundled translation takes a while), then jump to another book. A page must
 # never be left on the loading spinner after the jump.
-adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK 0
+adb shell am start -W --activity-single-top -n "$APP_ID/$APP_NAMESPACE.LauncherActivity" --ei "$APP_NAMESPACE.KEY_OPEN_BOOK" 0
 sleep 20
 # Open straight to the requested book (0-based index, default 42 = John) instead of navigating the UI.
-adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK "${SMOKE_BOOK_INDEX:-42}"
+adb shell am start -W --activity-single-top -n "$APP_ID/$APP_NAMESPACE.LauncherActivity" --ei "$APP_NAMESPACE.KEY_OPEN_BOOK" "${SMOKE_BOOK_INDEX:-42}"
 
 # The bundled translation is imported on first launch, so poll for the text instead of sleeping a fixed time.
 found=0
@@ -93,7 +96,7 @@ fi
 # Scroll to the start of John 2 and capture it: the chapter starts inline with a bold "¶2" instead of a heading and break.
 chapter_found=0
 # The back press above can leave the reader, so reopen John first.
-adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK "${SMOKE_BOOK_INDEX:-42}" > /dev/null
+adb shell am start -W --activity-single-top -n "$APP_ID/$APP_NAMESPACE.LauncherActivity" --ei "$APP_NAMESPACE.KEY_OPEN_BOOK" "${SMOKE_BOOK_INDEX:-42}" > /dev/null
 sleep 5
 # The emulator screen is only 320x640, so scroll relative to its size rather than with fixed coordinates.
 read -r width height < <(adb shell wm size | grep -oE '[0-9]+x[0-9]+' | tail -n 1 | tr 'x' ' ')
@@ -112,7 +115,7 @@ if [ "$chapter_found" -ne 1 ]; then
   status=1
 fi
 # Regression test: submitting "jhn1" used to relaunch SearchActivity in an endless loop, freezing the screen after the results showed.
-adb shell am start -W -n org.ebible.android.bible/.search.SearchActivity > /dev/null
+adb shell am start -W -n "$APP_ID/$APP_NAMESPACE.search.SearchActivity" > /dev/null
 sleep 3
 adb shell input text jhn1
 # Instant search waits for a typing pause before running.
@@ -162,12 +165,12 @@ adb logcat -d > logcat.txt
 adb exec-out screencap -p > screen.png
 
 # SearchActivity should be started once by us, plus at most one self-relaunch when the query is submitted.
-search_starts=$(grep -c "START u0.*cmp=org.ebible.android.bible/.search.SearchActivity" logcat.txt)
+search_starts=$(grep -c "START u0.*cmp=$APP_ID/$APP_NAMESPACE.search.SearchActivity" logcat.txt)
 if [ "$search_starts" -gt 3 ]; then
   echo "FAIL: SearchActivity was started $search_starts times, it keeps relaunching itself"
   status=1
 fi
-if grep -qE "ANR in org.ebible.android.bible|Application Not Responding" logcat.txt; then
+if grep -qE "ANR in $APP_ID|Application Not Responding" logcat.txt; then
   echo "FAIL: the app is not responding"
   status=1
 fi
