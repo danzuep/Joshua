@@ -1,0 +1,385 @@
+/*
+ * Copyright (C) 2023 Xizhi Zhu
+ * Copyright (C) 2026 eBible
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.danzuep.yeshua.android.search
+
+import android.app.Application
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import com.github.danzuep.yeshua.android.R
+import com.github.danzuep.yeshua.android.core.Bible
+import com.github.danzuep.yeshua.android.core.BibleReadingManager
+import com.github.danzuep.yeshua.android.core.Bookmark
+import com.github.danzuep.yeshua.android.core.Highlight
+import com.github.danzuep.yeshua.android.core.Note
+import com.github.danzuep.yeshua.android.core.SearchConfiguration
+import com.github.danzuep.yeshua.android.core.SearchManager
+import com.github.danzuep.yeshua.android.core.Settings
+import com.github.danzuep.yeshua.android.core.SettingsManager
+import com.github.danzuep.yeshua.android.core.Verse
+import com.github.danzuep.yeshua.android.core.VerseIndex
+import com.github.danzuep.yeshua.android.core.provider.CoroutineDispatcherProvider
+import com.github.danzuep.yeshua.android.infra.BaseViewModel
+import com.github.danzuep.yeshua.android.utils.firstNotEmpty
+import co.touchlab.kermit.Logger
+import javax.inject.Inject
+import com.github.danzuep.yeshua.android.preview.Preview
+import com.github.danzuep.yeshua.android.preview.buildPreviewVerseWithQueryItems
+
+@OptIn(ExperimentalCoroutinesApi::class)
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val bibleReadingManager: BibleReadingManager,
+    private val searchManager: SearchManager,
+    private val settingsManager: SettingsManager,
+    private val coroutineDispatcherProvider: CoroutineDispatcherProvider,
+    private val application: Application
+) : BaseViewModel<SearchViewModel.ViewAction, SearchViewModel.ViewState>(
+    initialViewState = ViewState(
+        loading = false,
+        searchConfig = null,
+        instantSearch = false,
+        items = emptyList(),
+        scrollItemsToPosition = -1,
+        searchResultSummary = null,
+        preview = null,
+        error = null,
+    )
+) {
+    sealed class ViewAction {
+        object OpenReadingScreen : ViewAction()
+        data class OpenBook(val bookIndex: Int) : ViewAction()
+    }
+
+    data class ViewState(
+        val loading: Boolean,
+        val searchConfig: SearchConfiguration?,
+        val instantSearch: Boolean,
+        val items: List<SearchItem>,
+        val scrollItemsToPosition: Int,
+        val searchResultSummary: String?,
+        val preview: Preview?,
+        val error: Error?,
+    ) {
+        sealed class Error {
+            data class PreviewLoadingError(val verseToPreview: VerseIndex) : Error()
+            object SearchConfigUpdatingError : Error()
+            data class VerseOpeningError(val verseToOpen: VerseIndex) : Error()
+            object VerseSearchingError : Error()
+        }
+    }
+
+    private data class SearchRequest(val query: String, val instantSearch: Boolean)
+
+    private val searchRequest: MutableStateFlow<SearchRequest?> = MutableStateFlow(null)
+    private companion object {
+        const val SEARCH_TYPING_TIMEOUT_MS = 500L
+    }
+    private val searchSuggestions: RecentSearchProvider.SearchSuggestions by lazy(LazyThreadSafetyMode.NONE) {
+        RecentSearchProvider.SearchSuggestions(application, viewModelScope, coroutineDispatcherProvider)
+    }
+
+    init {
+        searchManager.configuration()
+            .onEach { searchConfig ->
+                updateViewState { it.copy(searchConfig = searchConfig) }
+                retrySearch()
+            }
+            .launchIn(viewModelScope)
+
+        // collectLatest cancels a search that is still running when a newer request arrives, so stale results never overwrite newer ones.
+        viewModelScope.launch {
+            combine(
+                settingsManager.settings(),
+                searchRequest.filterNotNull()
+                    .distinctUntilChangedBy { it.query to it.instantSearch }
+                    .mapLatest { request ->
+                        if (request.instantSearch) delay(SEARCH_TYPING_TIMEOUT_MS)
+                        request
+                    }
+            ) { settings, searchRequest -> settings to searchRequest }
+                .flowOn(coroutineDispatcherProvider.default)
+                .collectLatest { (settings, searchRequest) ->
+                    doSearch(settings, searchRequest.query, searchRequest.instantSearch)
+
+                    if (!searchRequest.instantSearch) {
+                        searchSuggestions.saveRecentQuery(searchRequest.query)
+                    }
+                }
+        }
+    }
+
+    fun includeOldTestament(include: Boolean) {
+        updateSearchConfig { it.copy(includeOldTestament = include) }
+    }
+
+    private fun updateSearchConfig(op: (SearchConfiguration) -> SearchConfiguration) {
+        viewModelScope.launch(coroutineDispatcherProvider.default) {
+            runCatching {
+                val current = searchManager.configuration().first()
+                op(current).takeIf { it != current }?.let { searchManager.saveConfiguration(it) }
+            }.onFailure { e ->
+                Logger.withTag(tag).e(e) { "Error occurred which updating search config" }
+                updateViewState { it.copy(error = ViewState.Error.SearchConfigUpdatingError) }
+            }
+        }
+    }
+
+    fun includeNewTestament(include: Boolean) {
+        updateSearchConfig { it.copy(includeNewTestament = include) }
+    }
+
+    fun includeBookmarks(include: Boolean) {
+        updateSearchConfig { it.copy(includeBookmarks = include) }
+    }
+
+    fun includeHighlights(include: Boolean) {
+        updateSearchConfig { it.copy(includeHighlights = include) }
+    }
+
+    fun includeNotes(include: Boolean) {
+        updateSearchConfig { it.copy(includeNotes = include) }
+    }
+
+    fun includeWholeWords(include: Boolean) {
+        updateSearchConfig { it.copy(wholeWords = include) }
+    }
+
+    fun searchByReference(include: Boolean) {
+        updateSearchConfig { it.copy(searchByReference = include) }
+    }
+
+    fun search(query: String, instanceSearch: Boolean) {
+        searchRequest.value = SearchRequest(query.trim(), instanceSearch)
+    }
+
+    fun retrySearch() {
+        viewModelScope.launch(coroutineDispatcherProvider.default) {
+            searchRequest.value?.let { request ->
+                doSearch(
+                    settings = settingsManager.settings().first(),
+                    query = request.query,
+                    instantSearch = request.instantSearch
+                )
+            }
+        }
+    }
+
+    private suspend fun doSearch(settings: Settings, query: String, instantSearch: Boolean) {
+        if (query.isBlank()) {
+            updateViewState { it.copy(items = emptyList()) }
+            return
+        }
+
+        runCatching {
+            if (!instantSearch) {
+                updateViewState { it.copy(loading = true, items = emptyList()) }
+            }
+
+            val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
+            val searchResult = searchManager.search(query)
+            val items = buildSearchResultItems(
+                settings = settings,
+                // Verses listed by reference are not keyword matches, so there is nothing to highlight.
+                query = if (searchResult.byReference) "" else query,
+                verses = searchResult.verses,
+                bookmarks = searchResult.bookmarks,
+                highlights = searchResult.highlights,
+                notes = searchResult.notes,
+                bookNames = bibleReadingManager.readBookNames(currentTranslation),
+                bookShortNames = bibleReadingManager.readBookShortNames(currentTranslation),
+                bookIndex = searchResult.bookIndex
+            )
+            val toast = if (instantSearch) {
+                null
+            } else {
+                application.getString(R.string.toast_search_result,
+                    searchResult.verses.size + searchResult.bookmarks.size + searchResult.highlights.size + searchResult.notes.size)
+            }
+            updateViewState { current ->
+                current.copy(
+                    loading = false,
+                    instantSearch = instantSearch,
+                    items = items,
+                    scrollItemsToPosition = 0,
+                    searchResultSummary = toast,
+                )
+            }
+        }.onFailure { e ->
+            // A superseded search is cancelled on purpose, so it must not surface as an error.
+            if (e is CancellationException) throw e
+            Logger.withTag(tag).e(e) { "Error occurred which searching, query=$query instantSearch=$instantSearch" }
+            updateViewState { it.copy(loading = false, error = ViewState.Error.VerseSearchingError) }
+        }
+    }
+
+    private fun buildSearchResultItems(
+        settings: Settings,
+        query: String,
+        verses: List<Verse>,
+        bookmarks: List<Pair<Bookmark, Verse>>,
+        highlights: List<Pair<Highlight, Verse>>,
+        notes: List<Pair<Note, Verse>>,
+        bookNames: List<String>,
+        bookShortNames: List<String>,
+        bookIndex: Int?
+    ): List<SearchItem> {
+        val items = ArrayList<SearchItem>(
+            (if (notes.isEmpty()) 0 else notes.size + 1)
+                + (if (bookmarks.isEmpty()) 0 else bookmarks.size + 1)
+                + (if (highlights.isEmpty()) 0 else highlights.size + 1)
+                + verses.size
+                + Bible.BOOK_COUNT
+        )
+
+        if (bookIndex != null) {
+            items.add(SearchItem.BookLink(settings, bookIndex, bookNames[bookIndex]))
+        }
+
+        if (notes.isNotEmpty()) {
+            items.add(SearchItem.Header(settings, application.getString(R.string.title_notes)))
+            notes.forEach { note ->
+                items.add(SearchItem.Note(
+                    settings = settings,
+                    verseIndex = note.first.verseIndex,
+                    bookShortName = bookShortNames[note.first.verseIndex.bookIndex],
+                    verseText = note.second.text.text,
+                    query = query,
+                    note = note.first.note,
+                ))
+            }
+        }
+
+        if (bookmarks.isNotEmpty()) {
+            items.add(SearchItem.Header(settings, application.getString(R.string.title_bookmarks)))
+            bookmarks.forEach { bookmark ->
+                items.add(SearchItem.Verse(
+                    settings = settings,
+                    verseIndex = bookmark.first.verseIndex,
+                    bookShortName = bookShortNames[bookmark.first.verseIndex.bookIndex],
+                    verseText = bookmark.second.text.text,
+                    query = query,
+                    highlightColor = Highlight.COLOR_NONE
+                ))
+            }
+        }
+
+        if (highlights.isNotEmpty()) {
+            items.add(SearchItem.Header(settings, application.getString(R.string.title_highlights)))
+            highlights.forEach { highlight ->
+                items.add(SearchItem.Verse(
+                    settings = settings,
+                    verseIndex = highlight.first.verseIndex,
+                    bookShortName = bookShortNames[highlight.first.verseIndex.bookIndex],
+                    verseText = highlight.second.text.text,
+                    query = query,
+                    highlightColor = highlight.first.color
+                ))
+            }
+        }
+
+        var lastVerseBookIndex = -1
+        verses.forEach { verse ->
+            val currentVerseBookIndex = verse.verseIndex.bookIndex
+            if (lastVerseBookIndex != currentVerseBookIndex) {
+                items.add(SearchItem.Header(settings, bookNames[currentVerseBookIndex]))
+                lastVerseBookIndex = currentVerseBookIndex
+            }
+            items.add(SearchItem.Verse(
+                settings = settings,
+                verseIndex = verse.verseIndex,
+                bookShortName = bookShortNames[currentVerseBookIndex],
+                verseText = verse.text.text,
+                query = query,
+                highlightColor = Highlight.COLOR_NONE
+            ))
+        }
+
+        return items
+    }
+
+    fun openVerse(verseToOpen: VerseIndex) {
+        viewModelScope.launch(coroutineDispatcherProvider.default) {
+            runCatching {
+                bibleReadingManager.saveCurrentVerseIndex(verseToOpen)
+                emitViewAction(ViewAction.OpenReadingScreen)
+            }.onFailure { e ->
+                Logger.withTag(tag).e(e) { "Failed to save current verse" }
+                updateViewState { it.copy(error = ViewState.Error.VerseOpeningError(verseToOpen)) }
+            }
+        }
+    }
+
+    fun openBook(bookIndex: Int) {
+        viewModelScope.launch { emitViewAction(ViewAction.OpenBook(bookIndex)) }
+    }
+
+    fun loadPreview(verseToPreview: VerseIndex) {
+        viewModelScope.launch(coroutineDispatcherProvider.default) {
+            runCatching {
+                val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
+                val preview = Preview(
+                    title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseToPreview.bookIndex]} ${verseToPreview.chapterIndex + 1}",
+                    items = buildPreviewVerseWithQueryItems(
+                        settings = settingsManager.settings().first(),
+                        query = searchRequest.value?.query.orEmpty(),
+                        verses = bibleReadingManager.readVerses(currentTranslation, verseToPreview.bookIndex, verseToPreview.chapterIndex)
+                    ),
+                    currentPosition = verseToPreview.verseIndex
+                )
+                updateViewState { it.copy(preview = preview) }
+            }.onFailure { e ->
+                Logger.withTag(tag).e(e) { "Failed to load verses for preview" }
+                updateViewState { it.copy(error = ViewState.Error.PreviewLoadingError(verseToPreview)) }
+            }
+        }
+    }
+
+    fun markItemsAsScrolled() {
+        updateViewState { it.copy(scrollItemsToPosition = -1) }
+    }
+
+    fun markSearchResultSummaryAsShown() {
+        updateViewState { it.copy(searchResultSummary = null) }
+    }
+
+    fun markPreviewAsClosed() {
+        updateViewState { it.copy(preview = null) }
+    }
+
+    fun markErrorAsShown(error: ViewState.Error) {
+        updateViewState { current -> if (current.error == error) current.copy(error = null) else null }
+    }
+
+    fun clearSearchHistory() {
+        searchSuggestions.clearHistory()
+    }
+}

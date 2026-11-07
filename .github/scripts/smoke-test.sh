@@ -28,10 +28,10 @@ adb install app/build/outputs/apk/release/app-release.apk
 adb logcat -c
 # Open Genesis first (importing the bundled translation takes a while), then jump to another book. A page must
 # never be left on the loading spinner after the jump.
-adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK 0
+adb shell am start -W --activity-single-top -n com.github.danzuep.yeshua.android/.LauncherActivity --ei com.github.danzuep.yeshua.android.KEY_OPEN_BOOK 0
 sleep 20
 # Open straight to the requested book (0-based index, default 42 = John) instead of navigating the UI.
-adb shell am start -W --activity-single-top -n org.ebible.android.bible/.LauncherActivity --ei org.ebible.android.bible.KEY_OPEN_BOOK "${SMOKE_BOOK_INDEX:-42}"
+adb shell am start -W --activity-single-top -n com.github.danzuep.yeshua.android/.LauncherActivity --ei com.github.danzuep.yeshua.android.KEY_OPEN_BOOK "${SMOKE_BOOK_INDEX:-42}"
 
 # The bundled translation is imported on first launch, so give it time to appear.
 sleep 10
@@ -102,7 +102,7 @@ else
   status=1
 fi
 # Regression test: submitting "jhn1" used to relaunch SearchActivity in an endless loop, freezing the screen after the results showed.
-adb shell am start -W -n org.ebible.android.bible/.search.SearchActivity > /dev/null
+adb shell am start -W -n com.github.danzuep.yeshua.android/.search.SearchActivity > /dev/null
 sleep 3
 adb shell input text jhn1
 # Instant search waits for a typing pause before running.
@@ -152,12 +152,12 @@ adb logcat -d > logcat.txt
 adb exec-out screencap -p > screen.png
 
 # SearchActivity should be started once by us, plus at most one self-relaunch when the query is submitted.
-search_starts=$(grep -c "START u0.*cmp=org.ebible.android.bible/.search.SearchActivity" logcat.txt)
+search_starts=$(grep -c "START u0.*cmp=com.github.danzuep.yeshua.android/.search.SearchActivity" logcat.txt)
 if [ "$search_starts" -gt 3 ]; then
   echo "FAIL: SearchActivity was started $search_starts times, it keeps relaunching itself"
   status=1
 fi
-if grep -qE "ANR in org.ebible.android.bible|Application Not Responding" logcat.txt; then
+if grep -qE "ANR in com.github.danzuep.yeshua.android|Application Not Responding" logcat.txt; then
   echo "FAIL: the app is not responding"
   status=1
 fi

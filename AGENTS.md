@@ -23,7 +23,7 @@ Before pushing, review Kotlin changes carefully (unresolved references, imports,
 
 ## Project map
 
-- `app/` is the single Android module (Kotlin, Hilt, Room-less SQLite, coroutines). Source is under `app/src/main/kotlin/org/ebible/android/bible/`:
+- `app/` is the single Android module (Kotlin, Hilt, Room-less SQLite, coroutines). Source is under `app/src/main/kotlin/com/github/danzuep/yeshua/android/`:
   - `core/` holds managers and repositories (`repository/local` for SQLite, `repository/remote` for downloads and USFM parsing).
   - Feature packages (`reading`, `search`, `translations`, `settings`, `annotated`, `progress`, `preview`) each have an Activity plus a `ViewModel` with a single `ViewState`, one-shot `ViewAction`s and a typed `Error`, on `infra/BaseViewModel` and `infra/BaseActivity`.
   - Strong's Numbers, cross references and the old JSON download flow were removed; translations now come from eBible.org USFM zips (`app/src/main/assets/ebible_downloads.tsv`, refreshed monthly by `update-ebible-downloads.yml`).
@@ -36,7 +36,7 @@ Before pushing, review Kotlin changes carefully (unresolved references, imports,
 - Merging a PR auto-tags the next version from the PR title prefix (`major:`, `minor:`, `patch:`; any other title creates no tag) and starts the release. See `.github/workflows/auto-tag.yml`.
 - Known-bad dependency versions that broke CI on JDK 25: Robolectric 4.17, Hilt 2.60.1, KSP 2.3.13. Keep Robolectric 4.16.1, Hilt 2.59.2, KSP 2.3.6 (`buildSrc/src/main/kotlin/Configurations.kt`).
 - Some unit tests can be flaky because of leftover coroutines. `BaseUnitTest.tearDown` cancels the shared test scope; cancel any view-model scope you create in a test too.
-- The reading screen accepts the launch extra `org.ebible.android.bible.KEY_OPEN_BOOK` (0-based book index) to open a book directly, which the smoke test uses.
+- The reading screen accepts the launch extra `com.github.danzuep.yeshua.android.KEY_OPEN_BOOK` (0-based book index) to open a book directly, which the smoke test uses.
 - Branches opened by other tools can be based on an old `main`, which shows up as unresolved references for code that merged later. Rebase onto `origin/main` before debugging a CI failure.
 - After a rebase, `git push --force-with-lease` is often rejected as "stale info". Use `git push --force-with-lease=<branch>:$(git ls-remote origin refs/heads/<branch> | cut -f1) origin <branch>`.
 - A PR whose base is another PR's branch merges into that branch, not `main`. Check `gh pr view <n> --json baseRefName` before assuming something reached `main`.

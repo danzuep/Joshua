@@ -1,0 +1,135 @@
+/*
+ * Copyright (C) 2023 Xizhi Zhu
+ * Copyright (C) 2026 eBible
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.danzuep.yeshua.android.preview
+
+import kotlinx.coroutines.flow.first
+import com.github.danzuep.yeshua.android.core.BibleReadingManager
+import com.github.danzuep.yeshua.android.core.Settings
+import com.github.danzuep.yeshua.android.core.SettingsManager
+import com.github.danzuep.yeshua.android.core.Verse
+import com.github.danzuep.yeshua.android.core.VerseIndex
+import com.github.danzuep.yeshua.android.ui.recyclerview.BaseItem
+import com.github.danzuep.yeshua.android.utils.firstNotEmpty
+import java.util.ArrayList
+
+data class PreviewViewData(val settings: Settings, val title: String, val items: List<BaseItem>, val currentPosition: Int)
+
+suspend fun loadPreview(
+    bibleReadingManager: BibleReadingManager,
+    settingsManager: SettingsManager,
+    verseIndex: VerseIndex,
+    converter: List<Verse>.() -> List<BaseItem>
+): PreviewViewData {
+    if (!verseIndex.isValid()) {
+        throw IllegalArgumentException("Verse index [$verseIndex] is invalid")
+    }
+
+    val currentTranslation = bibleReadingManager.currentTranslation().firstNotEmpty()
+    return PreviewViewData(
+        settings = settingsManager.settings().first(),
+        title = "${bibleReadingManager.readBookShortNames(currentTranslation)[verseIndex.bookIndex]} ${verseIndex.chapterIndex + 1}",
+        items = converter(bibleReadingManager.readVerses(currentTranslation, verseIndex.bookIndex, verseIndex.chapterIndex)),
+        currentPosition = verseIndex.verseIndex
+    )
+}
+
+fun toVersePreviewItems(verses: List<Verse>): List<VersePreviewItem> {
+    val items = ArrayList<VersePreviewItem>(verses.size)
+
+    val verseIterator = verses.iterator()
+    var verse: Verse? = null
+    while (verse != null || verseIterator.hasNext()) {
+        verse = verse ?: verseIterator.next()
+
+        val (nextVerse, followingEmptyVerseCount) = verseIterator.nextNonEmpty(verse)
+
+        items.add(VersePreviewItem(verse, followingEmptyVerseCount))
+
+        verse = nextVerse
+    }
+
+    return items
+}
+
+data class Preview(val title: String, val items: List<PreviewItem>, val currentPosition: Int)
+
+fun buildPreviewVerseItems(settings: Settings, verses: List<Verse>): List<PreviewItem> {
+    val items = ArrayList<PreviewItem>(verses.size)
+
+    val verseIterator = verses.iterator()
+    var verse: Verse? = null
+    while (verse != null || verseIterator.hasNext()) {
+        verse = verse ?: verseIterator.next()
+
+        val (nextVerse, followingEmptyVerseCount) = verseIterator.nextNonEmpty(verse)
+
+        items.add(PreviewItem.Verse(
+            settings = settings,
+            verseIndex = verse.verseIndex,
+            verseText = verse.text.text,
+            followingEmptyVerseCount = followingEmptyVerseCount,
+        ))
+
+        verse = nextVerse
+    }
+
+    return items
+}
+
+fun buildPreviewVerseWithQueryItems(settings: Settings, query: String, verses: List<Verse>): List<PreviewItem> {
+    val items = ArrayList<PreviewItem>(verses.size)
+
+    val verseIterator = verses.iterator()
+    var verse: Verse? = null
+    while (verse != null || verseIterator.hasNext()) {
+        verse = verse ?: verseIterator.next()
+
+        val (nextVerse, followingEmptyVerseCount) = verseIterator.nextNonEmpty(verse)
+
+        items.add(PreviewItem.VerseWithQuery(
+            settings = settings,
+            verseIndex = verse.verseIndex,
+            verseText = verse.text.text,
+            query = query,
+            followingEmptyVerseCount = followingEmptyVerseCount,
+        ))
+
+        verse = nextVerse
+    }
+
+    return items
+}
+
+// skips the empty verses
+private fun Iterator<Verse>.nextNonEmpty(current: Verse): Pair<Verse?, Int> {
+    var nextVerse: Verse? = null
+    while (hasNext()) {
+        nextVerse = next()
+        if (nextVerse.text.text.isEmpty()) {
+            nextVerse = null
+        } else {
+            break
+        }
+    }
+
+    val followingEmptyVerseCount = nextVerse
+        ?.let { it.verseIndex.verseIndex - 1 - current.verseIndex.verseIndex }
+        ?: 0
+
+    return Pair(nextVerse, followingEmptyVerseCount)
+}

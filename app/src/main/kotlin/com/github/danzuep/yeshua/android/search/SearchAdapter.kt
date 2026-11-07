@@ -1,0 +1,237 @@
+/*
+ * Copyright (C) 2023 Xizhi Zhu
+ * Copyright (C) 2026 eBible
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.danzuep.yeshua.android.search
+
+import android.text.SpannableStringBuilder
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.annotation.ColorInt
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.DiffUtil
+import androidx.viewbinding.ViewBinding
+import com.github.danzuep.yeshua.android.R
+import com.github.danzuep.yeshua.android.core.Settings
+import com.github.danzuep.yeshua.android.core.VerseIndex
+import com.github.danzuep.yeshua.android.databinding.ItemSearchBookLinkBinding
+import com.github.danzuep.yeshua.android.databinding.ItemSearchNoteBinding
+import com.github.danzuep.yeshua.android.databinding.ItemSearchVerseBinding
+import com.github.danzuep.yeshua.android.databinding.ItemTitleBinding
+import com.github.danzuep.yeshua.android.ui.append
+import com.github.danzuep.yeshua.android.ui.createHighlightSpans
+import com.github.danzuep.yeshua.android.ui.createTitleSpans
+import com.github.danzuep.yeshua.android.ui.createTitleStyleSpan
+import com.github.danzuep.yeshua.android.ui.recyclerview.VerticalRecyclerViewAdapter
+import com.github.danzuep.yeshua.android.ui.recyclerview.VerticalRecyclerViewHolder
+import com.github.danzuep.yeshua.android.ui.recyclerview.VerticalRecyclerViewItem
+import com.github.danzuep.yeshua.android.ui.setPrimaryTextSize
+import com.github.danzuep.yeshua.android.ui.setSecondaryTextSize
+import com.github.danzuep.yeshua.android.ui.setSpan
+import com.github.danzuep.yeshua.android.ui.setSpans
+import com.github.danzuep.yeshua.android.ui.toCharSequence
+import java.util.concurrent.Executor
+
+class SearchAdapter(
+    private val inflater: LayoutInflater,
+    executor: Executor,
+    private val onViewEvent: (ViewEvent) -> Unit,
+) : VerticalRecyclerViewAdapter<SearchItem, SearchViewHolder<SearchItem, *>>(SearchItem.DiffCallback(), executor) {
+    sealed class ViewEvent {
+        data class OpenVerse(val verseToOpen: VerseIndex) : ViewEvent()
+        data class OpenBook(val bookIndex: Int) : ViewEvent()
+        data class ShowPreview(val verseToPreview: VerseIndex) : ViewEvent()
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder<SearchItem, *> = when (viewType) {
+        SearchItem.Header.VIEW_TYPE -> SearchViewHolder.Header(inflater, parent)
+        SearchItem.BookLink.VIEW_TYPE -> SearchViewHolder.BookLink(inflater, parent, onViewEvent)
+        SearchItem.Note.VIEW_TYPE -> SearchViewHolder.Note(inflater, parent, onViewEvent)
+        SearchItem.Verse.VIEW_TYPE -> SearchViewHolder.Verse(inflater, parent, onViewEvent)
+        else -> throw IllegalStateException("Unknown view type - $viewType")
+    } as SearchViewHolder<SearchItem, *>
+}
+
+sealed class SearchItem(viewType: Int) : VerticalRecyclerViewItem(viewType) {
+    class DiffCallback : DiffUtil.ItemCallback<SearchItem>() {
+        override fun areItemsTheSame(oldItem: SearchItem, newItem: SearchItem): Boolean = when {
+            oldItem is Header && newItem is Header -> oldItem.text == newItem.text
+            oldItem is BookLink && newItem is BookLink -> oldItem.bookIndex == newItem.bookIndex
+            oldItem is Note && newItem is Note -> oldItem.verseIndex == newItem.verseIndex
+            oldItem is Verse && newItem is Verse -> oldItem.verseIndex == newItem.verseIndex
+            else -> false
+        }
+
+        override fun areContentsTheSame(oldItem: SearchItem, newItem: SearchItem): Boolean = oldItem == newItem
+    }
+
+    data class Header(
+        val settings: Settings,
+        val text: String,
+    ) : SearchItem(VIEW_TYPE) {
+        companion object {
+            @JvmField val VIEW_TYPE = R.layout.item_title
+        }
+    }
+
+    data class BookLink(
+        val settings: Settings,
+        val bookIndex: Int,
+        val bookName: String,
+    ) : SearchItem(VIEW_TYPE) {
+        companion object {
+            @JvmField val VIEW_TYPE = R.layout.item_search_book_link
+        }
+    }
+
+    data class Note(
+        val settings: Settings,
+        val verseIndex: VerseIndex,
+        private val bookShortName: String,
+        private val verseText: String,
+        private val query: String,
+        private val note: String,
+    ) : SearchItem(VIEW_TYPE) {
+        companion object {
+            @JvmField val VIEW_TYPE = R.layout.item_search_note
+
+            private val BOOK_NAME_SPAN = createTitleStyleSpan()
+        }
+
+        val verseForDisplay: CharSequence by lazy(LazyThreadSafetyMode.NONE) {
+            // format:
+            // <book short name> <chapter index>:<verse index> <verse text>
+            return@lazy SpannableStringBuilder()
+                .append(bookShortName).append(' ')
+                .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                .setSpan(BOOK_NAME_SPAN)
+                .append(' ').append(verseText)
+                .toCharSequence()
+        }
+
+        val noteForDisplay: CharSequence by lazy(LazyThreadSafetyMode.NONE) {
+            SpannableStringBuilder().append(note)
+                .highlightKeyword(query, 0) // highlights the keywords
+                .toCharSequence()
+        }
+    }
+
+    data class Verse(
+        val settings: Settings,
+        val verseIndex: VerseIndex,
+        private val bookShortName: String,
+        private val verseText: String,
+        private val query: String,
+        @ColorInt private val highlightColor: Int,
+    ) : SearchItem(VIEW_TYPE) {
+        companion object {
+            @JvmField val VIEW_TYPE = R.layout.item_search_verse
+
+            private val BOOK_NAME_SPAN = createTitleSpans()
+        }
+
+        val textForDisplay: CharSequence by lazy(LazyThreadSafetyMode.NONE) {
+            // format:
+            // <short book name> <chapter verseIndex>:<verse verseIndex>
+            // <verse text>
+            val builder = SpannableStringBuilder()
+                .append(bookShortName)
+                .append(' ')
+                .append(verseIndex.chapterIndex + 1).append(':').append(verseIndex.verseIndex + 1)
+                .setSpans(BOOK_NAME_SPAN)
+                .append('\n')
+                .append(verseText)
+
+            // highlights the keywords
+            builder.highlightKeyword(query, builder.length - verseText.length)
+
+            // highlights the verse
+            builder.setSpans(
+                createHighlightSpans(highlightColor), builder.length - verseText.length, builder.length
+            )
+
+            return@lazy builder.toCharSequence()
+        }
+    }
+}
+
+sealed class SearchViewHolder<Item : SearchItem, VB : ViewBinding>(viewBinding: VB) : VerticalRecyclerViewHolder<Item, VB>(viewBinding) {
+    class Header(inflater: LayoutInflater, parent: ViewGroup)
+        : SearchViewHolder<SearchItem.Header, ItemTitleBinding>(ItemTitleBinding.inflate(inflater, parent, false)) {
+        init {
+            viewBinding.divider.isVisible = true
+        }
+
+        override fun bind(item: SearchItem.Header, payloads: List<Any>) = with(viewBinding.title) {
+            setSecondaryTextSize(item.settings)
+            text = item.text
+        }
+    }
+
+    class BookLink(inflater: LayoutInflater, parent: ViewGroup, onViewEvent: (SearchAdapter.ViewEvent) -> Unit)
+        : SearchViewHolder<SearchItem.BookLink, ItemSearchBookLinkBinding>(ItemSearchBookLinkBinding.inflate(inflater, parent, false)) {
+        init {
+            itemView.setOnClickListener {
+                item?.let { onViewEvent(SearchAdapter.ViewEvent.OpenBook(it.bookIndex)) }
+            }
+        }
+
+        override fun bind(item: SearchItem.BookLink, payloads: List<Any>) = with(viewBinding.root) {
+            setPrimaryTextSize(item.settings)
+            text = "\u2192 ${item.bookName}"
+        }
+    }
+
+    class Note(inflater: LayoutInflater, parent: ViewGroup, onViewEvent: (SearchAdapter.ViewEvent) -> Unit)
+        : SearchViewHolder<SearchItem.Note, ItemSearchNoteBinding>(ItemSearchNoteBinding.inflate(inflater, parent, false)) {
+        init {
+            itemView.setOnClickListener {
+                item?.let { onViewEvent(SearchAdapter.ViewEvent.OpenVerse(it.verseIndex)) }
+            }
+            itemView.setOnLongClickListener {
+                item?.let { onViewEvent(SearchAdapter.ViewEvent.ShowPreview(it.verseIndex)) }
+                true
+            }
+        }
+
+        override fun bind(item: SearchItem.Note, payloads: List<Any>) = with(viewBinding) {
+            verse.setSecondaryTextSize(item.settings)
+            verse.text = item.verseForDisplay
+
+            note.setPrimaryTextSize(item.settings)
+            note.text = item.noteForDisplay
+        }
+    }
+
+    class Verse(inflater: LayoutInflater, parent: ViewGroup, onViewEvent: (SearchAdapter.ViewEvent) -> Unit)
+        : SearchViewHolder<SearchItem.Verse, ItemSearchVerseBinding>(ItemSearchVerseBinding.inflate(inflater, parent, false)) {
+        init {
+            itemView.setOnClickListener {
+                item?.let { onViewEvent(SearchAdapter.ViewEvent.OpenVerse(it.verseIndex)) }
+            }
+            itemView.setOnLongClickListener {
+                item?.let { onViewEvent(SearchAdapter.ViewEvent.ShowPreview(it.verseIndex)) }
+                true
+            }
+        }
+
+        override fun bind(item: SearchItem.Verse, payloads: List<Any>) = with(viewBinding.root) {
+            setPrimaryTextSize(item.settings)
+            text = item.textForDisplay
+        }
+    }
+}

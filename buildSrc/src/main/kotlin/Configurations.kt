@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
 import org.gradle.api.JavaVersion
 
 object Configurations {
-    const val applicationId = "org.ebible.android.bible"
+    const val applicationId = "com.github.danzuep.yeshua.android"
     val supportedLocales = listOf("en")
 }
 

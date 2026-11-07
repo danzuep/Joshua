@@ -1,0 +1,234 @@
+/*
+ * Copyright (C) 2023 Xizhi Zhu
+ * Copyright (C) 2026 eBible
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.github.danzuep.yeshua.android.search
+
+import android.content.Context
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
+import androidx.test.core.app.ApplicationProvider
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+import com.github.danzuep.yeshua.android.R
+import com.github.danzuep.yeshua.android.tests.BaseUnitTest
+import com.github.danzuep.yeshua.android.tests.getProperty
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@RunWith(RobolectricTestRunner::class)
+class SearchToolbarTest : BaseUnitTest() {
+    private lateinit var searchToolbar: SearchToolbar
+
+    @BeforeTest
+    override fun setup() {
+        super.setup()
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.setTheme(R.style.AppTheme)
+        searchToolbar = SearchToolbar(context)
+    }
+
+    @Test
+    fun `test initialize()`() {
+        var onSearchByReferenceChangedCalled = 0
+        var onIncludeOldTestamentChangedCalled = 0
+        var onIncludeNewTestamentChangedCalled = 0
+        var onIncludeBookmarksChangedCalled = 0
+        var onIncludeHighlightsChangedCalled = 0
+        var onIncludeNotesChangedCalled = 0
+        var onWholeWordsChangedCalled = 0
+        var clearHistoryCalled = 0
+
+        val queryTextListener = object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String): Boolean {
+                return true
+            }
+        }
+        searchToolbar.initialize(
+            onSearchByReferenceChanged = {
+                assertTrue(it)
+                onSearchByReferenceChangedCalled++
+            },
+            onIncludeOldTestamentChanged = {
+                assertTrue(it)
+                onIncludeOldTestamentChangedCalled++
+            },
+            onIncludeNewTestamentChanged = {
+                assertTrue(it)
+                onIncludeNewTestamentChangedCalled++
+            },
+            onIncludeBookmarksChanged = {
+                assertTrue(it)
+                onIncludeBookmarksChangedCalled++
+            },
+            onIncludeHighlightsChanged = {
+                assertTrue(it)
+                onIncludeHighlightsChangedCalled++
+            },
+            onIncludeNotesChanged = {
+                assertTrue(it)
+                onIncludeNotesChangedCalled++
+            },
+            onWholeWordsChanged = {
+                assertTrue(it)
+                onWholeWordsChangedCalled++
+            },
+            onQueryTextListener = queryTextListener,
+            clearHistory = { clearHistoryCalled++ },
+        )
+
+        assertEquals(
+            queryTextListener,
+            searchToolbar.searchView.getProperty<SearchView, SearchView.OnQueryTextListener>("mOnQueryChangeListener")
+        )
+
+        val onMenuItemClickListener: Toolbar.OnMenuItemClickListener = (searchToolbar as Toolbar).getProperty("mOnMenuItemClickListener")
+        assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_search_by_reference)))
+        assertEquals(1, onSearchByReferenceChangedCalled)
+        assertEquals(0, onIncludeOldTestamentChangedCalled)
+
+        assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_search_include_old_testament)))
+        assertEquals(1, onSearchByReferenceChangedCalled)
+        assertEquals(1, onIncludeOldTestamentChangedCalled)
+        assertEquals(0, onIncludeNewTestamentChangedCalled)
+        assertEquals(0, onIncludeBookmarksChangedCalled)
+        assertEquals(0, onIncludeHighlightsChangedCalled)
+        assertEquals(0, onIncludeNotesChangedCalled)
+        assertEquals(0, clearHistoryCalled)
+
+        assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_search_include_new_testament)))
+        assertEquals(1, onIncludeOldTestamentChangedCalled)
+        assertEquals(1, onIncludeNewTestamentChangedCalled)
+        assertEquals(0, onIncludeBookmarksChangedCalled)
+        assertEquals(0, onIncludeHighlightsChangedCalled)
+        assertEquals(0, onIncludeNotesChangedCalled)
+        assertEquals(0, clearHistoryCalled)
+
+        assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_search_include_bookmarks)))
+        assertEquals(1, onIncludeOldTestamentChangedCalled)
+        assertEquals(1, onIncludeNewTestamentChangedCalled)
+        assertEquals(1, onIncludeBookmarksChangedCalled)
+        assertEquals(0, onIncludeHighlightsChangedCalled)
+        assertEquals(0, onIncludeNotesChangedCalled)
+        assertEquals(0, clearHistoryCalled)
+
+        assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_search_include_highlights)))
+        assertEquals(1, onIncludeOldTestamentChangedCalled)
+        assertEquals(1, onIncludeNewTestamentChangedCalled)
+        assertEquals(1, onIncludeBookmarksChangedCalled)
+        assertEquals(1, onIncludeHighlightsChangedCalled)
+        assertEquals(0, onIncludeNotesChangedCalled)
+        assertEquals(0, clearHistoryCalled)
+
+        assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_search_include_notes)))
+        assertEquals(1, onIncludeOldTestamentChangedCalled)
+        assertEquals(1, onIncludeNewTestamentChangedCalled)
+        assertEquals(1, onIncludeBookmarksChangedCalled)
+        assertEquals(1, onIncludeHighlightsChangedCalled)
+        assertEquals(1, onIncludeNotesChangedCalled)
+        assertEquals(0, onWholeWordsChangedCalled)
+        assertEquals(0, clearHistoryCalled)
+
+        assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_search_whole_words)))
+        assertEquals(1, onWholeWordsChangedCalled)
+
+        assertTrue(onMenuItemClickListener.onMenuItemClick(searchToolbar.menu.findItem(R.id.action_clear_search_history)))
+        assertEquals(1, onIncludeOldTestamentChangedCalled)
+        assertEquals(1, onIncludeNewTestamentChangedCalled)
+        assertEquals(1, onIncludeBookmarksChangedCalled)
+        assertEquals(1, onIncludeHighlightsChangedCalled)
+        assertEquals(1, onIncludeNotesChangedCalled)
+        assertEquals(1, clearHistoryCalled)
+    }
+
+    @Test
+    fun `test setSearchConfiguration()`() {
+        searchToolbar.setSearchConfiguration(
+            searchByReference = true,
+            includeOldTestament = true,
+            includeNewTestament = true,
+            includeBookmarks = true,
+            includeHighlights = true,
+            includeNotes = true,
+            wholeWords = true,
+        )
+        assertTrue(searchToolbar.menu.findItem(R.id.action_search_by_reference).isChecked)
+        assertTrue(searchToolbar.menu.findItem(R.id.action_search_include_old_testament).isChecked)
+        assertTrue(searchToolbar.menu.findItem(R.id.action_search_include_new_testament).isChecked)
+        assertTrue(searchToolbar.menu.findItem(R.id.action_search_include_bookmarks).isChecked)
+        assertTrue(searchToolbar.menu.findItem(R.id.action_search_include_highlights).isChecked)
+        assertTrue(searchToolbar.menu.findItem(R.id.action_search_include_notes).isChecked)
+        assertTrue(searchToolbar.menu.findItem(R.id.action_search_whole_words).isChecked)
+
+        searchToolbar.setSearchConfiguration(
+            searchByReference = false,
+            includeOldTestament = false,
+            includeNewTestament = false,
+            includeBookmarks = false,
+            includeHighlights = false,
+            includeNotes = false,
+            wholeWords = false,
+        )
+        assertFalse(searchToolbar.menu.findItem(R.id.action_search_by_reference).isChecked)
+        assertFalse(searchToolbar.menu.findItem(R.id.action_search_include_old_testament).isChecked)
+        assertFalse(searchToolbar.menu.findItem(R.id.action_search_include_new_testament).isChecked)
+        assertFalse(searchToolbar.menu.findItem(R.id.action_search_include_bookmarks).isChecked)
+        assertFalse(searchToolbar.menu.findItem(R.id.action_search_include_highlights).isChecked)
+        assertFalse(searchToolbar.menu.findItem(R.id.action_search_include_notes).isChecked)
+        assertFalse(searchToolbar.menu.findItem(R.id.action_search_whole_words).isChecked)
+    }
+
+    @Test
+    fun `test setQuery() does not submit the query`() {
+        val submitted = mutableListOf<String>()
+        val changed = mutableListOf<String>()
+        searchToolbar.initialize(
+            onSearchByReferenceChanged = {},
+            onIncludeOldTestamentChanged = {},
+            onIncludeNewTestamentChanged = {},
+            onIncludeBookmarksChanged = {},
+            onIncludeHighlightsChanged = {},
+            onIncludeNotesChanged = {},
+            onWholeWordsChanged = {},
+            onQueryTextListener = object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    submitted.add(query)
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String): Boolean {
+                    changed.add(newText)
+                    return true
+                }
+            },
+            clearHistory = {},
+        )
+
+        searchToolbar.setQuery("jhn1")
+
+        // A submit would make SearchView relaunch SearchActivity with ACTION_SEARCH, which calls setQuery() again, forever.
+        assertTrue(submitted.isEmpty())
+        assertEquals(listOf("jhn1"), changed)
+    }
+}
